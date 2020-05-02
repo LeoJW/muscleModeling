@@ -3,4 +3,5 @@ clear vars; close all;
 
 
 %THIS IS WHERE CODE WILL GO, PROBABLY
-x = 1
+x = 1;
+y = x + 1;

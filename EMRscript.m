@@ -32,12 +32,12 @@ ab = dot(humerus_elbow, elbow_wrist, 2);
 mag_a = vecnorm(humerus_elbow,2,2);
 mag_b = vecnorm(elbow_wrist,2,2);
 
-theta_elbow = acos(ab./(mag_a.*mag_b))*180/pi
+theta_elbow = acos(ab./(mag_a.*mag_b))*180/pi;
 
-bc = dot(elbow_wrist, wrist_cmc, 2)
-mag_c = vecnorm(wrist_cmc,2,2)
+bc = dot(elbow_wrist, wrist_cmc, 2);
+mag_c = vecnorm(wrist_cmc,2,2);
 
-theta_wrist = acos(bc./(mag_b.*mag_c))*180/pi
+theta_wrist = acos(bc./(mag_b.*mag_c))*180/pi;
 
 % Testing calculation of angle from two simple vectors
 p = [1,2,3];

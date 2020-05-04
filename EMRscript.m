@@ -14,51 +14,32 @@ FLactFunc = @(c,x) exp(-(((x-c(2))-1)./c(1)).^2);
 
 %% Load data
 
-kinematicsData = readtable("2019_07_02_Tae_gut_allFlights.csv");
-
-% Assign variables for coordinates of each point
-humerus_x = kinematicsData.humerus_x;
-humerus_y = kinematicsData.humerus_y;
-humerus_z = kinematicsData.humerus_z;
-elbow_x = kinematicsData.elbow_x;
-elbow_y = kinematicsData.elbow_y;
-elbow_z = kinematicsData.elbow_z;
-wrist_x = kinematicsData.wrist_x;
-wrist_y = kinematicsData.wrist_y;
-wrist_z = kinematicsData.wrist_z;
-cmc_x = kinematicsData.cmc_x;
-cmc_y = kinematicsData.cmc_y;
-cmc_z = kinematicsData.cmc_z;
+kineData = readtable("2019_07_02_Tae_gut_allFlights.csv");
 
 % Create n*3 matrices for each point
-humerus = [humerus_x, humerus_y, humerus_z];
-elbow = [elbow_x, elbow_y, elbow_z];
-wrist = [wrist_x, wrist_y, wrist_z];
-cmc = [cmc_x, cmc_y, cmc_z];
+humerus = [kineData.humerus_x, kineData.humerus_y, kineData.humerus_z];
+elbow = [kineData.elbow_x, kineData.elbow_y, kineData.elbow_z];
+wrist = [kineData.wrist_x, kineData.wrist_y, kineData.wrist_z];
+cmc = [kineData.cmc_x, kineData.cmc_y, kineData.cmc_z];
 
 % Create vectors for distances between points
-humerus_elbow_x = humerus_x - elbow_x;
-humerus_elbow_y = humerus_y - elbow_y;
-humerus_elbow_z = humerus_z - elbow_z;
-
-humerus_elbow = [humerus_elbow_x, humerus_elbow_y, humerus_elbow_z];
-
-elbow_wrist_x = elbow_x - wrist_x;
-elbow_wrist_y = elbow_y - wrist_y;
-elbow_wrist_z = elbow_z - wrist_z;
-
-elbow_wrist = [elbow_wrist_x, elbow_wrist_y, elbow_wrist_z];
+humerus_elbow = humerus-elbow;
+elbow_wrist = elbow-wrist;
+wrist_cmc = wrist-cmc;
 
 % Calculate angle between two vectors
-ab = dot(humerus_elbow, elbow_wrist);
-mag_a = sqrt((humerus_elbow_x).^2 + (humerus_elbow_y).^2 + (humerus_elbow_z).^2);
-mag_b = sqrt((elbow_wrist_x).^2 + (elbow_wrist_y).^2 + (elbow_wrist_z).^2);
+ab = dot(humerus_elbow, elbow_wrist, 2);
+mag_a = vecnorm(humerus_elbow,2,2);
+mag_b = vecnorm(elbow_wrist,2,2);
 
-cosTheta_elbow = ab./(mag_a.*mag_b);
-Theta_elbow = acos(cosTheta_elbow);
+theta_elbow = acos(ab./(mag_a.*mag_b))*180/pi
+
+bc = dot(elbow_wrist, wrist_cmc, 2)
+mag_c = vecnorm(wrist_cmc,2,2)
+
+theta_wrist = acos(bc./(mag_b.*mag_c))*180/pi
 
 % Testing calculation of angle from two simple vectors
-
 p = [1,2,3];
 q = [4,5,6];
 

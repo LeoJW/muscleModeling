@@ -3,7 +3,7 @@ FLactFunc = @(c,x) exp(-(((x-c(2))-1)./c(1)).^2);
 
 %% Variables
 t = linspace(0,100,10e3);
-w = 2; % frequency in rad/s
+w = 5; % frequency in rad/s
 A = 1; % amplitude of x
 x = A.*sin(w.*t) + 1;
 v = A.*w.*cos(w*t);
@@ -50,7 +50,7 @@ hold off;
 
 % Vector of zeros except one chunk which is 1s
 u = zeros(1,10e3);
-u(200:250) = 1;
+u(300:350) = 1;
 plot(u)
 xlim([0 3000])
 ylim([0 1.2])

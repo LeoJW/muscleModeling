@@ -3,9 +3,10 @@ FLactFunc = @(c,x) exp(-(((x-c(2))-1)./c(1)).^2);
 
 %% Variables
 t = linspace(0,100,10e3);
-w = 5; % frequency in rad/s
-x = 1.*sin(w.*t);
-v = 1.*w.*cos(w*t);
+w = 2; % frequency in rad/s
+A = 1; % amplitude of x
+x = A.*sin(w.*t) + 1;
+v = A.*w.*cos(w*t);
 
 %% Lu et al. (2011)
 % Rabbit hind leg tibialis anterior

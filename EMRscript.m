@@ -49,8 +49,6 @@ mag_q = sqrt(4.^2 + 5.^2 + 6.^2);
 
 cosTheta = pq./(mag_p.*mag_q);
 Theta = acos(cosTheta); % Theta in radians
-% It works here so there must be something funny going on in my
-% humerus_elbow and elbow_wrist vectors
 
 
 %% Define Hill model and fit constants

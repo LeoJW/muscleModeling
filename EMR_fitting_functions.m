@@ -82,11 +82,14 @@ Fm = 18.*(Ff + FLpas_lu);
 plot(x,Fm)
 xlim([0 1])
 
-plot(v,Fm)
+plot(v,Fm) % This one looks weird?
 
-subplot(3,2,1), plot(u), subplot(3,2,2), plot(blep), subplot(3,2,3),
-plot(x), subplot(3,2,4), plot(v), subplot(3,2,5), plot(x,Fm),
-subplot(3,2,6), plot(v,Fm)
+subplot(3,2,1), plot(u), xlabel("Time"), ylabel("Neural Excitation")
+subplot(3,2,2), plot(blep), xlabel("Time"), ylabel("Activation")
+subplot(3,2,3), plot(x), xlabel("Time"), ylabel("Length")
+subplot(3,2,4), plot(v), xlabel("Time"), ylabel("Velocity")
+subplot(3,2,5), plot(x,Fm), xlabel("Length"), ylabel("Normalized Force")
+subplot(3,2,6), plot(v,Fm), xlabel("Velocity"), ylabel("Normalized Force")
 
 %% More functions
 

@@ -3,10 +3,14 @@ FLactFunc = @(c,x) exp(-(((x-c(2))-1)./c(1)).^2);
 
 %% Variables
 t = linspace(0,100,10e3);
-w = 5; % frequency in rad/s
-A = 1; % amplitude of x
-x = A.*sin(w.*t) + 1;
+w = 4; % frequency in rad/s
+A = 0.5; % amplitude of x
+x = A.*sin(w.*t) + 0.5;
 v = A.*w.*cos(w*t);
+plot(t,x)
+hold on;
+plot(t,v)
+hold off;
 
 %% Lu et al. (2011)
 % Rabbit hind leg tibialis anterior
@@ -50,7 +54,7 @@ hold off;
 
 % Vector of zeros except one chunk which is 1s
 u = zeros(1,10e3);
-u(300:350) = 1;
+u(300:380) = 1;
 plot(u)
 xlim([0 3000])
 ylim([0 1.2])

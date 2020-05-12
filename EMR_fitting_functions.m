@@ -2,8 +2,11 @@
 FLactFunc = @(c,x) exp(-(((x-c(2))-1)./c(1)).^2);
 
 %% Variables
-t = linspace(0,100,10e3); % time in seconds? ms?
-w = 4; % frequency in rad/s
+hz = 1000; % sample rate in samples/s
+nsamp = linspace(0,1000,10e3); % number of samples
+% If t is defined as linspace(0,100,10e3), work loops look normal
+t = nsamp./hz; % time in seconds? ms?
+w = 50; % cycle frequency in rad/s
 A = 0.5; % amplitude of x
 x = A.*sin(w.*t) + 0.5; % L/Lopt
 v = A.*w.*cos(w*t); % Lengths/sec
@@ -13,6 +16,8 @@ cmax = 1.8; % asymptote as v approaches -inf
 vmax = 1; % maximum velocity, normalized stretch rate?
 k = 0.29; % from Biewener et al. (2014)
 curv = 1; % overall curvature of FV
+
+d = 50; % activation delay, in ms
 
 %% Lu et al. (2011)
 % Rabbit hind leg tibialis anterior
@@ -53,22 +58,22 @@ hold off;
 
 %% Vectors for dummy work loops
 
-% Vector of zeros except one chunk which is 1s
+% Neural excitation, vector of zeros except one chunk which is 1s
 u = zeros(1,10e3);
-u(300:380) = 1;
+u(300:700) = 1;
 plot(u)
 xlim([0 3000])
 ylim([0 1.2])
 hold on;
 
 %% Activation function
-actvn = activationODE2(u,50,-0.993,-0.993);
+actvn = activationODE2(u,d,-0.993,-0.993);
 plot(actvn)
 hold off;
 
 %% Hill function
 
-FLtot = Fmax.*(FLact_lu + FLpas_lu); % Total FL(l)?
+FLtot = Fmax.*(FLact_lu + FLpas_lu);
 plot(x,FLtot)
 xlim([0 2])
 ylim([0 80])
@@ -80,7 +85,7 @@ ylim([0 80])
 Ff = actvn.*FLact_lu.*FV_lu;
 plot(x,Ff)
 
-% Whole muscle force is Fmax[Ff + Fp(l)]
+% Whole muscle force, Fm = Fmax[Ff + Fp(l)]cos(theta) from Biewener (2014)
 % No need to consider pennation angle; EMR is parallel
 
 Fm = Fmax.*(Ff + FLpas_lu);
@@ -89,10 +94,10 @@ xlim([0 1])
 
 plot(v,Fm) % This one looks weird?
 
-subplot(3,2,1), plot(u), xlabel("Time"), ylabel("Neural Excitation")
-subplot(3,2,2), plot(actvn), xlabel("Time"), ylabel("Activation")
-subplot(3,2,3), plot(x), xlabel("Time"), ylabel("Length")
-subplot(3,2,4), plot(v), xlabel("Time"), ylabel("Velocity")
+subplot(3,2,1), plot(t,u), xlabel("Time"), ylabel("Neural Excitation")
+subplot(3,2,2), plot(t,actvn), xlabel("Time"), ylabel("Activation")
+subplot(3,2,3), plot(t,x), xlabel("Time"), ylabel("Length")
+subplot(3,2,4), plot(t,v), xlabel("Time"), ylabel("Velocity")
 subplot(3,2,5), plot(x,Fm), xlabel("Length"), ylabel("Normalized Force")
 subplot(3,2,6), plot(v,Fm), xlabel("Velocity"), ylabel("Normalized Force")
 

@@ -2,11 +2,11 @@
 FLactFunc = @(c,x) exp(-(((x-c(2))-1)./c(1)).^2);
 
 %% Variables
-hz = 1000; % sample rate in samples/s
+hz = 500; % sample rate in samples/s
 nsamp = linspace(0,1000,10e3); % number of samples
 % If t is defined as linspace(0,100,10e3), work loops look normal
-t = nsamp./hz; % time in seconds? ms?
-w = 50; % cycle frequency in rad/s
+t = nsamp./hz; % time in seconds
+w = 8.6; % cycle frequency in rad/s
 A = 0.5; % amplitude of x
 x = A.*sin(w.*t) + 0.5; % L/Lopt
 v = A.*w.*cos(w*t); % Lengths/sec
@@ -94,10 +94,10 @@ xlim([0 1])
 
 plot(v,Fm) % This one looks weird?
 
-subplot(3,2,1), plot(t,u), xlabel("Time"), ylabel("Neural Excitation")
-subplot(3,2,2), plot(t,actvn), xlabel("Time"), ylabel("Activation")
-subplot(3,2,3), plot(t,x), xlabel("Time"), ylabel("Length")
-subplot(3,2,4), plot(t,v), xlabel("Time"), ylabel("Velocity")
+subplot(3,2,1), plot(t,u), xlabel("Time (s)"), ylabel("Neural Excitation")
+subplot(3,2,2), plot(t,actvn), xlabel("Time (s)"), ylabel("Activation")
+subplot(3,2,3), plot(t,x), xlabel("Time (s)"), ylabel("Length")
+subplot(3,2,4), plot(t,v), xlabel("Time (s)"), ylabel("Velocity")
 subplot(3,2,5), plot(x,Fm), xlabel("Length"), ylabel("Normalized Force")
 subplot(3,2,6), plot(v,Fm), xlabel("Velocity"), ylabel("Normalized Force")
 

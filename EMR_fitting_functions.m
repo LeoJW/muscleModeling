@@ -13,7 +13,7 @@ v = A.*w.*cos(w*t); % Lengths/sec
 
 Fmax = 18; % maximum force in N
 cmax = 1.8; % asymptote as v approaches -inf
-vmax = 1; % maximum velocity, normalized stretch rate?
+vmax = 10; % maximum velocity within range Wakeling (2012), Josephson (1993)
 k = 0.29; % from Biewener et al. (2014)
 curv = 1; % overall curvature of FV
 

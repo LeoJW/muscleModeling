@@ -11,7 +11,7 @@ A = 0.5; % amplitude of x
 x = A.*sin(w.*t) + 0.5; % L/Lopt
 v = A.*w.*cos(w*t); % Lengths/sec
 
-Fmax = 18; % maximum force in N
+Fmax = 1; % maximum force in N
 cmax = 1.8; % asymptote as v approaches -inf
 vmax = 10; % maximum velocity within range Wakeling (2012), Josephson (1993)
 k = 0.29; % from Biewener et al. (2014)
@@ -60,7 +60,7 @@ hold off;
 
 % Neural excitation, vector of zeros except one chunk which is 1s
 u = zeros(1,10e3);
-u(300:700) = 1;
+u(300:800) = 1;
 plot(u)
 xlim([0 3000])
 ylim([0 1.2])
@@ -96,10 +96,21 @@ plot(v,Fm) % This one looks weird?
 
 subplot(3,2,1), plot(t,u), xlabel("Time (s)"), ylabel("Neural Excitation")
 subplot(3,2,2), plot(t,actvn), xlabel("Time (s)"), ylabel("Activation")
-subplot(3,2,3), plot(t,x), xlabel("Time (s)"), ylabel("Length")
-subplot(3,2,4), plot(t,v), xlabel("Time (s)"), ylabel("Velocity")
+subplot(3,2,3), plot(t,x), xlabel("Time (s)"), ylabel("Normalized Length")
+subplot(3,2,4), plot(t,v), xlabel("Time (s)"), ylabel("Normalized Velocity")
 subplot(3,2,5), plot(x,Fm), xlabel("Length"), ylabel("Normalized Force")
 subplot(3,2,6), plot(v,Fm), xlabel("Velocity"), ylabel("Normalized Force")
+
+%% Calculating work and power
+
+% Work = Force * distance, area inside work loop
+% Could be area under contraction portion minus area under lengthening
+% portion, if specify period of t
+
+wrk = trapz(x,Fm.*sign(v)); % area under curve w/ neg vs pos velocity
+pwr_ist = Fm.*v
+
+
 
 %% More functions
 

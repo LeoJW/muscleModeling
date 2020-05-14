@@ -92,7 +92,7 @@ Fm = Fmax.*(Ff + FLpas_lu);
 plot(x,Fm)
 xlim([0 1])
 
-plot(v,Fm) % This one looks weird?
+plot(v,Fm)
 
 subplot(3,2,1), plot(t,u), xlabel("Time (s)"), ylabel("Neural Excitation")
 subplot(3,2,2), plot(t,actvn), xlabel("Time (s)"), ylabel("Activation")
@@ -107,10 +107,14 @@ subplot(3,2,6), plot(v,Fm), xlabel("Velocity"), ylabel("Normalized Force")
 % Could be area under contraction portion minus area under lengthening
 % portion, if specify period of t
 
-wrk = trapz(x,Fm.*sign(v)); % area under curve w/ neg vs pos velocity
-pwr_ist = Fm.*v
-
-
+wrk = trapz(x,Fm.*sign(v)); % work, area under curve w/ neg vs pos velocity
+pwr = Fm.*v; % instantaneous power
+subplot(3,2,1), plot(t,u), xlabel("Time (s)"), ylabel("Neural Excitation")
+subplot(3,2,2), plot(t,actvn), xlabel("Time (s)"), ylabel("Activation")
+subplot(3,2,3), plot(t,x), xlabel("Time (s)"), ylabel("Normalized Length")
+subplot(3,2,4), plot(t,v), xlabel("Time (s)"), ylabel("Normalized Velocity")
+subplot(3,2,5), plot(t,Fm), xlabel("Time (s)"), ylabel("Normalized Force")
+subplot(3,2,6), plot(t,pwr), xlabel("Time (s)"), ylabel("Power")
 
 %% More functions
 

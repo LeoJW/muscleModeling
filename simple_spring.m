@@ -3,22 +3,26 @@
 % Constants
 k = 0.5; % spring constant
 M = 5; % mass
-niter = 1000 % number of repeats in for loop
-xi = 2; % initial position
-vi = 5; % initial velocity
-ai = 8; % initial acceleration
-
-% Variables
-t = linspace(1,100,niter)
-x(t) = x(t-1) + v(t-1).*t;
-a(t) = (k./M).*x(t-1);
-v(t) = x(t-1) + a(t-1).*t;
+t(1) = 0; % start time
+x(1) = 2; % initial position
+v(1) = 0; % initial velocity
+dt = 1 % time step
 
 % Make loop for spring motion
 
-figure()
+niter = 1000
+t = zeros(1,niter+1);
+x = zeros(1,niter+1);
+v = zeros(1,niter+1);
+a = zeros(1,niter+1);
 
 for i = 1:niter
-    y1 = x(t);
-    plot(t,y1,'color',col(i,:));
+    t(i+1) = t(i) + dt;
+    a(i+1) = (k./M).*x(i);
+    v(i+1) = v(i) + a(i).*dt;
+    x(i+1) = x(i) + v(i).*dt;
 end
+
+plot(t,x)
+xlabel("Time")
+ylabel("Distance")

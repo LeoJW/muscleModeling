@@ -116,6 +116,7 @@ subplot(3,2,4), plot(t,v), xlabel("Time (s)"), ylabel("Normalized Velocity")
 subplot(3,2,5), plot(t,Fm), xlabel("Time (s)"), ylabel("Normalized Force")
 subplot(3,2,6), plot(t,pwr), xlabel("Time (s)"), ylabel("Power")
 
+
 %% More functions
 
 %Passive force-length curve function

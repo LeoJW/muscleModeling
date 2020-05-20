@@ -1,7 +1,11 @@
-%% Fit functions to data in literature
+%% EMR MTU Model
+
+%% Hill Model
+
+% FL active component function
 FLactFunc = @(c,x) exp(-(((x-c(2))-1)./c(1)).^2);
 
-%% Variables
+% Variables
 hz = 500; % sample rate in samples/s
 nsamp = linspace(0,1000,10e3); % number of samples
 % If t is defined as linspace(0,100,10e3), work loops look normal
@@ -19,23 +23,13 @@ curv = 1; % overall curvature of FV
 
 d = 50; % activation delay, in ms
 
-%% Lu et al. (2011)
-% Rabbit hind leg tibialis anterior
-% FL Length expressed as stretch ratio
-% FV using McMahon (1984) FV curve, velocity expressed as normalized
-% stretch rate. Model able to predict behaviour of rabbit TA.
-% Velocity expressed as normalized stretch rate
+% Lu et al. (2011)
 FV_lu = FV4param([k,curv,cmax,vmax],v);
 plot(v,FV_lu)
 xlim([-1 1])
 ylim([0 1.8])
 
-%% Winters et al. (2011) rabbit TA
-% TA fast twitch
-% Length expressed as %fibre length change
-% Force can be normalized as F/Fmax
-% Functions fit to curves given in paper
-
+% Winters et al. (2011) rabbit TA
 % FL passive component
 FLpas_win = FLpasFunc([20,1],x);
 plot(x,FLpas_win)
@@ -94,28 +88,48 @@ xlim([0 1])
 
 plot(v,Fm)
 
-subplot(3,2,1), plot(t,u), xlabel("Time (s)"), ylabel("Neural Excitation")
-subplot(3,2,2), plot(t,actvn), xlabel("Time (s)"), ylabel("Activation")
-subplot(3,2,3), plot(t,x), xlabel("Time (s)"), ylabel("Normalized Length")
-subplot(3,2,4), plot(t,v), xlabel("Time (s)"), ylabel("Normalized Velocity")
-subplot(3,2,5), plot(x,Fm), xlabel("Length"), ylabel("Normalized Force")
-subplot(3,2,6), plot(v,Fm), xlabel("Velocity"), ylabel("Normalized Force")
+%% Tendon Stuff
 
-%% Calculating work and power
+%Constants
+k = 5; % spring constant
+M = 5; % mass
+simTime = 10; %seconds
+dt = 0.1; % time step should be small: the smaller, the more accurate
+t2 = 0:dt:simTime; %<-Many ways to define time (e.g. as a linspace, or like this),
+%               but code will run faster when not saving/defining things in a loop
+niter = length(t2);
 
-% Work = Force * distance, area inside work loop
-% Could be area under contraction portion minus area under lengthening
-% portion, if specify period of t
+%Initial Conditions
+x0 = [2,0]; % muscle [position,velocity]
+l0 = [3,0]; % MTU [position,velocity]
 
-wrk = trapz(x,Fm.*sign(v)); % work, area under curve w/ neg vs pos velocity
-pwr = Fm.*v; % instantaneous power
-subplot(3,2,1), plot(t,u), xlabel("Time (s)"), ylabel("Neural Excitation")
-subplot(3,2,2), plot(t,actvn), xlabel("Time (s)"), ylabel("Activation")
-subplot(3,2,3), plot(t,x), xlabel("Time (s)"), ylabel("Normalized Length")
-subplot(3,2,4), plot(t,v), xlabel("Time (s)"), ylabel("Normalized Velocity")
-subplot(3,2,5), plot(t,Fm), xlabel("Time (s)"), ylabel("Normalized Force")
-subplot(3,2,6), plot(t,pwr), xlabel("Time (s)"), ylabel("Power")
+%Preallocate for loop
+xm = [x0(1), zeros(1,niter-1)]; % muscle length
+vm = [x0(2), zeros(1,niter-1)]; % muscle velocity
 
+lmt = [l0(1), zeros(1,niter-1)]; % MTU length
+vmt = [l0(2), zeros(1,niter-1)]; % MTU velocity
+
+at = [((k/M)*(l0(1)-x0(1)), zeros(1,niter-1)]; % tendon acceleration
+amt = [diff(vmt)./dt, zeros(1,niter-1)]; % MTU acceleration
+am = [k(amt-at), zeros(1,niter-1)]; % muscle acceleration
+
+Ft = [k(lmt-xm), zeros(1,niter-1)]; % tendon force, equal to Fm
+dFt = [k(vmt-vm), zeros(1,niter-1)]; % derivative of Ft or Fm
+d2Ft = [diff(dFt)./dt, zeros(1,niter-1)]; % second deriv of Ft or Fm
+
+for i = 2:niter
+    xm(i) = xm(i-1) + vm(i-1)*dt;
+    lmt(i) = lmt(i-1) + vmt(i-1)*dt;
+    vm(i) = vm(i-1) + am(i-1)*dt;
+    vmt(i) = vmt(i-1) + amt(i-1)*dt;
+    Ft(i) = Ft(i-1) + dFt(i-1);
+    dFt(i) = dFt(i-1) + d2Ft(i-1)*dt;
+end
+
+% Can I approximate dFt(i) this way?
+
+% Then need to calculate vmt(i) using vm(i) and dFt(i)
 
 %% More functions
 

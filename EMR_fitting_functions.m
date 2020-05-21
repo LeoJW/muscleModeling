@@ -67,7 +67,10 @@ ylim([0 1.2])
 hold on;
 
 %% Activation function
-actvn = activationODE2(u,d,-0.993,-0.993);
+gam1 = -0.993;
+gam2 = -0.993;
+
+actvn = activationODE2(u,d,gam1,gam2);
 plot(actvn)
 hold off;
 
@@ -116,11 +119,13 @@ subplot(3,2,4), plot(t,v), xlabel("Time (s)"), ylabel("Normalized Velocity")
 subplot(3,2,5), plot(t,Fm), xlabel("Time (s)"), ylabel("Normalized Force")
 subplot(3,2,6), plot(t,pwr), xlabel("Time (s)"), ylabel("Power")
 
+hilltest = hill([0.25,0],[4,1],x,v,actvn);
+plot(x,hilltest)
 
 %% More functions
 
 %Passive force-length curve function
-function [y] = FLpasFunc(c,x)
-    y = c(1).*(x-c(2)).^2;
-    y(x<c(2)) = 0;
+function [y] = FLpasFunc(p,x)
+    y = p(1).*(x-p(2)).^2;
+    y(x<p(2)) = 0;
 end

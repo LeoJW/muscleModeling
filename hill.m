@@ -40,8 +40,9 @@ FLactFunc = @(b,x) exp(-(((x-b(2))-1)./b(1)).^2); % FL active component
                 F(i) = (kl - cmax*v(i))/(kl-v(i));
             end
         end
+    end
 
-        function [a] = activationODE2(u,d,gam1,gam2); % Activation function
+    function [a] = activationODE2(u,d,gam1,gam2); % Activation function
             %d - delay time (assumed to be in ms)
             
             beta1 = gam1 + gam2;
@@ -55,6 +56,7 @@ FLactFunc = @(b,x) exp(-(((x-b(2))-1)./b(1)).^2); % FL active component
                 a(i) = alpha*u(i-d) - beta1*a(i-1) - beta2*a(i-2);
             end
             % a(a > 1) = 1;
+    end
 
 H = Fmax.*((FLactFunc.*F.*a) + y);
 end

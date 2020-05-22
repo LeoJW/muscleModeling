@@ -1,5 +1,7 @@
 %% Fit functions to data in literature
-FLactFunc = @(c,x) exp(-(((x-c(2))-1)./c(1)).^2);
+clear vars;
+
+FLactFunc = @(b,x) exp(-(((x-b(2))-1)./b(1)).^2);
 
 %% Variables
 hz = 500; % sample rate in samples/s
@@ -14,8 +16,8 @@ v = A.*w.*cos(w*t); % Lengths/sec
 Fmax = 1; % maximum force in N
 cmax = 1.8; % asymptote as v approaches -inf
 vmax = 10; % maximum velocity within range Wakeling (2012), Josephson (1993)
-k = 0.29; % from Biewener et al. (2014)
-curv = 1; % overall curvature of FV
+c1 = 0.29; % from Biewener et al. (2014)
+c2 = 1; % overall curvature of FV
 
 d = 50; % activation delay, in ms
 
@@ -25,7 +27,7 @@ d = 50; % activation delay, in ms
 % FV using McMahon (1984) FV curve, velocity expressed as normalized
 % stretch rate. Model able to predict behaviour of rabbit TA.
 % Velocity expressed as normalized stretch rate
-FV_lu = FV4param([k,curv,cmax,vmax],v);
+FV_lu = FV4param([c1,c2,cmax,vmax],v);
 plot(v,FV_lu)
 xlim([-1 1])
 ylim([0 1.8])
@@ -70,8 +72,8 @@ hold on;
 gam1 = -0.993;
 gam2 = -0.993;
 
-actvn = activationODE2(u,d,gam1,gam2);
-plot(actvn)
+a = activationODE2(u,d,gam1,gam2);
+plot(a)
 hold off;
 
 %% Hill function
@@ -85,7 +87,7 @@ ylim([0 80])
 % This is the active component of muscle fibre force
 % Plot against length?
 
-Ff = actvn.*FLact_lu.*FV_lu;
+Ff = a.*FLact_lu.*FV_lu;
 plot(x,Ff)
 
 % Whole muscle force, Fm = Fmax[Ff + Fp(l)]cos(theta) from Biewener (2014)
@@ -98,7 +100,7 @@ xlim([0 1])
 plot(v,Fm)
 
 subplot(3,2,1), plot(t,u), xlabel("Time (s)"), ylabel("Neural Excitation")
-subplot(3,2,2), plot(t,actvn), xlabel("Time (s)"), ylabel("Activation")
+subplot(3,2,2), plot(t,a), xlabel("Time (s)"), ylabel("Activation")
 subplot(3,2,3), plot(t,x), xlabel("Time (s)"), ylabel("Normalized Length")
 subplot(3,2,4), plot(t,v), xlabel("Time (s)"), ylabel("Normalized Velocity")
 subplot(3,2,5), plot(x,Fm), xlabel("Length"), ylabel("Normalized Force")
@@ -113,13 +115,36 @@ subplot(3,2,6), plot(v,Fm), xlabel("Velocity"), ylabel("Normalized Force")
 wrk = trapz(x,Fm.*sign(v)); % work, area under curve w/ neg vs pos velocity
 pwr = Fm.*v; % instantaneous power
 subplot(3,2,1), plot(t,u), xlabel("Time (s)"), ylabel("Neural Excitation")
-subplot(3,2,2), plot(t,actvn), xlabel("Time (s)"), ylabel("Activation")
+subplot(3,2,2), plot(t,a), xlabel("Time (s)"), ylabel("Activation")
 subplot(3,2,3), plot(t,x), xlabel("Time (s)"), ylabel("Normalized Length")
 subplot(3,2,4), plot(t,v), xlabel("Time (s)"), ylabel("Normalized Velocity")
 subplot(3,2,5), plot(t,Fm), xlabel("Time (s)"), ylabel("Normalized Force")
 subplot(3,2,6), plot(t,pwr), xlabel("Time (s)"), ylabel("Power")
 
-hilltest = hill([0.25,0],[4,1],x,v,actvn);
+%% Testing Hill function
+
+% Define variables
+
+b1 = 0.25; % FLact
+b2 = 0; % FLact
+p1 = 4; % FLpas
+p2 = 1; % FLpas
+c1 = 0.29; % FV curvature of contracting phase
+c2 = 1; % FV overall curvature
+cmax = 1.8; % FV asymptote as x approaches -inf
+vmax = 10; % FV
+% u defined earlier
+d = 50; % activation delay in msec
+gam1 = -0.993; % activation
+gam2 = -0.993; % activation
+Fmax = 1;
+
+a = activationODE2(u,d,gam1,gam2);
+
+% Vector of all Hill constants
+C = [b1,b2,p1,p2,c1,c2,cmax,vmax,u,d,gam1,gam2,Fmax];
+
+hilltest = hill(x,v,a,C);
 plot(x,hilltest)
 
 %% More functions

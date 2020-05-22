@@ -27,7 +27,9 @@ FLactFunc = @(b,x) exp(-(((x-b(2))-1)./b(1)).^2); % FL active component
 
 F = FV4param(fvc,v); % Force velocity curve
 
-a = activationODE2(u,d,gam1,gam2); % Activation function
+H = zeros(size(x));
 
-H = Fmax.*((FLactFunc.*F.*a) + y); % Hill model
+for i = 1:length(x)
+    H(i) = Fmax.*((FLactFunc(i-1).*F(i-1).*a(i-1)) + y(i-1));
+end
 end

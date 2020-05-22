@@ -16,6 +16,8 @@ gam1 = C(11);
 gam2 = C(12);
 Fmax = C(13);
 
+fvc = C(5:8);
+
 FLactFunc = @(b,x) exp(-(((x-b(2))-1)./b(1)).^2); % FL active component
 
     function [y] = FLpasFunc(p,x) % FL passive component
@@ -23,7 +25,7 @@ FLactFunc = @(b,x) exp(-(((x-b(2))-1)./b(1)).^2); % FL active component
     y(x<p(2)) = 0;
     end
 
-F = FV4param(c,v); % Force velocity curve
+F = FV4param(fvc,v); % Force velocity curve
 
 a = activationODE2(u,d,gam1,gam2); % Activation function
 

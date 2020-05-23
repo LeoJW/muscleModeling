@@ -27,7 +27,5 @@ FLactFunc = @(b,x) exp(-(((x-b(2))-1)./b(1)).^2); % FL active component
     y(x<p(2)) = 0;
     end
 
-F = FV4param(fvc,v); % Force velocity curve
-
-H = Fmax.*((FLactFunc(b,x).*F(fvc,v).*a) + y(p,x))
+H = Fmax.*((FLactFunc(b,x).*FV4param(fvc,v).*a) + FLpasFunc(p,x));
 end

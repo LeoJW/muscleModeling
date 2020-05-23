@@ -141,9 +141,10 @@ Fmax = 1;
 
 a = activationODE2(u,d,gam1,gam2);
 
-% Vector of all Hill constants
+% Vector for all Hill constants
 C = [b1,b2,p1,p2,c1,c2,cmax,vmax,u,d,gam1,gam2,Fmax];
 
+figure()
 hilltest = hill(x,v,a,C);
 plot(x,hilltest)
 

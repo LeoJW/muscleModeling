@@ -99,24 +99,30 @@ xm = [x0(1), zeros(1,niter-1)]; % muscle length
 vm = [x0(2), zeros(1,niter-1)]; % muscle velocity
 
 lmt = [l0(1), zeros(1,niter-1)]; % MTU length
-vmt = [l0(2), zeros(1,niter-1)]; % MTU velocity
+vmt = [l0(2), zeros(1,niter-1)]; % MTU velocity -- we should know this as an input
 
-at = [((k/M)*(l0(1)-x0(1))), zeros(1,niter-1)]; % tendon acceleration
-amt = [diff(vmt)./dt, zeros(1,niter-1)]; % MTU acceleration
-am = [k(amt-at), zeros(1,niter-1)]; % muscle acceleration
+% either need to solve for acceleration or pull velocity from hill model,
+% or solve for velocity in some other way
 
-Ft = [k(lmt-xm), zeros(1,niter-1)]; % tendon force, equal to Fm
-dFt = [k(vmt-vm), zeros(1,niter-1)]; % derivative of Ft or Fm
-d2Ft = [diff(dFt)./dt, zeros(1,niter-1)]; % second deriv of Ft or Fm
+% Need vm to solve for F(i) needed in minimization.
+% HOW to get Ft(i) for minimization w/o solving for it first?
+
+Ft = [k(l0(1)-x0(1)), zeros(1,niter-1)]; % tendon force, equal to Fm
+dFt = [k(l0(2)-x0(2)), zeros(1,niter-1)]; % derivative of Ft or Fm
 
 for i = 2:niter
     xm(i) = xm(i-1) + vm(i-1)*dt;
     lmt(i) = lmt(i-1) + vmt(i-1)*dt;
     vm(i) = vm(i-1) + am(i-1)*dt;
     vmt(i) = vmt(i-1) + amt(i-1)*dt;
-    Ft(i) = Ft(i-1) + dFt(i-1);
-    dFt(i) = dFt(i-1) + d2Ft(i-1)*dt;
+    Ft(i) = Ft(i-1) + dFt(i-1)*dt;
+    dFt(i) = (k.*(lmt(i+1)-xm(i+1)-lmt(i)+xm(i)))./dt;
 end
+
+figure()
+plot(t2,xm)
+xlabel("Time")
+ylabel("Distance")
 
 %% Finding vm with minimization
 

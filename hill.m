@@ -16,6 +16,8 @@ gam1 = C(11);
 gam2 = C(12);
 Fmax = C(13);
 
+b = C(1:2);
+p = C(3:4);
 fvc = C(5:8);
 
 FLactFunc = @(b,x) exp(-(((x-b(2))-1)./b(1)).^2); % FL active component
@@ -27,9 +29,5 @@ FLactFunc = @(b,x) exp(-(((x-b(2))-1)./b(1)).^2); % FL active component
 
 F = FV4param(fvc,v); % Force velocity curve
 
-H = zeros(size(x));
-
-for i = 1:length(x)
-    H(i) = Fmax.*((FLactFunc(i-1).*F(i-1).*a(i-1)) + y(i-1));
-end
+H = Fmax.*((FLactFunc(b,x).*F(fvc,v).*a) + y(p,x))
 end

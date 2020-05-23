@@ -85,7 +85,6 @@ ylim([0 80])
 
 % Ff = a(t)FLact(l)FV(v)
 % This is the active component of muscle fibre force
-% Plot against length?
 
 Ff = a.*FLact_lu.*FV_lu;
 plot(x,Ff)
@@ -142,7 +141,7 @@ Fmax = 1;
 a = activationODE2(u,d,gam1,gam2);
 
 % Vector for all Hill constants
-C = [b1,b2,p1,p2,c1,c2,cmax,vmax,u,d,gam1,gam2,Fmax];
+C = [b1,b2,p1,p2,c1,c2,cmax,vmax,Fmax];
 
 figure()
 hilltest = hill(x,v,a,C);

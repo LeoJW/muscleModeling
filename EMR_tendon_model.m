@@ -1,4 +1,5 @@
 %% EMR MTU Model
+clear vars;
 
 %% Hill Model
 
@@ -24,29 +25,15 @@ curv = 1; % overall curvature of FV
 d = 50; % activation delay, in ms
 
 % Lu et al. (2011)
-FV_lu = FV4param([k,curv,cmax,vmax],v);
+FV_lu = FV4param([k,curv,cmax,vmax],v); % Force-velocity
 plot(v,FV_lu)
 xlim([-1 1])
 ylim([0 1.8])
 
-% Winters et al. (2011) rabbit TA
-% FL passive component
-FLpas_win = FLpasFunc([20,1],x);
-plot(x,FLpas_win)
-xlim([0.5 1.5])
-ylim([0 1.2])
-hold on;
-FLpas_lu = FLpasFunc([4,1],x);
+FLpas_lu = FLpasFunc([4,1],x); % FL passive
 plot(x,FLpas_lu)
-hold off;
 
-% FL active component
-FLact_win = FLactFunc([0.14,0],x);
-plot(x,FLact_win)
-xlim([0.2 2])
-ylim([0 1.2])
-hold on;
-FLact_lu = FLactFunc([0.25,0],x);
+FLact_lu = FLactFunc([0.25,0],x); % FL active
 plot(x,FLact_lu)
 hold off;
 
@@ -61,32 +48,36 @@ ylim([0 1.2])
 hold on;
 
 %% Activation function
-actvn = activationODE2(u,d,-0.993,-0.993);
-plot(actvn)
+a = activationODE2(u,d,-0.993,-0.993);
+plot(a)
 hold off;
 
 %% Hill function
 
-FLtot = Fmax.*(FLact_lu + FLpas_lu);
-plot(x,FLtot)
-xlim([0 2])
-ylim([0 80])
+% Variables
 
-% Ff = a(t)FLact(l)FV(v)
-% This is the active component of muscle fibre force
-% Plot against length?
+b1 = 0.25; % FLact
+b2 = 0; % FLact
+p1 = 4; % FLpas
+p2 = 1; % FLpas
+c1 = 0.29; % FV curvature of contracting phase
+c2 = 1; % FV overall curvature
+cmax = 1.8; % FV asymptote as x approaches -inf
+vmax = 10; % FV
+% u defined earlier
+d = 50; % activation delay in msec
+gam1 = -0.993; % activation
+gam2 = -0.993; % activation
+Fmax = 1;
 
-Ff = actvn.*FLact_lu.*FV_lu;
-plot(x,Ff)
+a = activationODE2(u,d,gam1,gam2);
 
-% Whole muscle force, Fm = Fmax[Ff + Fp(l)]cos(theta) from Biewener (2014)
-% No need to consider pennation angle; EMR is parallel
+% Vector for all Hill constants
+C = [b1,b2,p1,p2,c1,c2,cmax,vmax,Fmax];
 
-Fm = Fmax.*(Ff + FLpas_lu);
-plot(x,Fm)
-xlim([0 1])
-
-plot(v,Fm)
+figure()
+hilltest = hill(x,v,a,C);
+plot(x,hilltest)
 
 %% Tendon Stuff
 
@@ -110,7 +101,7 @@ vm = [x0(2), zeros(1,niter-1)]; % muscle velocity
 lmt = [l0(1), zeros(1,niter-1)]; % MTU length
 vmt = [l0(2), zeros(1,niter-1)]; % MTU velocity
 
-at = [((k/M)*(l0(1)-x0(1)), zeros(1,niter-1)]; % tendon acceleration
+at = [((k/M)*(l0(1)-x0(1))), zeros(1,niter-1)]; % tendon acceleration
 amt = [diff(vmt)./dt, zeros(1,niter-1)]; % MTU acceleration
 am = [k(amt-at), zeros(1,niter-1)]; % muscle acceleration
 
@@ -127,9 +118,42 @@ for i = 2:niter
     dFt(i) = dFt(i-1) + d2Ft(i-1)*dt;
 end
 
-% Can I approximate dFt(i) this way?
+%% Finding vm with minimization
 
-% Then need to calculate vmt(i) using vm(i) and dFt(i)
+% Constants
+niter = 100;
+
+% Bounds
+lb = 0;
+ub = 20;
+
+% Initial conditions
+x0 = [2,1]; % muscle [position,velocity]
+l0 = [3,1]; % MTU [position,velocity]
+v0 = 1;
+
+% Preallocate
+k = 5; % spring constant
+xm = [x0(1), zeros(1,niter-1)]; % muscle length
+vm = [x0(2), zeros(1,niter-1)]; % muscle velocity
+lmt = [l0(1), zeros(1,niter-1)]; % MTU length
+vmt = [l0(2), zeros(1,niter-1)]; % MTU velocity
+Ft = [k(lmt-xm), zeros(1,niter-1)]; % tendon force, equal to Fm
+dFt = [k(vmt-vm), zeros(1,niter-1)]; % derivative of Ft or Fm
+
+% Fvmin = Ft-hill
+% Ft = kx
+
+% Minimization
+
+for i = 1:niter
+    %Define function
+    Fvmin = @(x,v,a,C) k*x - hill(x,v,a,C)
+    %Define initial conditions
+    x0
+    %Minimize
+    vmin = fmincon(Fvmin,v0,[],[],[],[],lb,ub);
+end
 
 %% More functions
 

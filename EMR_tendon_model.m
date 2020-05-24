@@ -4,7 +4,7 @@ clear vars;
 %% Hill Model
 
 % FL active component function
-FLactFunc = @(c,x) exp(-(((x-c(2))-1)./c(1)).^2);
+FLactFunc = @(b,x) exp(-(((x-b(2))-1)./b(1)).^2);
 
 % Variables
 hz = 500; % sample rate in samples/s
@@ -16,24 +16,34 @@ A = 0.5; % amplitude of x
 x = A.*sin(w.*t) + 0.5; % L/Lopt
 v = A.*w.*cos(w*t); % Lengths/sec
 
+b1 = 0.25; % FLact
+b2 = 0; % FLact
+b = [b1,b2];
+p1 = 4; % FLpas
+p2 = 1; % FLpas
+p = [p1,p2];
+
 Fmax = 1; % maximum force in N
 cmax = 1.8; % asymptote as v approaches -inf
 vmax = 10; % maximum velocity within range Wakeling (2012), Josephson (1993)
-k = 0.29; % from Biewener et al. (2014)
-curv = 1; % overall curvature of FV
+c1 = 0.29; % from Biewener et al. (2014)
+c2 = 1; % overall curvature of FV
+fvc = [c1,c2,cmax,vmax];
 
 d = 50; % activation delay, in ms
+gam1 = -0.993; % activation
+gam2 = -0.993; % activation
 
 % Lu et al. (2011)
-FV_lu = FV4param([k,curv,cmax,vmax],v); % Force-velocity
+FV_lu = FV4param(fvc,v); % Force-velocity
 plot(v,FV_lu)
 xlim([-1 1])
 ylim([0 1.8])
 
-FLpas_lu = FLpasFunc([4,1],x); % FL passive
+FLpas_lu = FLpasFunc(p,x); % FL passive
 plot(x,FLpas_lu)
 
-FLact_lu = FLactFunc([0.25,0],x); % FL active
+FLact_lu = FLactFunc(b,x); % FL active
 plot(x,FLact_lu)
 hold off;
 
@@ -48,29 +58,11 @@ ylim([0 1.2])
 hold on;
 
 %% Activation function
-a = activationODE2(u,d,-0.993,-0.993);
+a = activationODE2(u,d,gam1,gam2);
 plot(a)
 hold off;
 
 %% Hill function
-
-% Variables
-
-b1 = 0.25; % FLact
-b2 = 0; % FLact
-p1 = 4; % FLpas
-p2 = 1; % FLpas
-c1 = 0.29; % FV curvature of contracting phase
-c2 = 1; % FV overall curvature
-cmax = 1.8; % FV asymptote as x approaches -inf
-vmax = 10; % FV
-% u defined earlier
-d = 50; % activation delay in msec
-gam1 = -0.993; % activation
-gam2 = -0.993; % activation
-Fmax = 1;
-
-a = activationODE2(u,d,gam1,gam2);
 
 % Vector for all Hill constants
 C = [b1,b2,p1,p2,c1,c2,cmax,vmax,Fmax];
@@ -86,8 +78,7 @@ k = 5; % spring constant
 M = 5; % mass
 simTime = 10; %seconds
 dt = 0.1; % time step should be small: the smaller, the more accurate
-t2 = 0:dt:simTime; %<-Many ways to define time (e.g. as a linspace, or like this),
-%               but code will run faster when not saving/defining things in a loop
+t2 = 0:dt:simTime; % time divided into time steps
 niter = length(t2);
 
 %Initial Conditions
@@ -107,13 +98,13 @@ vmt = [l0(2), zeros(1,niter-1)]; % MTU velocity -- we should know this as an inp
 % Need vm to solve for F(i) needed in minimization.
 % HOW to get Ft(i) for minimization w/o solving for it first?
 
-Ft = [k(l0(1)-x0(1)), zeros(1,niter-1)]; % tendon force, equal to Fm
-dFt = [k(l0(2)-x0(2)), zeros(1,niter-1)]; % derivative of Ft or Fm
+Ft = [k.*(l0(1)-x0(1)), zeros(1,niter-1)]; % tendon force, equal to Fm
+dFt = [k.*(l0(2)-x0(2)), zeros(1,niter-1)]; % derivative of Ft or Fm
 
 for i = 2:niter
     xm(i) = xm(i-1) + vm(i-1)*dt;
     lmt(i) = lmt(i-1) + vmt(i-1)*dt;
-    vm(i) = vm(i-1) + am(i-1)*dt;
+    vm(i) = vm(i-1) + am(i-1)*dt; % need to figure out how to eliminate am
     vmt(i) = vmt(i-1) + amt(i-1)*dt;
     Ft(i) = Ft(i-1) + dFt(i-1)*dt;
     dFt(i) = (k.*(lmt(i+1)-xm(i+1)-lmt(i)+xm(i)))./dt;
@@ -125,9 +116,6 @@ xlabel("Time")
 ylabel("Distance")
 
 %% Finding vm with minimization
-
-% Constants
-niter = 100;
 
 % Bounds
 lb = 0;
@@ -164,7 +152,7 @@ end
 %% More functions
 
 %Passive force-length curve function
-function [y] = FLpasFunc(c,x)
-    y = c(1).*(x-c(2)).^2;
-    y(x<c(2)) = 0;
+function [y] = FLpasFunc(p,x)
+    y = p(1).*(x-p(2)).^2;
+    y(x<p(2)) = 0;
 end

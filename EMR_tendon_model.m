@@ -9,12 +9,12 @@ FLactFunc = @(b,x) exp(-(((x-b(2))-1)./b(1)).^2);
 % Variables
 hz = 500; % sample rate in samples/s
 nsamp = linspace(0,1000,10e3); % number of samples
-% If t is defined as linspace(0,100,10e3), work loops look normal
 t = nsamp./hz; % time in seconds
 w = 8.6; % cycle frequency in rad/s
 A = 0.5; % amplitude of x
 x = A.*sin(w.*t) + 0.5; % L/Lopt
 v = A.*w.*cos(w*t); % Lengths/sec
+plot(t,x)
 
 b1 = 0.25; % FLact
 b2 = 0; % FLact
@@ -101,19 +101,19 @@ vmt = [l0(2), zeros(1,niter-1)]; % MTU velocity -- we should know this as an inp
 Ft = [k.*(l0(1)-x0(1)), zeros(1,niter-1)]; % tendon force, equal to Fm
 dFt = [k.*(l0(2)-x0(2)), zeros(1,niter-1)]; % derivative of Ft or Fm
 
+% dFt(i) = (k.*(lmt(i+1)-xm(i+1)-lmt(i)+xm(i)))./dt;
+% Ft(i) = Ft(i-1) + dFt(i-1)*dt;
+% vm(i) = vm(i-1) + am(i-1)*dt;
+% vmt(i) = vmt(i-1) + amt(i-1)*dt;
+
 for i = 2:niter
     xm(i) = xm(i-1) + vm(i-1)*dt;
     lmt(i) = lmt(i-1) + vmt(i-1)*dt;
-    vm(i) = vm(i-1) + am(i-1)*dt; % need to figure out how to eliminate am
-    vmt(i) = vmt(i-1) + amt(i-1)*dt;
-    Ft(i) = Ft(i-1) + dFt(i-1)*dt;
-    dFt(i) = (k.*(lmt(i+1)-xm(i+1)-lmt(i)+xm(i)))./dt;
+    Ft(i) = k.*(lmt(i-1)-xm(i-1));
 end
 
 figure()
-plot(t2,xm)
-xlabel("Time")
-ylabel("Distance")
+plot(xm,Ft)
 
 %% Finding vm with minimization
 
@@ -148,6 +148,42 @@ for i = 1:niter
     %Minimize
     vmin = fmincon(Fvmin,v0,[],[],[],[],lb,ub);
 end
+
+%% Finding vm with brute force
+
+% Fbrute = k(l-x) - hill(x,v,a,C)
+
+vrange = linspace(-20,20,1000)
+time = 10; % seconds
+dt = 0.1; % time step
+t3 = 0:dt:time;
+n = length(t3);
+
+A2 = 1; % amplitude of x
+lmt = A2.*sin(w.*t); % MTU length
+plot(t,lmt)
+
+% Initial conditions
+x0 = [2,0]; % muscle [position,velocity]
+l0 = [3,0]; % MTU [position,velocity]
+
+% Preallocate
+k = 5; % spring constant
+xm = [x0(1), zeros(1,niter-1)]; % muscle length
+vm = [x0(2), zeros(1,niter-1)]; % muscle velocity
+
+lmt = sin % MTU length
+vmt = [l0(2), zeros(1,niter-1)]; % MTU velocity
+
+% want value of vrange that corresponds to the value of Fbrute that's closest to 0
+vmin = min(abs(Fbrute));
+
+for i = 2:n
+    xm(i) = xm(i-1) + vm(i-1)*dt;
+    lmt(i) = lmt(i-1) + vmt(i-1)*dt;
+    Fbrute(i) = k.*(lmt(i-1)-xm(i-1)) - hill(x,vrange,a,C);
+end
+
 
 %% More functions
 

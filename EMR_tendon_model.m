@@ -82,15 +82,15 @@ t2 = 0:dt:simTime; % time divided into time steps
 niter = length(t2);
 
 %Initial Conditions
-x0 = [2,0]; % muscle [position,velocity]
-l0 = [3,0]; % MTU [position,velocity]
-
-%Preallocate for loop
-xm = [x0(1), zeros(1,niter-1)]; % muscle length
-vm = [x0(2), zeros(1,niter-1)]; % muscle velocity
-
-lmt = [l0(1), zeros(1,niter-1)]; % MTU length
-vmt = [l0(2), zeros(1,niter-1)]; % MTU velocity -- we should know this as an input
+% x0 = [2,0]; % muscle [position,velocity]
+% l0 = [3,0]; % MTU [position,velocity]
+% 
+% %Preallocate for loop
+% xm = [x0(1), zeros(1,niter-1)]; % muscle length
+% vm = [x0(2), zeros(1,niter-1)]; % muscle velocity
+% 
+% lmt = [l0(1), zeros(1,niter-1)]; % MTU length
+% vmt = [l0(2), zeros(1,niter-1)]; % MTU velocity -- we should know this as an input
 
 % either need to solve for acceleration or pull velocity from hill model,
 % or solve for velocity in some other way
@@ -98,8 +98,8 @@ vmt = [l0(2), zeros(1,niter-1)]; % MTU velocity -- we should know this as an inp
 % Need vm to solve for F(i) needed in minimization.
 % HOW to get Ft(i) for minimization w/o solving for it first?
 
-Ft = [k.*(l0(1)-x0(1)), zeros(1,niter-1)]; % tendon force, equal to Fm
-dFt = [k.*(l0(2)-x0(2)), zeros(1,niter-1)]; % derivative of Ft or Fm
+% Ft = [k.*(l0(1)-x0(1)), zeros(1,niter-1)]; % tendon force, equal to Fm
+% dFt = [k.*(l0(2)-x0(2)), zeros(1,niter-1)]; % derivative of Ft or Fm
 
 % dFt(i) = (k.*(lmt(i+1)-xm(i+1)-lmt(i)+xm(i)))./dt;
 % Ft(i) = Ft(i-1) + dFt(i-1)*dt;
@@ -112,28 +112,25 @@ for i = 2:niter
     Ft(i) = k.*(lmt(i-1)-xm(i-1));
 end
 
-figure()
-plot(xm,Ft)
-
 %% Finding vm with minimization
 
 % Bounds
-lb = 0;
-ub = 20;
+% lb = 0;
+% ub = 20;
+% 
+% % Initial conditions
+% x0 = [2,1]; % muscle [position,velocity]
+% l0 = [3,1]; % MTU [position,velocity]
+% v0 = 1;
 
-% Initial conditions
-x0 = [2,1]; % muscle [position,velocity]
-l0 = [3,1]; % MTU [position,velocity]
-v0 = 1;
-
-% Preallocate
-k = 5; % spring constant
-xm = [x0(1), zeros(1,niter-1)]; % muscle length
-vm = [x0(2), zeros(1,niter-1)]; % muscle velocity
-lmt = [l0(1), zeros(1,niter-1)]; % MTU length
-vmt = [l0(2), zeros(1,niter-1)]; % MTU velocity
-Ft = [k(lmt-xm), zeros(1,niter-1)]; % tendon force, equal to Fm
-dFt = [k(vmt-vm), zeros(1,niter-1)]; % derivative of Ft or Fm
+% % Preallocate
+% k = 5; % spring constant
+% xm = [x0(1), zeros(1,niter-1)]; % muscle length
+% vm = [x0(2), zeros(1,niter-1)]; % muscle velocity
+% lmt = [l0(1), zeros(1,niter-1)]; % MTU length
+% vmt = [l0(2), zeros(1,niter-1)]; % MTU velocity
+% Ft = [k(lmt-xm), zeros(1,niter-1)]; % tendon force, equal to Fm
+% dFt = [k(vmt-vm), zeros(1,niter-1)]; % derivative of Ft or Fm
 
 % Fvmin = Ft-hill
 % Ft = kx
@@ -151,39 +148,37 @@ end
 
 %% Finding vm with brute force
 
-% Fbrute = k(l-x) - hill(x,v,a,C)
-
-vrange = linspace(-20,20,1000)
+vrange = linspace(-20,20,1e4)
 time = 10; % seconds
 dt = 0.1; % time step
 t3 = 0:dt:time;
 n = length(t3);
 
 A2 = 1; % amplitude of x
-lmt = A2.*sin(w.*t); % MTU length
-plot(t,lmt)
+lmt = A2.*sin(w.*t) + 1; % MTU length
+vmt = A2.*w.*cos(w*t); % MTU velocity
 
 % Initial conditions
-x0 = [2,0]; % muscle [position,velocity]
-l0 = [3,0]; % MTU [position,velocity]
+x0 = [1,0]; % muscle [xm,vm]
 
 % Preallocate
 k = 5; % spring constant
-xm = [x0(1), zeros(1,niter-1)]; % muscle length
-vm = [x0(2), zeros(1,niter-1)]; % muscle velocity
+xm = [x0(1), zeros(1,n-1)]; % muscle length
+vm = [x0(2), zeros(1,n-1)]; % muscle velocity
+Ft = [k.*(lmt(1)-x0(1)), zeros(1,n-1)]; % tendon force
+Fmin = [abs(k.*(lmt(1)-x0(1)) - hill(x0(1),x0(2),a(i-1),C)), zeros(1,n-1)];
 
-lmt = sin % MTU length
-vmt = [l0(2), zeros(1,niter-1)]; % MTU velocity
-
-% want value of vrange that corresponds to the value of Fbrute that's closest to 0
-vmin = min(abs(Fbrute));
+% Fmin = k(l-x) - hill(x,v,a,C); want value of vrange that minimizes Fmin
 
 for i = 2:n
     xm(i) = xm(i-1) + vm(i-1)*dt;
-    lmt(i) = lmt(i-1) + vmt(i-1)*dt;
-    Fbrute(i) = k.*(lmt(i-1)-xm(i-1)) - hill(x,vrange,a,C);
+    Ft(i) = k.*(lmt(i-1)-xm(i-1));
+    Fmin(i) = k.*(lmt(i-1)-xm(i-1)) - hill(xm(i-1),vm(i-1),a(i-1),C);
 end
 
+minFmin = min(Fmin);
+% find appropriate index of Fmin
+% find corresponding index and value of vrange
 
 %% More functions
 

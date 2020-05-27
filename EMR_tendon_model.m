@@ -106,12 +106,6 @@ niter = length(t2);
 % vm(i) = vm(i-1) + am(i-1)*dt;
 % vmt(i) = vmt(i-1) + amt(i-1)*dt;
 
-for i = 2:niter
-    xm(i) = xm(i-1) + vm(i-1)*dt;
-    lmt(i) = lmt(i-1) + vmt(i-1)*dt;
-    Ft(i) = k.*(lmt(i-1)-xm(i-1));
-end
-
 %% Finding vm with minimization
 
 % Bounds
@@ -137,18 +131,9 @@ end
 
 % Minimization
 
-for i = 1:niter
-    %Define function
-    Fvmin = @(x,v,a,C) k*x - hill(x,v,a,C)
-    %Define initial conditions
-    x0
-    %Minimize
-    vmin = fmincon(Fvmin,v0,[],[],[],[],lb,ub);
-end
-
 %% Finding vm with brute force
 
-vrange = linspace(-20,20,1e4)
+vrange = linspace(-20,20,1e4);
 time = 10; % seconds
 dt = 0.1; % time step
 t3 = 0:dt:time;
@@ -159,24 +144,25 @@ lmt = A2.*sin(w.*t) + 1; % MTU length
 vmt = A2.*w.*cos(w*t); % MTU velocity
 
 % Initial conditions
-x0 = [1,0]; % muscle [xm,vm]
+x0 = [1,1]; % muscle [xm,vm]
 
 % Preallocate
 k = 5; % spring constant
 xm = [x0(1), zeros(1,n-1)]; % muscle length
 vm = [x0(2), zeros(1,n-1)]; % muscle velocity
 Ft = [k.*(lmt(1)-x0(1)), zeros(1,n-1)]; % tendon force
-Fmin = [abs(k.*(lmt(1)-x0(1)) - hill(x0(1),x0(2),a(i-1),C)), zeros(1,n-1)];
+Fmin = [abs(k.*(lmt(1)-x0(1)) - hill(x0(1),x0(2),a(1),C)), zeros(1,n-1)];
 
 % Fmin = k(l-x) - hill(x,v,a,C); want value of vrange that minimizes Fmin
 
 for i = 2:n
     xm(i) = xm(i-1) + vm(i-1)*dt;
     Ft(i) = k.*(lmt(i-1)-xm(i-1));
-    Fmin(i) = k.*(lmt(i-1)-xm(i-1)) - hill(xm(i-1),vm(i-1),a(i-1),C);
+    Fmin(i) = abs(k.*(lmt(i-1)-xm(i-1)) - hill(xm(i-1),vm(i-1),a(i-1),C));
 end
 
 minFmin = min(Fmin);
+
 % find appropriate index of Fmin
 % find corresponding index and value of vrange
 

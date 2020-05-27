@@ -29,8 +29,6 @@ d = 50; % activation delay, in ms
 % Velocity expressed as normalized stretch rate
 FV_lu = FV4param([c1,c2,cmax,vmax],v);
 plot(v,FV_lu)
-xlim([-1 1])
-ylim([0 1.8])
 
 %% Winters et al. (2011) rabbit TA
 % TA fast twitch
@@ -51,8 +49,6 @@ hold off;
 % FL active component
 FLact_win = FLactFunc([0.14,0],x);
 plot(x,FLact_win)
-xlim([0.2 2])
-ylim([0 1.2])
 hold on;
 FLact_lu = FLactFunc([0.25,0],x);
 plot(x,FLact_lu)
@@ -80,8 +76,6 @@ hold off;
 
 FLtot = Fmax.*(FLact_lu + FLpas_lu);
 plot(x,FLtot)
-xlim([0 2])
-ylim([0 80])
 
 % Ff = a(t)FLact(l)FV(v)
 % This is the active component of muscle fibre force
@@ -95,8 +89,6 @@ plot(x,Ff)
 Fm = Fmax.*(Ff + FLpas_lu);
 plot(x,Fm)
 xlim([0 1])
-
-plot(v,Fm)
 
 subplot(3,2,1), plot(t,u), xlabel("Time (s)"), ylabel("Neural Excitation")
 subplot(3,2,2), plot(t,a), xlabel("Time (s)"), ylabel("Activation")

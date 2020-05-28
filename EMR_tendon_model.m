@@ -74,7 +74,7 @@ plot(x,hilltest)
 %% Tendon Stuff
 
 %Constants
-k = 5; % spring constant
+k = 0.1; % spring constant
 M = 5; % mass
 simTime = 10; %seconds
 dt = 0.1; % time step should be small: the smaller, the more accurate
@@ -144,26 +144,27 @@ lmt = A2.*sin(w.*t) + 1; % MTU length
 vmt = A2.*w.*cos(w*t); % MTU velocity
 
 % Initial conditions
-x0 = [1,1]; % muscle [xm,vm]
+x0 = [1,0]; % muscle [xm,vm]
 
 % Preallocate
-k = 5; % spring constant
+k = 0.1; % spring constant
 xm = [x0(1), zeros(1,n-1)]; % muscle length
 vm = [x0(2), zeros(1,n-1)]; % muscle velocity
 Ft = [k.*(lmt(1)-x0(1)), zeros(1,n-1)]; % tendon force
-Fmin = [abs(k.*(lmt(1)-x0(1)) - hill(x0(1),x0(2),a(1),C)), zeros(1,n-1)];
+mindiff = [abs(k.*(lmt(1)-x0(1)) - hill(x0(1),x0(2),a(1),C)), zeros(1,n-1)];
 
-% Fmin = k(l-x) - hill(x,v,a,C); want value of vrange that minimizes Fmin
+% mindiff = k(l-x) - hill(x,v,a,C); want value of vrange that minimizes mindiff
 
 for i = 2:n
     xm(i) = xm(i-1) + vm(i-1)*dt;
-    Ft(i) = k.*(lmt(i-1)-xm(i-1));
-    Fmin(i) = abs(k.*(lmt(i-1)-xm(i-1)) - hill(xm(i-1),vm(i-1),a(i-1),C));
+    Ft(i) = k.*(lmt(i)-xm(i));
+    mindiff = abs(k.*(lmt(i)-xm(i)) - hill(xm(i),vrange,a(i),C));
+    [~,index] = min(mindiff); % should correspond to index of vrange that minimizes
+    vm(i) = vrange(index); % value in vrange that minimizes mindiff
 end
 
-minFmin = min(Fmin);
-
-% find appropriate index of Fmin
+% vm(i) = vrange(index)
+% find appropriate index of mindiff
 % find corresponding index and value of vrange
 
 %% More functions

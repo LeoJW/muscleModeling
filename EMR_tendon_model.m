@@ -1,6 +1,9 @@
 %% EMR MTU Model
 clear vars;
 
+% FL curves are normalized force plotted against L/Lopt
+% FV curve is normalized force plotted against v/vmax
+
 %% Hill Model
 
 % FL active component function
@@ -14,7 +17,6 @@ w = 8.6; % cycle frequency in rad/s
 A = 0.5; % amplitude of x
 x = A.*sin(w.*t) + 0.5; % L/Lopt
 v = A.*w.*cos(w*t); % Lengths/sec
-plot(t,x)
 
 b1 = 0.25; % FLact
 b2 = 0; % FLact
@@ -25,7 +27,7 @@ p = [p1,p2];
 
 Fmax = 1; % maximum force in N
 cmax = 1.8; % asymptote as v approaches -inf
-vmax = 10; % maximum velocity within range Wakeling (2012), Josephson (1993)
+vmax = 1; % maximum velocity within range Wakeling (2012), Josephson (1993)
 c1 = 0.29; % from Biewener et al. (2014)
 c2 = 1; % overall curvature of FV
 fvc = [c1,c2,cmax,vmax];
@@ -36,40 +38,34 @@ gam2 = -0.993; % activation
 
 % Lu et al. (2011)
 FV_lu = FV4param(fvc,v); % Force-velocity
-plot(v,FV_lu)
-xlim([-1 1])
-ylim([0 1.8])
+figure(1)
+plot(v,FV_lu), xlabel("Normalized Velocity"), ylabel("Normalized Force")
 
 FLpas_lu = FLpasFunc(p,x); % FL passive
-plot(x,FLpas_lu)
+figure(2)
+plot(x,FLpas_lu), xlabel("Normalized Length"), ylabel("Normalized Force")
 
 FLact_lu = FLactFunc(b,x); % FL active
-plot(x,FLact_lu)
-hold off;
+figure(3)
+plot(x,FLact_lu), xlabel("Normalized Length"), ylabel("Normalized Force")
 
 %% Vectors for dummy work loops
 
 % Neural excitation, vector of zeros except one chunk which is 1s
 u = zeros(1,10e3);
 u(300:800) = 1;
-plot(u)
-xlim([0 3000])
-ylim([0 1.2])
-hold on;
 
 %% Activation function
 a = activationODE2(u,d,gam1,gam2);
-plot(a)
-hold off;
 
 %% Hill function
 
 % Vector for all Hill constants
 C = [b1,b2,p1,p2,c1,c2,cmax,vmax,Fmax];
 
-figure()
+figure(4)
 hilltest = hill(x,v,a,C);
-plot(x,hilltest)
+plot(x,hilltest), xlabel("L/Lopt"), ylabel("Force")
 
 %% Tendon Stuff
 
@@ -140,7 +136,7 @@ t3 = 0:dt:time;
 n = length(t3);
 
 A2 = 1; % amplitude of x
-lmt = A2.*sin(w.*t) + 1; % MTU length
+lmt = A2.*sin(w.*t) + 2; % MTU length
 vmt = A2.*w.*cos(w*t); % MTU velocity
 
 % Initial conditions
@@ -156,7 +152,7 @@ mindiff = [abs(k.*(lmt(1)-x0(1)) - hill(x0(1),x0(2),a(1),C)), zeros(1,n-1)];
 % mindiff = k(l-x) - hill(x,v,a,C); want value of vrange that minimizes mindiff
 
 for i = 2:n
-    xm(i) = xm(i-1) + vm(i-1)*dt;
+    xm(i) = xm(i-1) + vm(i-1)*dt; % problem here with vm
     Ft(i) = k.*(lmt(i)-xm(i));
     mindiff = abs(k.*(lmt(i)-xm(i)) - hill(xm(i),vrange,a(i),C));
     [~,index] = min(mindiff); % should correspond to index of vrange that minimizes

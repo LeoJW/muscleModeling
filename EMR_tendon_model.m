@@ -14,9 +14,9 @@ hz = 500; % sample rate in samples/s
 nsamp = linspace(0,1000,10e3); % number of samples
 t = nsamp./hz; % time in seconds
 w = 8.6; % cycle frequency in rad/s
-A = 0.5; % amplitude of x
-x = A.*sin(w.*t) + 0.5; % L/Lopt
-v = A.*w.*cos(w*t); % Lengths/sec
+A = 0.1; % amplitude of x
+x = A.*sin(w.*t) + 0.8; % L/Lopt
+v = A.*w.*cos(w.*t); % Lengths/sec
 
 b1 = 0.25; % FLact
 b2 = 0; % FLact
@@ -68,6 +68,8 @@ hilltest = hill(x,v,a,C);
 plot(x,hilltest), xlabel("L/Lopt"), ylabel("Force")
 
 %% Tendon Stuff
+
+% Length of tendon could be expressed as tlength/Lopt??
 
 %Constants
 k = 0.1; % spring constant

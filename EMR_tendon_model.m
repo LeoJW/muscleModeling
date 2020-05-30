@@ -72,12 +72,12 @@ plot(x,hilltest), xlabel("L/Lopt"), ylabel("Force")
 % Length of tendon could be expressed as tlength/Lopt??
 
 %Constants
-k = 0.1; % spring constant
-M = 5; % mass
-simTime = 10; %seconds
-dt = 0.1; % time step should be small: the smaller, the more accurate
-t2 = 0:dt:simTime; % time divided into time steps
-niter = length(t2);
+% k = 0.1; % spring constant
+% M = 5; % mass
+% simTime = 10; %seconds
+% dt = 0.01; % time step should be small: the smaller, the more accurate
+% t2 = 0:dt:simTime; % time divided into time steps
+% niter = length(t2);
 
 %Initial Conditions
 % x0 = [2,0]; % muscle [position,velocity]
@@ -131,7 +131,8 @@ niter = length(t2);
 
 %% Finding vm with brute force
 
-vrange = linspace(-20,20,1e4);
+k = 0.1; % spring constant
+vrange = linspace(-20,20,1e4); % range of possible muscle velocities
 time = 10; % seconds
 dt = 0.01; % time step
 t3 = 0:dt:time;

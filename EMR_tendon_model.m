@@ -142,7 +142,7 @@ lmt = A2.*sin(w.*t3) + 2; % MTU length
 vmt = A2.*w.*cos(w*t3); % MTU velocity
 
 % Initial conditions
-x0 = [1,0]; % muscle [xm,vm]
+x0 = [0.8,0]; % muscle [xm,vm]
 
 % Preallocate
 k = 0.1; % spring constant

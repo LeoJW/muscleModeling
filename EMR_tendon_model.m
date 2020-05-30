@@ -147,19 +147,19 @@ x0 = [0.8,0]; % muscle [xm,vm]
 
 % Preallocate
 k = 0.1; % spring constant
-xm = [x0(1), zeros(1,n-1)]; % muscle length
-vm = [x0(2), zeros(1,n-1)]; % muscle velocity
-Ft = [k.*(lmt(1)-x0(1)), zeros(1,n-1)]; % tendon force
-mindiff = [abs(k.*(lmt(1)-x0(1)) - hill(x0(1),x0(2),a(1),C)), zeros(1,n-1)];
+xm = [x0(1), zeros(1,n)]; % muscle length
+vm = [x0(2), zeros(1,n)]; % muscle velocity
+Ft = [k.*(lmt(1)-x0(1)), zeros(1,n)]; % tendon force
+mindiff = [abs(k.*(lmt(1)-x0(1)) - hill(x0(1),x0(2),a(1),C)), zeros(1,n)];
 
 % mindiff = k(l-x) - hill(x,v,a,C); want value of vrange that minimizes mindiff
 
-for i = 2:n
-    xm(i) = xm(i-1) + vm(i-1)*dt; % problem here with vm
-    Ft(i) = k.*(lmt(i)-xm(i));
-    mindiff = abs(k.*(lmt(i)-xm(i)) - hill(xm(i),vrange,a(i),C));
+for i = 1:n
+    xm(i+1) = xm(i) + vm(i)*dt; % problem here with vm
+    Ft(i+1) = k.*(lmt(i+1)-xm(i+1));
+    mindiff = abs(k.*(lmt(i+1)-xm(i+1)) - hill(xm(i+1),vrange,a(i+1),C));
     [~,index] = min(mindiff); % should correspond to index of vrange that minimizes
-    vm(i) = vrange(index); % value in vrange that minimizes mindiff
+    vm(i+1) = vrange(index); % value in vrange that minimizes mindiff
 end
 
 % vm(i) = vrange(index)

@@ -134,9 +134,9 @@ plot(x,hilltest), xlabel("L/Lopt"), ylabel("Force")
 k = 0.1; % spring constant
 vrange = linspace(-20,20,1e4); % range of possible muscle velocities
 time = 10; % seconds
-dt = 0.01; % time step
+dt = 0.001; % time step
 t3 = 0:dt:time;
-n = length(t3);
+n = length(t3)-1;
 
 A2 = 0.2; % amplitude of x
 lmt = A2.*sin(w.*t3) + 2; % MTU length

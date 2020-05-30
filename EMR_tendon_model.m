@@ -133,13 +133,13 @@ niter = length(t2);
 
 vrange = linspace(-20,20,1e4);
 time = 10; % seconds
-dt = 0.1; % time step
+dt = 0.01; % time step
 t3 = 0:dt:time;
 n = length(t3);
 
-A2 = 1; % amplitude of x
-lmt = A2.*sin(w.*t) + 2; % MTU length
-vmt = A2.*w.*cos(w*t); % MTU velocity
+A2 = 0.2; % amplitude of x
+lmt = A2.*sin(w.*t3) + 2; % MTU length
+vmt = A2.*w.*cos(w*t3); % MTU velocity
 
 % Initial conditions
 x0 = [1,0]; % muscle [xm,vm]

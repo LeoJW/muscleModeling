@@ -154,7 +154,7 @@ mindiff = [abs(k.*(lmt(1)-x0(1)) - hill(x0(1),x0(2),a(1),C)), zeros(1,n)];
 
 % mindiff = k(l-x) - hill(x,v,a,C); want value of vrange that minimizes mindiff
 
-for i = 2:n
+for i = 2:n+1
     xm(i) = xm(i-1) + vm(i-1)*dt; % problem here with vm
     Ft(i) = k.*(lmt(i)-xm(i));
     mindiff = abs(k.*(lmt(i)-xm(i)) - hill(xm(i),vrange,a(i),C));

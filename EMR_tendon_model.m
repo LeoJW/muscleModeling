@@ -133,10 +133,10 @@ plot(x,hilltest), xlabel("L/Lopt"), ylabel("Force")
 
 k = 0.1; % spring constant
 vrange = linspace(-20,20,1e4); % range of possible muscle velocities
-time = 10; % seconds
+time = 9.999; % seconds
 dt = 0.001; % time step
 t3 = 0:dt:time;
-n = length(t3)-1;
+n = length(t3);
 
 A2 = 0.2; % amplitude of x
 lmt = A2.*sin(w.*t3) + 2; % MTU length
@@ -154,12 +154,12 @@ mindiff = [abs(k.*(lmt(1)-x0(1)) - hill(x0(1),x0(2),a(1),C)), zeros(1,n)];
 
 % mindiff = k(l-x) - hill(x,v,a,C); want value of vrange that minimizes mindiff
 
-for i = 1:n
-    xm(i+1) = xm(i) + vm(i)*dt; % problem here with vm
-    Ft(i+1) = k.*(lmt(i+1)-xm(i+1));
-    mindiff = abs(k.*(lmt(i+1)-xm(i+1)) - hill(xm(i+1),vrange,a(i+1),C));
+for i = 2:n
+    xm(i) = xm(i-1) + vm(i-1)*dt; % problem here with vm
+    Ft(i) = k.*(lmt(i)-xm(i));
+    mindiff = abs(k.*(lmt(i)-xm(i)) - hill(xm(i),vrange,a(i),C));
     [~,index] = min(mindiff); % should correspond to index of vrange that minimizes
-    vm(i+1) = vrange(index); % value in vrange that minimizes mindiff
+    vm(i) = vrange(index); % value in vrange that minimizes mindiff
 end
 
 % vm(i) = vrange(index)

@@ -15,9 +15,9 @@ FLactFunc = @(b,x) exp(-(((x-b(2))-1)./b(1)).^2);
 % Variables
 
 w = 4; % frequency in Hz or cycles/s
-ncycles = 16; % number of cycles
+ncycles = 8; % number of cycles
 tstart = 0.1;% point in cycle where activation begins (scaled 0 to 1)
-duration = 0.5; % duration of cycle that is activated (scaled 0 to 1)
+duration = 0.4; % duration of cycle that is activated (scaled 0 to 1)
 
 totaltime = ncycles/w; % time in s
 t = linspace(0,totaltime,1e4); % time vector, 1e4 long
@@ -41,16 +41,17 @@ c1 = 0.29; % from Biewener et al. (2014)
 c2 = 1; % overall curvature of FV
 fvc = [c1,c2,cmax,vmax];
 
-d = 50; % activation delay, in ms -> might need to rescale
+delay = 50; % activation delay, in ms -> need to rescale in a
 gam1 = -0.993; % activation constant
 gam2 = -0.993; % activation constant
 
 % Neural excitation, vector of zeros except one chunk which is 1s
 ucycle = zeros(1,lcycle);
 ucycle(startdur:enddur) = 1;
-u = repmat(ucycle,ncycles);
+u = repmat(ucycle,1,ncycles);
 
 % Activation function
+d = (delay*1e-3)*(niter/totaltime); % delay, scaled
 a = activationODE2(u,d,gam1,gam2);
 
 % Vector for Hill constants

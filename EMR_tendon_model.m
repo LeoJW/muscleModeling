@@ -24,8 +24,8 @@ t = linspace(0,totaltime,1e4); % time vector, 1e4 long
 dt = totaltime/length(t); % time step
 niter = length(t); % number of iterations in loop
 lcycle = niter/ncycles; % cycle length in 1/1e4 s
-startdur = tstart*lcycle; % start of activation in cycle
-enddur = startdur + duration*lcycle; % duration of cycle activated in 1/1e4 s
+startdur = round(tstart*lcycle); % start of activation in cycle
+enddur = round(startdur + duration*lcycle); % duration of cycle activated in 1/1e4 s
 
 b1 = 0.25; % FLact
 b2 = 0; % FLact

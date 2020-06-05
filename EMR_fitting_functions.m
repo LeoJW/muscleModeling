@@ -146,6 +146,11 @@ figure(9)
 hilltest = hill(x,v,a,C);
 plot(x,hilltest)
 
+%% Fitting polynomials to FV and FLpas
+
+FVpoly = polyfit(v,FV_lu,7);
+FLpaspoly = polyfit(x,FVpas_lu,7);
+
 %% More functions
 
 %Passive force-length curve function

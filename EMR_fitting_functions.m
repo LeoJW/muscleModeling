@@ -148,8 +148,25 @@ plot(x,hilltest)
 
 %% Fitting polynomials to FV and FLpas
 
-FVpoly = polyfit(v,FV_lu,7);
-FLpaspoly = polyfit(x,FVpas_lu,7);
+FVpoly = polyfit(FV_lu,v,3);
+FLpaspoly = polyfit(x,FLpas_lu,7);
+
+%% Sigmoid function for FV
+
+cmax2 = 1.8;
+s = [1 1/cmax2];
+vz = linspace(-5,5,1e3);
+
+FVsig = s(1)./(s(2)+exp(-vz));
+figure(10)
+plot(vz,FVsig)
+
+%% Exponential function for FLpas
+
+xe = linspace(-5,5,1e3);
+pep = 2;
+FLpas_exp = pep.^xe;
+
 
 %% More functions
 

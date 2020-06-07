@@ -155,13 +155,19 @@ FLpaspoly = polyfit(x,FLpas_lu,7);
 
 cmax2 = 1.8; % "asymptote" or upper limit
 s = [1 1/cmax2];
-vz = linspace(-5,5,1e3);
+vz = linspace(-5,5,1e3); % velocity
 g = 6; % affects steepness of slope at 0
 vo = 1; % horizontal translation
+z = 0.5;
 
 FVsig = s(1)./(s(2) + exp(-g*(vz-(1-vo))));
 figure(10)
 plot(vz,FVsig)
+xlim([-1 1])
+
+FVsig2 = s(1)./(s(2) + z.*exp(-g*vz));
+figure(11)
+plot(vz,FVsig2)
 xlim([-1 1])
 
 %% Exponential function for FLpas

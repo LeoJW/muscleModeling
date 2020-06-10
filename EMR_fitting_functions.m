@@ -170,19 +170,6 @@ figure(11)
 plot(vz,FVsig2)
 xlim([-1 1])
 
-%% Exponential function for FLpas
-
-xe = linspace(-5,5,1e3);
-pep = 20;
-m = 3;
-h = 1.8;
-
-FLpas_exp = pep.^(h.*xe - m);
-figure(12)
-plot(xe,FLpas_exp)
-xlim([0 2])
-ylim([0 3.5])
-
 %% More functions
 
 %Passive force-length curve function

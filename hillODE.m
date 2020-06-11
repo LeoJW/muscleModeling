@@ -1,11 +1,38 @@
-function [h] = hillODE(x,F)
+function [Fdot] = hillODE(t,F)
 % ODE for MTU
+
 x = ;
 F = ;
-l = ;
-xdot = ; % dx/dt
-Fdot = ; % dF/dt
-ldot = ; % dl/dt
+
+A2 = 0.2; % amplitude of l
+l = A2.*sin(w.*t) + 2; % MTU length, lmt/Lopt
+ldot = A2.*w.*cos(w*t); % MTU velocity, vmt/Lopt
+
+w = 4; % frequency in Hz or cycles/s
+ncycles = 8; % number of cycles
+tstart = 0.1;% point in cycle where activation begins (scaled 0 to 1)
+duration = 0.4; % duration of cycle that is activated (scaled 0 to 1)
+
+totaltime = ncycles/w; % time in s
+t = linspace(0,totaltime,1e4); % time vector, 1e4 long
+dt = totaltime/length(t); % time step
+niter = length(t); % number of iterations in loop
+lcycle = niter/ncycles; % cycle length in 1/1e4 s
+startdur = round(tstart*lcycle); % start of activation in cycle
+enddur = round(startdur + duration*lcycle); % duration of cycle activated in 1/1e4 s
+
+delay = 50; % activation delay, in ms -> need to rescale in a
+gam1 = -0.993; % activation constant
+gam2 = -0.993; % activation constant
+
+% Neural excitation, vector of zeros except one chunk which is 1s
+ucycle = zeros(1,lcycle);
+ucycle(startdur:enddur) = 1;
+u = repmat(ucycle,1,ncycles);
+
+% Activation function
+d = (delay*1e-3)*(niter/totaltime); % delay, scaled
+a = activationODE2(u,d,gam1,gam2);
 
 FLactFunc = @(b,x) exp(-(((x-b(2))-1)./b(1)).^2);
 b1 = 0.25; % FLact
@@ -27,8 +54,8 @@ z = 0.5;
 
 FVsig = s(1)./(s(2) + z.*exp(-g*v));
 
-xdot = (ln(((s(1)*Fmax.*FLact.*a)/(k(l-x)-FLpas) - s(2))./z))./g;
-Fdot = k(ldot - xdot);
+xdot = (ln(((s(1)*Fmax.*FLact.*a)/(k(l-x)-FLpas) - s(2))./z))./g; % dx/dt
+Fdot = k(ldot - xdot); % dF/dt
 
 end
 

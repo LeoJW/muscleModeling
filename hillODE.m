@@ -1,4 +1,4 @@
-function [Fdot] = hillODE(t,x,l,xdot,ldot,F)
+function [h] = hillODE(t,x,l,xdot,ldot,F)
 % ODE for MTU
 
 w = 4; % frequency in Hz or cycles/s

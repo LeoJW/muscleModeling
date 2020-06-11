@@ -48,13 +48,14 @@ FLpas = FLpasFunc(p,x)
 % FV sigmoid function
 Fmax = 1; % maximum force in N
 cmax = 1.8; % asymptote as v approaches -inf
-s = [1 1/cmax];
-g = 6; % affects steepness of slope at 0
-z = 0.5;
+s1 = 1;
+s2 = 1/cmax; % "asymptote", upper limit
+s3 = 0.5;
+s4 = 6; % affects steepness of slope at 0
 
-FVsig = s(1)./(s(2) + z.*exp(-g*v));
+% FV function for ref: FVsig = s(1)./(s(2) + z.*exp(-g*v));
 
-xdot = (ln(((s(1)*Fmax.*FLact.*a)/(k(l-x)-FLpas) - s(2))./z))./g; % dx/dt
+xdot = (ln(((s1*Fmax.*FLact.*a)/(k(l-x)-FLpas) - s2)./s3))./s4; % dx/dt
 Fdot = k(ldot - xdot); % dF/dt
 
 end

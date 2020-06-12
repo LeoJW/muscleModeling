@@ -9,13 +9,9 @@ FLactFunc = @(b,x) exp(-(((x-b(2))-1)./b(1)).^2);
 
 %% Variables
 
-A = 0.5; % amplitude of x
-x = A.*sin(w.*t) + 0.5; % L/Lopt
-v = A.*w.*cos(w*t); % Lengths/sec
-
-w = 4; % frequency in Hz or cycles/s
+w = 2; % frequency in Hz or cycles/s
 ncycles = 8; % number of cycles
-tstart = 0.1;% point in cycle where activation begins (scaled 0 to 1)
+tstart = 0.2;% point in cycle where activation begins (scaled 0 to 1)
 duration = 0.4; % duration of cycle that is activated (scaled 0 to 1)
 
 totaltime = ncycles/w; % time in s
@@ -44,6 +40,11 @@ delay = 50; % activation delay, in ms -> need to rescale in a
 gam1 = -0.993; % activation
 gam2 = -0.993; % activation
 % u and a defined below
+
+wr = 6.283185*w; % radians per second
+A = 0.2; % amplitude of x
+x = A.*sin(wr.*t) + 0.9; % L/Lopt
+v = A.*wr.*cos(wr.*t); % Lengths/sec
 
 %% Lu et al. (2011)
 % Rabbit hind leg tibialis anterior
@@ -147,7 +148,7 @@ C = [b1,b2,p1,p2,c1,c2,cmax,vmax,Fmax];
 
 figure(9)
 hilltest = hill(x,v,a,C);
-plot(x,hilltest)
+plot(x,hilltest), xlabel("Length"), ylabel("Force")
 
 %% Fitting polynomials to FV and FLpas
 

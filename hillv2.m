@@ -1,4 +1,4 @@
-function [H2] = hillv2(inputArg1,inputArg2)
+function [H2] = hillv2(x,v,a,C)
 % Hill function version 2 w/ sigmoid FV curve
 
 
@@ -24,7 +24,7 @@ FLactFunc = @(b,x) exp(-(((x-b(2))-1)./b(1)).^2); % FL active component
     y(x<p(2)) = 0;
     end
 
-H = Fmax.*((FLactFunc(b,x).*FVsig(fvs,v).*a) + FLpasFunc(p,x));
+H2 = Fmax.*((FLactFunc(b,x).*FVsig(fvs,v).*a) + FLpasFunc(p,x));
 
 end
 

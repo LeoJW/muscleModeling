@@ -11,8 +11,8 @@ FLactFunc = @(b,x) exp(-(((x-b(2))-1)./b(1)).^2);
 
 w = 2; % frequency in Hz or cycles/s
 ncycles = 8; % number of cycles
-tstart = 0.2;% point in cycle where activation begins (scaled 0 to 1)
-duration = 0.4; % duration of cycle that is activated (scaled 0 to 1)
+tstart = 0.15;% point in cycle where activation begins (scaled 0 to 1)
+duration = 0.6; % duration of cycle that is activated (scaled 0 to 1)
 
 totaltime = ncycles/w; % time in s
 t = linspace(0,totaltime,1e4); % time vector, 1e4 long
@@ -31,7 +31,7 @@ p = [p1,p2];
 c1 = 0.29; % FV curvature of contracting phase
 c2 = 1; % FV overall curvature
 cmax = 1.8; % FV asymptote as x approaches -inf
-vmax = 1; % FV max velocity, normalized
+vmax = 2.52; % FV max velocity, normalized
 fvc = [c1,c2,cmax,vmax];
 
 Fmax = 1; % max force

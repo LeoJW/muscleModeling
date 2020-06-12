@@ -45,6 +45,14 @@ delay = 50; % activation delay, in ms -> need to rescale in a
 gam1 = -0.993; % activation constant
 gam2 = -0.993; % activation constant
 
+% FV curve sigmoid version
+% cmax same as above
+s1 = 1;
+s2 = 1/cmax; % "asymptote", upper limit
+s3 = 0.5;
+s4 = -6; % affects steepness of slope at 0
+FVsig = s1/(s2 + s3.*exp(s4*v));
+
 % Neural excitation, vector of zeros except one chunk which is 1s
 ucycle = zeros(1,lcycle);
 ucycle(startdur:enddur) = 1;

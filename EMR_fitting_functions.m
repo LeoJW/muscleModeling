@@ -8,16 +8,23 @@ clear vars;
 FLactFunc = @(b,x) exp(-(((x-b(2))-1)./b(1)).^2);
 
 %% Variables
-hz = 500; % sample rate in samples/s
-nsamp = linspace(0,1000,10e3); % number of samples
-% If t is defined as linspace(0,100,10e3), work loops look normal
-t = nsamp./hz; % time in seconds
-w = 8.6; % cycle frequency in rad/s
+
 A = 0.5; % amplitude of x
 x = A.*sin(w.*t) + 0.5; % L/Lopt
 v = A.*w.*cos(w*t); % Lengths/sec
 
-% Define variables
+w = 4; % frequency in Hz or cycles/s
+ncycles = 8; % number of cycles
+tstart = 0.1;% point in cycle where activation begins (scaled 0 to 1)
+duration = 0.4; % duration of cycle that is activated (scaled 0 to 1)
+
+totaltime = ncycles/w; % time in s
+t = linspace(0,totaltime,1e4); % time vector, 1e4 long
+dt = totaltime/length(t); % time step
+niter = length(t); % number of iterations in loop
+lcycle = niter/ncycles; % cycle length in 1/1e4 s
+startdur = round(tstart*lcycle); % start of activation in cycle
+enddur = round(startdur + duration*lcycle); % duration of cycle activated in 1/1e4 s
 
 b1 = 0.25; % FLact
 b2 = 0; % FLact
@@ -33,7 +40,7 @@ fvc = [c1,c2,cmax,vmax];
 
 Fmax = 1; % max force
 
-d = 50; % activation delay in msec
+delay = 50; % activation delay, in ms -> need to rescale in a
 gam1 = -0.993; % activation
 gam2 = -0.993; % activation
 % u and a defined below
@@ -77,18 +84,14 @@ hold off;
 %% Vectors for dummy work loops
 
 % Neural excitation, vector of zeros except one chunk which is 1s
-u = zeros(1,10e3);
-u(300:800) = 1;
-figure(4)
-plot(u)
-xlim([0 3000])
-ylim([0 1.2])
+ucycle = zeros(1,lcycle);
+ucycle(startdur:enddur) = 1;
+u = repmat(ucycle,1,ncycles);
 hold on;
 
 %% Activation function
-gam1 = -0.993;
-gam2 = -0.993;
 
+d = (delay*1e-3)*(niter/totaltime); % delay, scaled
 a = activationODE2(u,d,gam1,gam2);
 figure(5)
 plot(a)
@@ -153,22 +156,12 @@ FLpaspoly = polyfit(x,FLpas_lu,7);
 
 %% Sigmoid function for FV
 
-cmax2 = 1.8; % "asymptote" or upper limit
-s = [1 1/cmax2];
-vz = linspace(-5,5,1e3); % velocity
-g = 6; % affects steepness of slope at 0
-vo = 1; % horizontal translation
-z = 0.5;
-
-FVsig = s(1)./(s(2) + exp(-g*(vz-(1-vo))));
-figure(10)
-plot(vz,FVsig)
-xlim([-1 1])
-
-FVsig2 = s(1)./(s(2) + z.*exp(-g*vz));
-figure(11)
-plot(vz,FVsig2)
-xlim([-1 1])
+% cmax same as above
+s1 = 1;
+s2 = 1/cmax; % "asymptote", upper limit
+s3 = 0.5;
+s4 = -6; % affects steepness of slope at 0
+FVsig = s1/(s2 + s3.*exp(s4*v));
 
 %% More functions
 

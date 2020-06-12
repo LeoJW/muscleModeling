@@ -91,9 +91,20 @@ for i = 2:niter
     vm(i) = vrange(index); % value in vrange that minimizes mindiff
 end
 
-% vm(i) = vrange(index)
-% find appropriate index of mindiff
-% find corresponding index and value of vrange
+%% Solving for velocity with ode45
+
+% Vector input for hill constants
+C2 = [b1,b2,p1,p2,s1,s2,s3,s4,Fmax]
+
+% Additional constants
+l = A2.*sin(w.*t) + 2; % MTU length, l/Lopt
+ldot = A2.*w.*cos(w*t); % MTU velocity, ldot/Lopt
+
+% Time span
+tspan = [0 10]
+
+% Solve
+blep = ode45(hillODE(t,tvec,l,ldot,statexF,a,C2),tspan,y0)
 
 %% More functions
 

@@ -161,8 +161,13 @@ FLpaspoly = polyfit(x,FLpas_lu,7);
 s1 = 1;
 s2 = 1/cmax; % "asymptote", upper limit
 s3 = 0.5;
-s4 = -6; % affects steepness of slope at 0
-FVsig = s1/(s2 + s3.*exp(s4*v));
+s4 = 6; % affects steepness of slope at 0
+s = [s1,s2,s3,s4];
+
+FVsig1 = FVsig(s,v);
+figure(10)
+plot(v,FVsig1)
+
 
 %% More functions
 

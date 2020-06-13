@@ -5,7 +5,9 @@ s1 = s(1);
 s2 = s(2); % 1/cmax, "asymptote", upper limit
 s3 = s(3);
 s4 = s(4); % affects steepness of slope at 0
-FV = s1/(s2 + s3.*exp(s4*v));
+
+v = v./vmax;
+FV = s1./(s2 + s3.*exp(-s4*v));
 
 end
 

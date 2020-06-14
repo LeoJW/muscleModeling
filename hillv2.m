@@ -10,12 +10,13 @@ p2 = C2(4);
 s1 = C2(5);
 s2 = C2(6);
 s3 = C2(7);
-s4 = C2(8);
-Fmax = C2(9);
+cmax = C2(8);
+vmax = C2(9)
+Fmax = C2(10);
 
 b = C2(1:2);
 p = C2(3:4);
-fvs = C(5:8);
+fvs = C2(5:9);
 
 FLactFunc = @(b,x) exp(-(((x-b(2))-1)./b(1)).^2); % FL active component
 

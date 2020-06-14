@@ -156,8 +156,7 @@ plot(x,hilltest), xlabel("Length"), ylabel("Force")
 s1 = 1;
 s2 = 0.5;
 s3 = 6; % affects steepness of slope at 0
-cmax = 1.8; % "asymptote", upper limit (same value as above)
-vmax = 2.52; % same as value above
+% cmax and vmax same as above
 
 s = [s1,s2,s3,cmax,vmax];
 

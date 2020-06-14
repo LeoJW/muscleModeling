@@ -157,12 +157,13 @@ FLpaspoly = polyfit(x,FLpas_lu,7);
 
 %% Sigmoid function for FV
 
-% cmax same as above
 s1 = 1;
-s2 = 1/cmax; % "asymptote", upper limit
-s3 = 0.5;
-s4 = 6; % affects steepness of slope at 0
-s = [s1,s2,s3,s4];
+s2 = 0.5
+s3 = 6; % affects steepness of slope at 0
+cmax = 1.8; % "asymptote", upper limit (same value as above)
+vmax = 2.52; % same as value above
+
+s = [s1,s2,s3,cmax,vmax];
 
 FVsig1 = FVsig(s,v);
 figure(10)

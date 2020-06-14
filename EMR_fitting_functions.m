@@ -150,25 +150,28 @@ figure(9)
 hilltest = hill(x,v,a,C);
 plot(x,hilltest), xlabel("Length"), ylabel("Force")
 
-%% Fitting polynomials to FV and FLpas
-
-FVpoly = polyfit(FV_lu,v,3);
-FLpaspoly = polyfit(x,FLpas_lu,7);
 
 %% Sigmoid function for FV
 
 s1 = 1;
-s2 = 0.5
+s2 = 0.5;
 s3 = 6; % affects steepness of slope at 0
 cmax = 1.8; % "asymptote", upper limit (same value as above)
 vmax = 2.52; % same as value above
 
 s = [s1,s2,s3,cmax,vmax];
 
-FVsig1 = FVsig(s,v);
+FVsigtest = FVsig(s,v);
 figure(10)
-plot(v,FVsig1)
+plot(v,FVsigtest)
 
+
+%% Hill v2 with sigmoid FV
+
+C2 = [b1,b2,p1,p2,s1,s2,s3,cmax,vmax,Fmax];
+hilltest2 = hillv2(x,v,a,C2);
+figure(11)
+plot(x,hilltest2)
 
 %% More functions
 

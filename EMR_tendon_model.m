@@ -65,30 +65,6 @@ a = activationODE2(u,d,gam1,gam2);
 C = [b1,b2,p1,p2,c1,c2,cmax,vmax,Fmax];
 
 k = 0.1; % spring constant
-vrange = linspace(-20,20,1e4); % range of possible muscle velocities
-
-A2 = 0.2; % amplitude of lmt
-lmt = A2.*sin(w.*t) + 2; % MTU length, lmt/Lopt
-vmt = A2.*w.*cos(w*t); % MTU velocity, vmt/Lopt
-
-% Initial conditions
-x0 = [1.1461,0]; % muscle [xm,vm]
-
-% Preallocate
-xm = [x0(1), zeros(1,niter-1)]; % muscle length
-vm = [x0(2), zeros(1,niter-1)]; % muscle velocity
-Ft = [k.*(lmt(1)-x0(1)), zeros(1,niter-1)]; % tendon force
-dFt = [k.*(vmt(1)-x0(2)), zeros(1,niter-1)]; % deriv of tendon force
-
-% mindiff = k(l-x) - hill(x,v,a,C); want value of vrange that minimizes mindiff
-
-for i = 2:niter
-    xm(i) = xm(i-1) + vm(i-1).*dt; % problem here with vm
-    Ft(i) = k.*(lmt(i)-xm(i));
-    mindiff = abs(Ft(i) - hill(xm(i),vrange,a(i),C));
-    [~,index] = min(mindiff); % should correspond to index of vrange that minimizes
-    vm(i) = vrange(index); % value in vrange that minimizes mindiff
-end
 
 %% Solving for velocity with ode45
 
@@ -96,6 +72,7 @@ end
 C2 = [b1,b2,p1,p2,s1,s2,s3,cmax,vmax,Fmax];
 
 % Additional constants
+A2 = 0.2; % amplitude of l
 l = A2.*sin(w.*t) + 2; % MTU length, l/Lopt
 ldot = A2.*w.*cos(w*t); % MTU velocity, ldot/Lopt
 
@@ -106,8 +83,10 @@ tvec = linspace(1,10,1e4);
 % Initial conditions
 y0 = [0 1]; % [t,x]
 
+xF = zeros(2,1);
+
 % Solve
-blep = ode45(@(t,x) hillODE(t,tvec,l,ldot,statexF,a,C2),tspan,y0);
+[t,xF] = ode45(@(t,x) hillODE(t,tvec,l,ldot,xF,a,C2),tspan,y0);
 
 %% More functions
 

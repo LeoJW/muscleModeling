@@ -1,4 +1,4 @@
-function [dsdt] = hillODE(t,tvec,l,ldot,statexF,a,C2)
+function [dsdt] = hillODE(t,tvec,l,ldot,xF,a,C2)
 % ODE for MTU
 
 % Constants
@@ -33,12 +33,12 @@ FLpas = FLpasFunc(p,x);
 tvec = linspace(1,10,1e4)
 
 x = interp1(xt,x,t);
-F = interp1(Ft,F,t)];
-statexF = [x,F];
+F = interp1(Ft,F,t);
+xF = [x,F];
 
-xdot = (ln(((s1*Fmax.*FLact.*a)/(k(l-x)-FLpas) - s2)./s3))./s4; % dx/dt
-Fdot = k(ldot - (ln(((s1*Fmax.*exp(-((((l-(F/k))-b2)-1)./b1).^2).*a)/(F-p1.*((l-(F/k))-p2).^2) - s2)./s3))./s4); % dF/dt
-dsdt = [xdot,Fdot];
+dsdt = zeros(2,1) % [xdot, Fdot]
+dsdt(1) = (ln(((s1*Fmax.*FLact.*a)/(k(l-x)-FLpas) - s2)./s3))./s4; % dx/dt
+dsdt(2) = k(ldot - (ln(((s1*Fmax.*exp(-((((l-(F/k))-b2)-1)./b1).^2).*a)/(F-p1.*((l-(F/k))-p2).^2) - s2)./s3))./s4); % dF/dt
 
 end
 

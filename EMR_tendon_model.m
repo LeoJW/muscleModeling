@@ -51,7 +51,6 @@ s1 = 1;
 s2 = 1/cmax; % "asymptote", upper limit
 s3 = 0.5;
 s4 = -6; % affects steepness of slope at 0
-FVsig = s1/(s2 + s3.*exp(s4*v));
 
 % Neural excitation, vector of zeros except one chunk which is 1s
 ucycle = zeros(1,lcycle);
@@ -94,17 +93,21 @@ end
 %% Solving for velocity with ode45
 
 % Vector input for hill constants
-C2 = [b1,b2,p1,p2,s1,s2,s3,s4,Fmax]
+C2 = [b1,b2,p1,p2,s1,s2,s3,cmax,vmax,Fmax];
 
 % Additional constants
 l = A2.*sin(w.*t) + 2; % MTU length, l/Lopt
 ldot = A2.*w.*cos(w*t); % MTU velocity, ldot/Lopt
 
 % Time span
-tspan = [0 10]
+tspan = [0 10];
+tvec = linspace(1,10,1e4);
+
+% Initial conditions
+y0 = [0 1]; % [t,x]
 
 % Solve
-blep = ode45(hillODE(t,tvec,l,ldot,statexF,a,C2),tspan,y0)
+blep = ode45(@(t,x) hillODE(t,tvec,l,ldot,statexF,a,C2),tspan,y0);
 
 %% More functions
 

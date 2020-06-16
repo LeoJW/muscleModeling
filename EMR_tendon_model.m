@@ -14,10 +14,10 @@ FLactFunc = @(b,x) exp(-(((x-b(2))-1)./b(1)).^2);
 
 % Variables
 
-w = 4; % frequency in Hz or cycles/s
+w = 2; % frequency in Hz or cycles/s
 ncycles = 8; % number of cycles
-tstart = 0.1;% point in cycle where activation begins (scaled 0 to 1)
-duration = 0.4; % duration of cycle that is activated (scaled 0 to 1)
+tstart = 0.15;% point in cycle where activation begins (scaled 0 to 1)
+duration = 0.6; % duration of cycle that is activated (scaled 0 to 1)
 
 totaltime = ncycles/w; % time in s
 t = linspace(0,totaltime,1e4); % time vector, 1e4 long
@@ -62,14 +62,15 @@ d = (delay*1e-3)*(niter/totaltime); % delay, scaled
 a = activationODE2(u,d,gam1,gam2);
 
 % Vector for Hill constants
-C = [b1,b2,p1,p2,c1,c2,cmax,vmax,Fmax];
+% C = [b1,b2,p1,p2,c1,c2,cmax,vmax,Fmax];
 
 k = 0.1; % spring constant
 
 %% Solving for velocity with ode45
 
 % Vector input for hill constants
-C2 = [b1,b2,p1,p2,s1,s2,s3,cmax,vmax,Fmax];
+% C2 = [b1,b2,p1,p2,s1,s2,s3,cmax,vmax,Fmax];
+C = [b1,b2,p1,p2,s1,s2,s3,cmax,vmax,Fmax,k];
 
 % Additional constants
 A2 = 0.2; % amplitude of l
@@ -77,16 +78,16 @@ l = A2.*sin(w.*t) + 2; % MTU length, l/Lopt
 ldot = A2.*w.*cos(w*t); % MTU velocity, ldot/Lopt
 
 % Time span
-tspan = [0 10];
-tvec = linspace(1,10,1e4);
+tspan = [0 totaltime];
 
 % Initial conditions
-y0 = [0 1]; % [t,x]
+y0 = [1,k*(l(1)-1)]; % [x,F]
 
-xF = zeros(2,1);
+% Pass in an initial muscle length (x0)
+% Use x0 (with l0 and ldot0) to calculate F0
 
 % Solve
-[t,xF] = ode45(@(t,x) hillODE(t,tvec,l,ldot,xF,a,C2),tspan,y0);
+[t_out,x_out] = ode45(@(time,state) hillODE(time,t,l,ldot,state,a,C),tspan,y0);
 
 %% More functions
 

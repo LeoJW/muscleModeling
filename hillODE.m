@@ -1,20 +1,24 @@
-function [dsdt] = hillODE(t,tvec,l,ldot,xF,a,C2)
+function [dxdt] = hillODE(t,tvec,l,ldot,state,a,C)
 % ODE for MTU
 
-% Constants
-b1 = C2(1);
-b2 = C2(2);
-p1 = C2(3);
-p2 = C2(4);
-s1 = C2(5);
-s2 = C2(6);
-s3 = C2(7);
-s4 = C2(8);
-Fmax = C2(9);
+% State vector
+x = state(1);
+F = state(2);
 
-b = C2(1:2);
-p = C2(3:4);
-s = C2(5:8);
+% Constants
+b1 = C(1);
+b2 = C(2);
+p1 = C(3);
+p2 = C(4);
+s1 = C(5);
+s2 = C(6);
+s3 = C(7);
+s4 = C(8);
+Fmax = C(9);
+k = C(10);
+
+b = C(1:2);
+p = C(3:4);
 
 % FL active component
 FLactFunc = @(b,x) exp(-(((x-b(2))-1)./b(1)).^2);
@@ -27,18 +31,18 @@ FLact = FLactFunc(b,x);
     end
 FLpas = FLpasFunc(p,x);
 
+% could pass in FLpas and FLact as arguments to hillODE instead
 % FV sigmoid function for ref: FVsig = s1/(s2 + s3.*exp(s4*v));
 % rearranged below to solve for xdot (velocity)
 
-tvec = linspace(1,10,1e4)
+% l and ldot at specific time points
+tl = interp1(tvec,l,t);
+tldot = interp1(tvec,ldot,t);
+ta = interp1(tvec,a,t);
 
-x = interp1(xt,x,t);
-F = interp1(Ft,F,t);
-xF = [x,F];
-
-dsdt = zeros(2,1) % [xdot, Fdot]
-dsdt(1) = (ln(((s1*Fmax.*FLact.*a)/(k(l-x)-FLpas) - s2)./s3))./s4; % dx/dt
-dsdt(2) = k(ldot - (ln(((s1*Fmax.*exp(-((((l-(F/k))-b2)-1)./b1).^2).*a)/(F-p1.*((l-(F/k))-p2).^2) - s2)./s3))./s4); % dF/dt
+dxdt = zeros(2,1); % [xdot, Fdot]
+dxdt(1) = (log(((s1*Fmax.*FLact.*ta)/(k*(tl-x)-FLpas) - s2)./s3))./s4; % dx/dt
+dxdt(2) = k*(tldot - (log(((s1*Fmax.*exp(-((((tl-(F/k))-b2)-1)./b1).^2).*ta)/(F-p1.*((tl-(F/k))-p2).^2) - s2)./s3))./s4); % dF/dt
 
 end
 

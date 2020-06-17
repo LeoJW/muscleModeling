@@ -48,9 +48,9 @@ gam2 = -0.993; % activation constant
 % FV curve sigmoid version
 % cmax same as above
 s1 = 1;
-s2 = 1/cmax; % "asymptote", upper limit
-s3 = 0.5;
-s4 = -6; % affects steepness of slope at 0
+s2 = 0.5; % "asymptote", upper limit
+s3 = 6; % affects steepness of slope at 0
+% s = [s1,s2,s3,cmax,vmax];
 
 % Neural excitation, vector of zeros except one chunk which is 1s
 ucycle = zeros(1,lcycle);
@@ -70,7 +70,7 @@ k = 0.1; % spring constant
 
 % Vector input for hill constants
 % C2 = [b1,b2,p1,p2,s1,s2,s3,cmax,vmax,Fmax];
-C = [b1,b2,p1,p2,s1,s2,s3,cmax,vmax,Fmax,k];
+C = [b1,b2,p1,p2,s1,s2,s3,s4,vmax,Fmax,k];
 
 % Additional constants
 wr = 6.283185*w; % radians per second

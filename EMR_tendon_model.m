@@ -2,7 +2,7 @@
 clear vars;
 
 % FL curves are normalized force plotted against L/Lopt
-% velocity in (L/Lopt)/sec
+% velocity in (L/Lopt)/sec normalized to v/vmax
 % FV curve is normalized force plotted against v/vmax
 
 %% Hill Model
@@ -75,7 +75,7 @@ C = [b1,b2,p1,p2,s1,s2,s3,cmax,vmax,Fmax,k];
 % Additional constants
 A2 = 0.2; % amplitude of l
 l = A2.*sin(w.*t) + 2; % MTU length, l/Lopt
-ldot = A2.*w.*cos(w*t); % MTU velocity, ldot/Lopt
+ldot = A2.*w.*cos(w*t); % MTU velocity, ldot/vmax
 
 % Time span
 tspan = [0 totaltime];

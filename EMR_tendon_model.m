@@ -69,7 +69,7 @@ k = 0.1; % spring constant
 
 %% Solving for velocity with ode45
 
-% Vector input for hill constants
+% Vector input for hillODE constants
 % C2 = [b1,b2,p1,p2,s1,s2,s3,cmax,vmax,Fmax];
 C = [b1,b2,p1,p2,s1,s2,s3,s4,vmax,Fmax,k];
 

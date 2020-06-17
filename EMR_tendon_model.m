@@ -73,9 +73,10 @@ k = 0.1; % spring constant
 C = [b1,b2,p1,p2,s1,s2,s3,cmax,vmax,Fmax,k];
 
 % Additional constants
+wr = 6.283185*w; % radians per second
 A2 = 0.2; % amplitude of l
-l = A2.*sin(w.*t) + 2; % MTU length, l/Lopt
-ldot = A2.*w.*cos(w*t); % MTU velocity, ldot/vmax
+l = A2.*sin(wr.*t) + 2; % MTU length, l/Lopt
+ldot = A2.*wr.*cos(wr*t); % MTU velocity, ldot/vmax
 
 % Time span
 tspan = [0 totaltime];

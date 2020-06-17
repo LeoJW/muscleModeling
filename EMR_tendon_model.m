@@ -50,6 +50,7 @@ gam2 = -0.993; % activation constant
 s1 = 1;
 s2 = 0.5; % "asymptote", upper limit
 s3 = 6; % affects steepness of slope at 0
+s4 = 1/cmax
 % s = [s1,s2,s3,cmax,vmax];
 
 % Neural excitation, vector of zeros except one chunk which is 1s

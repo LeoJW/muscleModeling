@@ -41,8 +41,12 @@ tldot = interp1(tvec,ldot,t);
 ta = interp1(tvec,a,t);
 
 dxdt = zeros(2,1); % [xdot, Fdot]
-dxdt(1) = (log(((s1*Fmax.*FLact.*ta)/(k*(tl-x)-FLpas) - s2)./s3))./s4; % dx/dt
-dxdt(2) = k*(tldot - (log(((s1*Fmax.*exp(-((((tl-(F/k))-b2)-1)./b1).^2).*ta)/(F-p1.*((tl-(F/k))-p2).^2) - s2)./s3))./s4); % dF/dt
+if a > 0
+    dxdt(1) = (-1/s3).*(log(((s1/s2)*(Fmax.*FLact.*ta)/(k*(tl-x)-FLpas) - s4/s2))); % dx/dt
+    dxdt(2) = k*(tldot - ((-1/s3).*log(((s1/s2)*(Fmax.*exp(-((((tl-F/k)-b2)-1)./b1).^2).*ta)/(F-p1.*((tl-F/k)-p2).^2) - s4/s2)))); % dF/dt
+else
+    dxdt(1) = tldot./((H(x-p2).*(2p1.*(x-p2).^2))/k + 1))
+    dxdt(2) = k*(tldot - tldot./((H((tl-F/k)-p2).*(2*p1*((tl-F/k)-p2).^2))/k + 1))
 
 end
 

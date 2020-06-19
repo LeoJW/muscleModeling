@@ -43,7 +43,7 @@ ta = interp1(tvec,a,t);
 H = heaviside(x-p2);
 
 dxdt = zeros(2,1); % [xdot, Fdot]
-if a > 0
+if ta > 0
     dxdt(1) = (-1/s3).*(log(((s1/s2)*(Fmax.*FLact.*ta)/(k*(tl-x)-FLpas) - s4/s2))); % dx/dt
     dxdt(2) = k*(tldot - ((-1/s3).*log(((s1/s2)*(Fmax.*exp(-((((tl-F/k)-b2)-1)./b1).^2).*ta)/(F-p1.*((tl-F/k)-p2).^2) - s4/s2)))); % dF/dt
 else

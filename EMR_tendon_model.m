@@ -93,7 +93,7 @@ y0 = [1,k*(l(1)-1)]; % [x,F]
 
 % Boundary value solver
 solinit = bvpinit(x,yinit);
-sol = bvp4c(@(time,state) hillODE(time,t,l,ldot,state,a,C),bcfun,solinit);\
+sol = bvp4c(@(time,state) hillODE(time,t,l,ldot,state,a,C),@(ya,yb) bcfun(ya,yb),solinit);
 % bcfun is separate function specifying boundary conditions
 
 %% More functions

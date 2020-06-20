@@ -88,8 +88,13 @@ y0 = [1,k*(l(1)-1)]; % [x,F]
 % Pass in an initial muscle length (x0)
 % Use x0 (with l0 and ldot0) to calculate F0
 
-% Solve
+% Solve ODE system
 [t_out,x_out] = ode45(@(time,state) hillODE(time,t,l,ldot,state,a,C),tspan,y0);
+
+% Boundary value solver
+solinit = bvpinit(x,yinit);
+sol = bvp4c(@(time,state) hillODE(time,t,l,ldot,state,a,C),bcfun,solinit);\
+% bcfun is separate function specifying boundary conditions
 
 %% More functions
 

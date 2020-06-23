@@ -47,8 +47,8 @@ gam2 = -0.993; % activation constant
 
 % FV curve sigmoid version
 % cmax same as above
-s1 = 1.8;
-s2 = 0.8; % "asymptote", upper limit
+s1 = 1.8; % "asymptote", upper limit
+s2 = 0.8;
 s3 = 6; % affects steepness of slope at 0
 s4 = 1;
 % s = [s1,s2,s3,cmax,vmax];

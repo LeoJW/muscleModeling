@@ -4,8 +4,7 @@ function [FV] = FVsig(s,v)
 s1 = s(1);
 s2 = s(2); 
 s3 = s(3); % affects steepness of slope at 0
-cmax = s(4); % "asymptote", upper limit
-s4 = 1/cmax;
+s4 = s(4); % "asymptote", upper limit
 vmax = s(5);
 
 v = v./vmax;

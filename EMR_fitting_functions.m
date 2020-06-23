@@ -153,21 +153,21 @@ plot(x,hilltest), xlabel("Length"), ylabel("Force")
 
 %% Sigmoid function for FV
 
-s1 = 1;
-s2 = 0.5;
+s1 = 1.8; % "asymptote", upper limit (cmax)
+s2 = 0.8;
 s3 = 6; % affects steepness of slope at 0
+s4 = 1;
 % cmax and vmax same as above
 
-s = [s1,s2,s3,cmax,vmax];
+s = [s1,s2,s3,s4,vmax];
 
 FVsigtest = FVsig(s,v);
 figure(10)
 plot(v,FVsigtest)
 
-
 %% Hill v2 with sigmoid FV
 
-C2 = [b1,b2,p1,p2,s1,s2,s3,cmax,vmax,Fmax];
+C2 = [b1,b2,p1,p2,s1,s2,s3,s4,vmax,Fmax];
 hilltest2 = hillv2(x,v,a,C2);
 figure(11)
 plot(x,hilltest2)

@@ -47,10 +47,10 @@ gam2 = -0.993; % activation constant
 
 % FV curve sigmoid version
 % cmax same as above
-s1 = 1;
-s2 = 0.5; % "asymptote", upper limit
+s1 = 1.8; % "asymptote", upper limit
+s2 = 0.8;
 s3 = 6; % affects steepness of slope at 0
-s4 = 1/cmax;
+s4 = 1;
 % s = [s1,s2,s3,cmax,vmax];
 
 % Neural excitation, vector of zeros except one chunk which is 1s
@@ -71,7 +71,7 @@ k = 0.1; % spring constant
 
 % Vector input for hillODE constants
 % C2 = [b1,b2,p1,p2,s1,s2,s3,cmax,vmax,Fmax];
-C = [b1,b2,p1,p2,s1,s2,s3,s4,vmax,Fmax,k];
+C = [b1,b2,p1,p2,s1,s2,s3,s4,,Fmax,k];
 
 % Additional constants
 wr = 6.283185*w; % radians per second
@@ -93,7 +93,7 @@ y0 = [1,k*(l(1)-1)]; % [x,F]
 
 % Boundary value solver
 ya = [1,k*(l(1)-1)]; % [x,F]
-yinit = ; % ??
+yinit = 1; % ??
 solinit = bvpinit(x,yinit);
 sol = bvp4c(@(time,state) hillODE(time,t,l,ldot,state,a,C),@(ya,yb) bcfun(ya,yb),solinit);
 % bcfun is separate function specifying boundary conditions

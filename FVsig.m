@@ -1,10 +1,10 @@
 function [FV] = FVsig(s,v)
 % Sigmoid version of FV function
 
-s1 = s(1);
+s1 = s(1); % "asymptote", upper limit
 s2 = s(2); 
 s3 = s(3); % affects steepness of slope at 0
-s4 = s(4); % "asymptote", upper limit
+s4 = s(4);
 vmax = s(5);
 
 v = v./vmax;

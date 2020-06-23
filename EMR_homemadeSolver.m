@@ -72,8 +72,12 @@ atol = 0.01; %Tolerance for a to avoid singularities
 a = (1-atol).*a+atol;
 
 
-% FL active component function
+%---Anonymous functions
+%FL active component function
 FLactFunc = @(b,x) exp(-(((x-b(2))-1)./b(1)).^2);
+%FL passive component function
+FLpasFunc = @(p,x) heaviside(x-p(2)).*p(1).*(x-p(2)).^2;
+
 
 %% Run Simulation
 
@@ -81,7 +85,7 @@ FLactFunc = @(b,x) exp(-(((x-b(2))-1)./b(1)).^2);
 C = [b1,b2,p1,p2,s1,s2,s3,s4,Fmax,k];
 
 %---MTU Overall length/velocity parameters
-wr = 6.283185*w; % radians per second
+wr = 2*pi*w; % radians per second
 Lamplitude = 0.2; % amplitude of l
 l = Lamplitude.*sin(wr.*t) + 2; % MTU length, l/Lopt
 ldot = Lamplitude.*wr.*cos(wr*t); % MTU velocity, ldot/vmax
@@ -164,11 +168,3 @@ colormap(copper)
 cbh = colorbar;
 set(cbh,'YTick',linspace(0,1,simiter))
 set(cbh,'YTickLabel', num2str(k.'))
-
-%% More functions
-
-%Passive force-length curve function
-function [y] = FLpasFunc(p,x)
-    y = p(1).*(x-p(2)).^2;
-    y(x<p(2)) = 0;
-end

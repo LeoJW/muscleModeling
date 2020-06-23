@@ -9,7 +9,7 @@ clear vars;
 %% Declare comstants, setup
 
 %---Primary controls
-simiter = 10; %# of spring constants to compare
+simiter = 5; %# of spring constants to compare
 h = 1e-3; %simulation step size
 velBruteForceSize = 1e4; %# of points to solve for velocity at
 
@@ -104,13 +104,15 @@ v = cell(size(k));
 x = cell(size(k));
 vsweep = linspace(-1,1,velBruteForceSize);
 
-%Loop through different inputs, run simulation and plot
+%Loop through different spring constants
 for i = 1:simiter
     
+    %Declare vectors for this run's simulation
     x{i} = [1,zeros(1,length(simt)-1)]; %initial condition for muscle length
     v{i} = zeros(1,length(simt));
     err{i} = zeros(1,length(simt));
     
+    %Loop thru each point in time for simulation
     for j = 1:length(simt)
         %Find new x from previous velocity
         if j~=1

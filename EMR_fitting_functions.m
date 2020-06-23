@@ -165,7 +165,6 @@ FVsigtest = FVsig(s,v);
 figure(10)
 plot(v,FVsigtest)
 
-
 %% Hill v2 with sigmoid FV
 
 C2 = [b1,b2,p1,p2,s1,s2,s3,s4,vmax,Fmax];

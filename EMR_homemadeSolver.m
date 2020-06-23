@@ -107,6 +107,8 @@ Ferr = cell(size(k));
 v = cell(size(k));
 x = cell(size(k));
 vsweep = linspace(-1,1,velBruteForceSize);
+%Calculate FV function at all velocities
+FVactVal = FVsig([s1,s2,s3,s4,1],vsweep);
 
 %Loop through different spring constants
 for i = 1:simiter
@@ -127,7 +129,6 @@ for i = 1:simiter
         ta = interp1(t,a,simt(j));
         %Solve individual components of hill model
         FLactVal = (1-Ftol).*FLactFunc([b1,b2],x{i}(j)) + Ftol;
-        FVactVal = FVsig([s1,s2,s3,s4,1],vsweep);
         %use x(j) to solve for muscle velocity
         eval = k(i)*(tl-x{i}(j)) - (FLactVal.*FVactVal.*ta + FLpasFunc([p1,p2],x{i}(j)));
         %Find root of function where velocity is valid

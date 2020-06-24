@@ -9,7 +9,7 @@ clear vars;
 %% Declare comstants, setup
 
 %---Primary controls
-simiter = 5; %# of spring constants to compare
+simiter = 8; %# of spring constants to compare
 h = 1e-3; %simulation step size
 velBruteForceSize = 1e4; %# of points to solve for velocity at
 

@@ -174,9 +174,49 @@ set(cbh,'YTickLabel', num2str(k.'))
 %---Vector input for hill constants
 B = [b1,b2,p1,p2,s1,s2,s3,s4,vmax,Fmax];
 
-% Plot work loops
-hilltest = hillv2(x,v,a,B);
-plot(x,hilltest)
+% Prep figure for second loop
+close all
+figure(1)
+hold on
+box on
+grid on
+col = copper(simiter);
+
+%---Loop through different phases of activation
+for i = 1:simiter
+    
+    % Declare vectors for simulation run
+    x{i} = [1,zeros(1,length(simt)-1)]; % muscle length initial condition
+    v{i} = zeros(1,length(simt)); % velocity
+    err{i} = zeros(1,length(simt)); % error
+    F{i} = zeros(1,length(simt)); % force
+    
+    % Loop through each time point
+    for j = 1:length(simt);
+        % Find new x from previous v
+        if j~=1
+            x{i}(j) = x{i}(j-1) + v{i}(j-1)*h;
+        end
+        % Interpolate l,a at time point
+        tl = interp1(t,l,simt(j));
+        ta = interp1(t,a,simt(j));
+        % Solve individual components of Hill model
+        FLactVal = (1-Ftol).*FLactFunc([b1,b2],x{i}(j)) + Ftol;
+        % Use x(j) to solve for muscle v
+        eval = k(i)*(tl-x{i}(j)) - (FLactVal.*FVactVal.*ta + FLpasFunc([p1,p2],x{i}(j)));
+        % Find root of function where velocity is valid
+        [errval,vind] = min(abs(eval));
+        err{i}(j) = eval(vind);
+        v{i}(j) = vsweep(vind);
+        
+        F{i}(j) = hillv2(x{i}(j),v{i}(j),ta,B);
+    end
+    
+    % Plot output
+    plot(x{i},F{i},'color',col(i,:))
+    drawnow
+    
+end
 
 
 %% Kinematics data

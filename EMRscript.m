@@ -174,7 +174,9 @@ set(cbh,'YTickLabel', num2str(k.'))
 %---Vector input for hill constants
 B = [b1,b2,p1,p2,s1,s2,s3,s4,vmax,Fmax];
 
+% Plot work loops
 hilltest = hillv2(x,v,a,B);
+plot(x,hilltest)
 
 
 %% Kinematics data

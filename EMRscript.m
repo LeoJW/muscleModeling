@@ -14,7 +14,7 @@ simiter = 5; % number of spring constants to compare
 h = 1e-3; % step size
 velBruteSize = 1e4; % number of points to solve for v
 
-k = linspace(0.01,0.2,simiter); % spring constants
+stimPhase = linspace(0.01,0.2,simiter);
 
 %---Secondary controls
 
@@ -54,6 +54,8 @@ delay = 50; % activation delay, in ms -> rescaled in a
 gam1 = -0.993; % activation constant
 gam2 = -0.993; % activation constant
 
+k = 0.1; % spring constant
+
 %---Neural excitation, vector of zeros except one chunk which is 1s
 ucycle = zeros(1,lcycle);
 ucycle(startdur:enddur) = 1;
@@ -79,8 +81,8 @@ FLpasFunc = @(p,x) heaviside(x-p(2)).*p(1).*(x-p(2)).^2;
 
 %% Run Simulation
 
-%---Vector input for hillODE constants
-C = [b1,b2,p1,p2,s1,s2,s3,s4,Fmax,k];
+%---Vector input for Hill constants
+B = [b1,b2,p1,p2,s1,s2,s3,s4,vmax,Fmax];
 
 %---MTU overall length/velocity parameters
 wr = 2*pi*w; % frequency in radians/s
@@ -106,81 +108,6 @@ x = cell(size(k));
 vsweep = linspace(-1,1,velBruteSize);
 % Calculate FV function at all velocities
 FVactVal = FVsig([s1,s2,s3,s4,vmax],vsweep);
-
-%---Loop through different spring constants
-for i = 1:simiter
-    
-    % Declare vectors for simulation run
-    x{i} = [1,zeros(1,length(simt)-1)]; % muscle length initial condition
-    v{i} = zeros(1,length(simt)); % velocity
-    err{i} = zeros(1,length(simt)); % error
-    
-    % Loop through each time point
-    for j = 1:length(simt);
-        % Find new x from previous v
-        if j~=1
-            x{i}(j) = x{i}(j-1) + v{i}(j-1)*h;
-        end
-        % Interpolate l,a at time point
-        tl = interp1(t,l,simt(j));
-        ta = interp1(t,a,simt(j));
-        % Solve individual components of Hill model
-        FLactVal = (1-Ftol).*FLactFunc([b1,b2],x{i}(j)) + Ftol;
-        % Use x(j) to solve for muscle v
-        eval = k(i)*(tl-x{i}(j)) - (FLactVal.*FVactVal.*ta + FLpasFunc([p1,p2],x{i}(j)));
-        % Find root of function where velocity is valid
-        [errval,vind] = min(abs(eval));
-        err{i}(j) = eval(vind);
-        v{i}(j) = vsweep(vind);
-    end
-    
-    % Plot output
-    plot(simt, x{i},'color',col(i,:))
-    drawnow
-    
-end
-
-%---Aesthetics
-xlabel('Time (s)')
-ylabel('Muscle Length')
-%---Aesthetics for colorbar
-colormap(copper)
-cbh = colorbar;
-set(cbh,'YTick',linspace(0,1,simiter))
-set(cbh,'YTickLabel', num2str(k.'))
-
-        
-%% Plot error
-
-figure(2)
-hold on
-box on
-grid on
-
-for i = 1:simiter
-    plot(simt, err{i},'color',col(i,:))
-end
-%Aesthetics
-title('error')
-%Aesthetics for colorbar
-colormap(copper)
-cbh = colorbar;
-set(cbh,'YTick',linspace(0,1,simiter))
-set(cbh,'YTickLabel', num2str(k.'))
-
-
-%% Make work loops
-
-%---Vector input for hill constants
-B = [b1,b2,p1,p2,s1,s2,s3,s4,vmax,Fmax];
-
-% Prep figure for second loop
-close all
-figure(1)
-hold on
-box on
-grid on
-col = copper(simiter);
 
 %---Loop through different phases of activation
 for i = 1:simiter
@@ -217,6 +144,37 @@ for i = 1:simiter
     drawnow
     
 end
+
+%---Aesthetics
+xlabel('Time (s)')
+ylabel('Muscle Length')
+%---Aesthetics for colorbar
+colormap(copper)
+cbh = colorbar;
+set(cbh,'YTick',linspace(0,1,simiter))
+set(cbh,'YTickLabel', num2str(k.'))
+
+        
+%% Plot error
+
+figure(2)
+hold on
+box on
+grid on
+
+for i = 1:simiter
+    plot(simt, err{i},'color',col(i,:))
+end
+%Aesthetics
+title('error')
+%Aesthetics for colorbar
+colormap(copper)
+cbh = colorbar;
+set(cbh,'YTick',linspace(0,1,simiter))
+set(cbh,'YTickLabel', num2str(k.'))
+
+
+
 
 
 %% Kinematics data

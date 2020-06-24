@@ -1,7 +1,7 @@
 function [H2] = hillv2(x,v,a,B)
 % Hill function version 2 w/ sigmoid FV curve
 
-% Variables in C2, descriptions listed FL,FV functions
+% Variables in B, descriptions listed FL,FV functions
 b1 = B(1);
 b2 = B(2);
 p1 = B(3);

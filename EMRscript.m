@@ -14,7 +14,7 @@ simiter = 5; % number of spring constants to compare
 h = 1e-3; % step size
 velBruteSize = 1e4; % number of points to solve for v
 
-stimPhase = linspace(0.01,0.2,simiter);
+stimPhase = linspace(1,2,simiter); % would this be tstart?
 
 %---Secondary controls
 
@@ -119,7 +119,7 @@ for i = 1:simiter
     F{i} = zeros(1,length(simt)); % force
     
     % Loop through each time point
-    for j = 1:length(simt);
+    for j = 1:length(simt)
         % Find new x from previous v
         if j~=1
             x{i}(j) = x{i}(j-1) + v{i}(j-1)*h;
@@ -130,7 +130,7 @@ for i = 1:simiter
         % Solve individual components of Hill model
         FLactVal = (1-Ftol).*FLactFunc([b1,b2],x{i}(j)) + Ftol;
         % Use x(j) to solve for muscle v
-        eval = k(i)*(tl-x{i}(j)) - (FLactVal.*FVactVal.*ta + FLpasFunc([p1,p2],x{i}(j)));
+        eval = k*(tl-x{i}(j)) - (FLactVal.*FVactVal.*ta + FLpasFunc([p1,p2],x{i}(j)));
         % Find root of function where velocity is valid
         [errval,vind] = min(abs(eval));
         err{i}(j) = eval(vind);

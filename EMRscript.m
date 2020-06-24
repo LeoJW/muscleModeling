@@ -169,6 +169,14 @@ set(cbh,'YTick',linspace(0,1,simiter))
 set(cbh,'YTickLabel', num2str(k.'))
 
 
+%% Make work loops
+
+%---Vector input for hill constants
+B = [b1,b2,p1,p2,s1,s2,s3,s4,vmax,Fmax];
+
+hilltest = hillv2(x,v,a,B);
+
+
 %% Kinematics data
 
 kineData = readtable("2019_07_02_Tae_gut_allFlights.csv");

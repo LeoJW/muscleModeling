@@ -1,22 +1,21 @@
-function [H2] = hillv2(x,v,a,C2)
+function [H2] = hillv2(x,v,a,B)
 % Hill function version 2 w/ sigmoid FV curve
 
+% Variables in C2, descriptions listed FL,FV functions
+b1 = B(1);
+b2 = B(2);
+p1 = B(3);
+p2 = B(4);
+s1 = B(5);
+s2 = B(6);
+s3 = B(7);
+s4 = B(8);
+vmax = B(9)
+Fmax = B(10);
 
-% Variables in C, descriptions listed in functions
-b1 = C2(1);
-b2 = C2(2);
-p1 = C2(3);
-p2 = C2(4);
-s1 = C2(5);
-s2 = C2(6);
-s3 = C2(7);
-cmax = C2(8);
-vmax = C2(9)
-Fmax = C2(10);
-
-b = C2(1:2);
-p = C2(3:4);
-fvs = C2(5:9);
+b = B(1:2);
+p = B(3:4);
+s = B(5:9);
 
 FLactFunc = @(b,x) exp(-(((x-b(2))-1)./b(1)).^2); % FL active component
 
@@ -25,7 +24,7 @@ FLactFunc = @(b,x) exp(-(((x-b(2))-1)./b(1)).^2); % FL active component
     y(x<p(2)) = 0;
     end
 
-H2 = Fmax.*((FLactFunc(b,x).*FVsig(fvs,v).*a) + FLpasFunc(p,x));
+H2 = Fmax.*((FLactFunc(b,x).*FVsig(s,v).*a) + FLpasFunc(p,x));
 
 end
 

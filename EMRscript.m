@@ -10,11 +10,11 @@ clear vars; close all;
 
 %---Primary controls
 
-simiter = 5; % number of spring constants to compare
+simiter = 6; % number of spring constants to compare
 h = 1e-3; % step size
 velBruteSize = 1e4; % number of points to solve for v
 
-stimPhase = linspace(1,2,simiter); % would this be tstart?
+stimPhase = linspace(0.1,0.7,simiter); % would this be tstart?
 
 %---Secondary controls
 
@@ -29,7 +29,7 @@ t = linspace(0,totaltime,1e4); % time vector, 1e4 long
 dt = totaltime/length(t); % time step
 niter = length(t); % number of iterations in loop
 lcycle = niter/ncycles; % cycle length in 1/1e4 s
-startdur = ceil(tstart*lcycle); % start of activation in cycle
+startdur = ceil(stimPhase*lcycle); % start of activation in cycle
 enddur = ceil(startdur + duration*lcycle); % duration of cycle activated in 1/1e4 s
 
 %---Hill constants
@@ -56,14 +56,42 @@ gam2 = -0.993; % activation constant
 
 k = 0.1; % spring constant
 
-%---Neural excitation, vector of zeros except one chunk which is 1s
-ucycle = zeros(1,lcycle);
-ucycle(startdur:enddur) = 1;
-u = repmat(ucycle,1,ncycles);
+%% Neural excitation and muscle activation
+
+%---Neural excitation, vector of zeros w/ chunks of 1s
+% ucycle = zeros(1,lcycle);
+% ucycle(startdur:enddur) = 1;
+% u = repmat(ucycle,1,ncycles);
 
 %---Activation function
 d = (delay*1e-3)*(niter/totaltime); % delay, scaled
-a = activationODE2(u,d,gam1,gam2);
+
+% Prep variables for loop
+u = cell(size(stimPhase));
+a = cell(size(stimPhase));
+
+for i = 1:simiter
+    
+    % Neural excitation and activation vectors
+    u{i} = zeros(1,length(simt));
+    a{i} = zeros(1,length(simt));
+    % Loop through each time point
+    for j = 1:length(simt)
+        % Interpolate a at time point
+        tu = interp1(t,u,simt(j));
+        ta = interp1(t,a,simt(j));
+        % Solve for a
+        ucycle = zeros(1,lcycle);
+        ucycle(startdur(i):enddur(i)) = 1;
+        u{i}(j) = repmat(ucycle,1,ncycles);
+        a{i}(j) = activationODE2(u{i}(j),d,gam1,gam2);
+    end
+    
+    % Plot output
+    plot(simt,a{i},'color',col(i,:))
+    drawnow
+    
+end
 
 %---Singularity adjustments
 Ftol = 0.1; % tolerance for F to avoid singularities
@@ -101,10 +129,10 @@ col = copper(simiter);
 % Create simulation time vector
 simt = 0:h:totaltime;
 % Prepare variables for loop
-err = cell(size(k));
-Ferr = cell(size(k));
-v = cell(size(k));
-x = cell(size(k));
+err = cell(size(stimPhase));
+Ferr = cell(size(stimPhase));
+v = cell(size(stimPhase));
+x = cell(size(stimPhase));
 vsweep = linspace(-1,1,velBruteSize);
 % Calculate FV function at all velocities
 FVactVal = FVsig([s1,s2,s3,s4,vmax],vsweep);

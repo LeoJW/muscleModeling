@@ -106,6 +106,7 @@ err = cell(size(k));
 Ferr = cell(size(k));
 v = cell(size(k));
 x = cell(size(k));
+F = cell(size(k));
 vsweep = linspace(-1,1,velBruteForceSize);
 %Calculate FV function at all velocities
 FVactVal = FVsig([s1,s2,s3,s4,1],vsweep);
@@ -117,6 +118,7 @@ for i = 1:simiter
     x{i} = [1,zeros(1,length(simt)-1)]; %initial condition for muscle length
     v{i} = zeros(1,length(simt));
     err{i} = zeros(1,length(simt));
+    F{i} = zeros(1,length(simt));
     
     %Loop thru each point in time for simulation
     for j = 1:length(simt)
@@ -135,11 +137,13 @@ for i = 1:simiter
         [errval,vind] = min(abs(eval));
         err{i}(j) = eval(vind);
         v{i}(j) = vsweep(vind);
+        F{i}(j) = hillv2(x{i}(j),v{i}(j),ta,B);
     end
 
     %Plot output
-    plot(simt, x{i},'color',col(i,:))
+    plot(simt, F{i},'color',col(i,:))
     drawnow
+    
 end
 
 %Aesthetics

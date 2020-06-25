@@ -108,6 +108,8 @@ v = cell(size(k));
 x = cell(size(k));
 F = cell(size(k));
 vsweep = linspace(-1,1,velBruteForceSize);
+wrk = cell(size(k));
+pwr = cell(size(k));
 %Calculate FV function at all velocities
 FVactVal = FVsig([s1,s2,s3,s4,vmax],vsweep);
 
@@ -119,6 +121,8 @@ for i = 1:simiter
     v{i} = zeros(1,length(simt));
     err{i} = zeros(1,length(simt));
     F{i} = zeros(1,length(simt));
+    wrk{i} = zeros(1,length(simt));
+    pwr{i} = zeros(1,length(simt));
     
     %Loop thru each point in time for simulation
     for j = 1:length(simt)
@@ -138,6 +142,12 @@ for i = 1:simiter
         err{i}(j) = eval(vind);
         v{i}(j) = vsweep(vind);
         F{i}(j) = hillv2(x{i}(j),v{i}(j),ta,B);
+        
+        % work, area under curve w/ neg vs pos velocity
+        wrk{i}(j) = trapz(x{i}(j),F{i}(j).*sign(v{i}(j)));
+        % instantaneous power
+        pwr{i}(j) = F{i}(j).*v{i}(j);
+        
     end
 
     %Plot output

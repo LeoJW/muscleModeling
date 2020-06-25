@@ -67,9 +67,11 @@ k = 0.1; % spring constant
 d = (delay*1e-3)*(niter/totaltime); % delay, scaled
 
 % Prep variables for loop
+ucycle = zeros(1,lcycle);
 u = cell(size(stimPhase));
 a = cell(size(stimPhase));
 
+% Loop through different stimulation phases
 for i = 1:simiter
     
     % Neural excitation and activation vectors
@@ -77,13 +79,9 @@ for i = 1:simiter
     a{i} = zeros(1,length(simt));
     % Loop through each time point
     for j = 1:length(simt)
-        % Interpolate a at time point
-        tu = interp1(t,u,simt(j));
-        ta = interp1(t,a,simt(j));
         % Solve for a
-        ucycle = zeros(1,lcycle);
         ucycle(startdur(i):enddur(i)) = 1;
-        u{i}(j) = repmat(ucycle,1,ncycles);
+        u{i}(j) = repmat(ucycle(i),1,ncycles);
         a{i}(j) = activationODE2(u{i}(j),d,gam1,gam2);
     end
     
@@ -174,8 +172,8 @@ for i = 1:simiter
 end
 
 %---Aesthetics
-xlabel('Time (s)')
-ylabel('Muscle Length')
+xlabel('Muscle Length')
+ylabel('Force')
 %---Aesthetics for colorbar
 colormap(copper)
 cbh = colorbar;

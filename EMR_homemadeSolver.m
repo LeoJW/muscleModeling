@@ -109,7 +109,7 @@ x = cell(size(k));
 F = cell(size(k));
 vsweep = linspace(-1,1,velBruteForceSize);
 %Calculate FV function at all velocities
-FVactVal = FVsig([s1,s2,s3,s4,1],vsweep);
+FVactVal = FVsig([s1,s2,s3,s4,vmax],vsweep);
 
 %Loop through different spring constants
 for i = 1:simiter
@@ -141,14 +141,14 @@ for i = 1:simiter
     end
 
     %Plot output
-    plot(simt, F{i},'color',col(i,:))
+    plot(simt, v{i},'color',col(i,:))
     drawnow
     
 end
 
 %Aesthetics
 xlabel('Time (s)')
-ylabel('Muscle Length')
+ylabel('Muscle Velocity')
 %Aesthetics for colorbar
 colormap(copper)
 cbh = colorbar;

@@ -81,7 +81,7 @@ for i = 1:simiter
     for j = 1:length(simt)
         % Solve for a
         ucycle(startdur(i):enddur(i)) = 1;
-        u{i}(j) = repmat(ucycle(i),1,ncycles);
+        u{i}(j) = repmat(ucycle,1,ncycles);
         a{i}(j) = activationODE2(u{i}(j),d,gam1,gam2);
     end
     

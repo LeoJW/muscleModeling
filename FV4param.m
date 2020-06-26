@@ -13,8 +13,10 @@ F = zeros(size(v));
 for i = 1:length(v)
     if v(i) <= 0
         F(i) = (1 + v(i))/(1 - v(i)/c1);
+    elseif diff(v(i)) < 0.1
+        diff(v(i)) = 0.1;
     else
-        F(i) = (kl - cmax*v(i))/(kl-v(i));
+        F(i) = (kl - cmax*v(i))/(kl-v(i)); 
     end
 end
 end

@@ -81,8 +81,8 @@ FLpasFunc = @(p,x) heaviside(x-p(2)).*p(1).*(x-p(2)).^2;
 
 %% Run Simulation
 
-% Vector input for hillODE constants
-C = [b1,b2,p1,p2,s1,s2,s3,s4,Fmax,k];
+%---Vector input for Hill constants
+B = [b1,b2,p1,p2,s1,s2,s3,s4,vmax,Fmax];
 
 %---MTU Overall length/velocity parameters
 wr = 2*pi*w; % radians per second

@@ -54,7 +54,7 @@ s1 = 1.8;
 s4 = 1;
 s2 = s1-s4; % Enforces FV(0)=1
 s3 = 6; % affects steepness of slope at 0
-% s = [s1,s2,s3,cmax,vmax];
+s = [s1,s2,s3,cmax,vmax];
 
 % Neural excitation, vector of zeros except one chunk which is 1s
 ucycle = zeros(1,lcycle);
@@ -82,7 +82,8 @@ FLpasFunc = @(p,x) heaviside(x-p(2)).*p(1).*(x-p(2)).^2;
 %% Run Simulation
 
 %---Vector input for Hill constants
-B = [b1,b2,p1,p2,s1,s2,s3,s4,vmax,Fmax];
+B = [b1,b2,p1,p2,s1,s2,s3,s4,vmax,Fmax]; % hillv2
+C = [b1,b2,p1,p2,c1,c2,cmax,vmax,Fmax]; % hill
 
 %---MTU Overall length/velocity parameters
 wr = 2*pi*w; % radians per second
@@ -111,7 +112,8 @@ vsweep = linspace(-1,1,velBruteForceSize);
 wrk = cell(size(k));
 pwr = cell(size(k));
 %Calculate FV function at all velocities
-FVactVal = FVsig([s1,s2,s3,s4,vmax],vsweep);
+% FVactVal = FVsig(s,vsweep);
+FVactVal = FV4param(fvc,vsweep);
 
 %Loop through different spring constants
 for i = 1:simiter
@@ -141,17 +143,17 @@ for i = 1:simiter
         [errval,vind] = min(abs(eval));
         err{i}(j) = eval(vind);
         v{i}(j) = vsweep(vind);
-        F{i}(j) = hillv2(x{i}(j),v{i}(j),ta,B);
+        F{i}(j) = hill(x{i}(j),v{i}(j),ta,C);
         
         % work, area under curve w/ neg vs pos velocity
-        wrk{i}(j) = trapz(x{i}(j),F{i}(j).*sign(v{i}(j)));
+        % wrk{i}(j) = trapz(x{i}(j),F{i}(j).*sign(v{i}(j)));
         % instantaneous power
-        pwr{i}(j) = F{i}(j).*v{i}(j);
+        % pwr{i}(j) = F{i}(j).*v{i}(j);
         
     end
 
     %Plot output
-    plot(simt, v{i},'color',col(i,:))
+    plot(simt, F{i},'color',col(i,:))
     drawnow
     
 end

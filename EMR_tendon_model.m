@@ -71,7 +71,7 @@ k = 0.1; % spring constant
 
 % Vector input for hillODE constants
 % C2 = [b1,b2,p1,p2,s1,s2,s3,cmax,vmax,Fmax];
-C = [b1,b2,p1,p2,s1,s2,s3,s4,,Fmax,k];
+C = [b1,b2,p1,p2,s1,s2,s3,s4,Fmax,k];
 
 % Additional constants
 wr = 6.283185*w; % radians per second

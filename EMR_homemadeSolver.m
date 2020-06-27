@@ -114,6 +114,10 @@ pwr = cell(size(k));
 %Calculate FV function at all velocities
 % FVactVal = FVsig(s,vsweep);
 FVactVal = FV4param(fvc,vsweep);
+dFV = diff(FVactVal)./diff(vsweep);
+if FVactVal(dFV<0.1)
+    dFV = 0.1;
+end
 
 %Loop through different spring constants
 for i = 1:simiter
@@ -123,8 +127,8 @@ for i = 1:simiter
     v{i} = zeros(1,length(simt));
     err{i} = zeros(1,length(simt));
     F{i} = zeros(1,length(simt));
-    wrk{i} = zeros(1,length(simt));
-    pwr{i} = zeros(1,length(simt));
+    % wrk{i} = zeros(1,length(simt));
+    % pwr{i} = zeros(1,length(simt));
     
     %Loop thru each point in time for simulation
     for j = 1:length(simt)
@@ -153,7 +157,7 @@ for i = 1:simiter
     end
 
     %Plot output
-    plot(simt, F{i},'color',col(i,:))
+    plot(simt, v{i},'color',col(i,:))
     drawnow
     
 end

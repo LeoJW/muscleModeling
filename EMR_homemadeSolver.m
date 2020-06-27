@@ -121,7 +121,7 @@ if FVactVal(dFV<0.1)
     dFV = 0.1;
 end
 % or
-dV = diff(v)/diff(simt)% acceleration
+dv = diff(v)/diff(simt); % acceleration
 
 
 %Loop through different spring constants

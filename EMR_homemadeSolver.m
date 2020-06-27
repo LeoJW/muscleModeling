@@ -114,10 +114,15 @@ pwr = cell(size(k));
 %Calculate FV function at all velocities
 % FVactVal = FVsig(s,vsweep);
 FVactVal = FV4param(fvc,vsweep);
+
+% Adjustment for singularity dFV/dv -> 0
 dFV = diff(FVactVal)./diff(vsweep);
 if FVactVal(dFV<0.1)
     dFV = 0.1;
 end
+% or
+dV = diff(v)/diff(simt)% acceleration
+
 
 %Loop through different spring constants
 for i = 1:simiter

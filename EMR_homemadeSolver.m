@@ -57,9 +57,9 @@ s3 = 6; % affects steepness of slope at 0
 s = [s1,s2,s3,cmax,vmax];
 
 % FV curve linear portion
-m1 = 0.15; % slope when v > m2
-m2 = 0.5; % value of v where FV becomes linear
-m3 = 1.6; % y-intercept for FVactLin
+m1 = 0.2; % slope when v > m2
+m2 = 0.4; % value of v where FV becomes linear
+m3 = -(m1*m2); % y-intercept for FVactLin
 m = [m1,m2,m3];
 
 % Neural excitation, vector of zeros except one chunk which is 1s
@@ -121,7 +121,7 @@ wrk = cell(size(k));
 pwr = cell(size(k));
 %Calculate FV function at all velocities
 % FVactVal = FVsig(s,vsweep);
-FVactVal = heaviside(0.5-vsweep).*FV4param(fvc,vsweep);
+FVactVal = FV4param(fvc,vsweep);
 FVlinear = FVactLine(m,vsweep);
 
 % Adjustment for singularity dFV/dv -> 0

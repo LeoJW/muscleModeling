@@ -57,8 +57,8 @@ s3 = 6; % affects steepness of slope at 0
 s = [s1,s2,s3,cmax,vmax];
 
 % FV curve linear portion
-m1 = 0.2; % slope when v > m2
-m2 = 0.4; % value of v where FV becomes linear
+m1 = 0.8; % slope when v > m2, needs to be <= 1
+m2 = 0.2; % value of v where FV becomes linear
 m3 = -(m1*m2); % y-intercept for FVactLin
 m = [m1,m2,m3];
 
@@ -84,7 +84,7 @@ FLactFunc = @(b,x) exp(-(((x-b(2))-1)./b(1)).^2);
 %FL passive component function
 FLpasFunc = @(p,x) heaviside(x-p(2)).*p(1).*(x-p(2)).^2;
 %FV linear portion
-FVactLine = @(m,v) heaviside(v-m(2)).*(m(1)*v + m(3));
+FVactLine = @(m,v) heaviside(v).*(m(1)*v);
 
 
 %% Run Simulation

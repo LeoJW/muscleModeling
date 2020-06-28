@@ -19,7 +19,7 @@ k = linspace(0.01,0.2,simiter); % Spring constant
 w = 1; % frequency in Hz or cycles/s
 ncycles = 4; % number of cycles
 tstart = 0.1;% point in cycle where activation begins (scaled 0 to 1)
-duration = 0.4; % duration of cycle that is activated (scaled 0 to 1)
+duration = 0.5; % duration of cycle that is activated (scaled 0 to 1)
 
 %---Simulation constants setup
 totaltime = ncycles/w; % time in s
@@ -172,6 +172,7 @@ for i = 1:simiter
 
     %Plot output
     plot(simt, v{i},'color',col(i,:))
+    plot(simt, x{i},'color',col(i,:))
     drawnow
     
 end

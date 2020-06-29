@@ -57,7 +57,7 @@ s3 = 6; % affects steepness of slope at 0
 s = [s1,s2,s3,cmax,vmax];
 
 % FV curve linear portion
-m1 = 0.8; % slope when v > m2, needs to be <= 1
+m1 = 0.6; % slope when v > m2, needs to be <= 1
 m2 = 0.2; % value of v where FV becomes linear
 m3 = -(m1*m2); % y-intercept for FVactLin
 m = [m1,m2,m3];
@@ -74,7 +74,7 @@ a = activationODE2(u,d,gam1,gam2);
 
 %Singularity adjustments
 Ftol = 0.1; %Tolerance for F to avoid singularities
-atol = 0.01; %Tolerance for a to avoid singularities
+atol = 0.07; %Tolerance for a to avoid singularities
 a = (1-atol).*a+atol;
 
 
@@ -85,6 +85,12 @@ FLactFunc = @(b,x) exp(-(((x-b(2))-1)./b(1)).^2);
 FLpasFunc = @(p,x) heaviside(x-p(2)).*p(1).*(x-p(2)).^2;
 %FV linear portion
 FVactLine = @(m,v) heaviside(v).*(m(1)*v);
+%FV "linear" SoftPlus function
+mm1 = 1;
+mm2 = 1;
+mm3 = 3;
+mm = [mm1,mm2,mm3];
+FVactSoft = @(mm,v) log(mm(1)+exp(mm(2)*(vsweep-mm(3))));
 
 
 %% Run Simulation
@@ -123,6 +129,7 @@ pwr = cell(size(k));
 % FVactVal = FVsig(s,vsweep);
 FVactVal = FV4param(fvc,vsweep);
 FVlinear = FVactLine(m,vsweep);
+FVsoft = FVactSoft(mm,vsweep);
 
 % Adjustment for singularity dFV/dv -> 0
 % dFV = gradient(FVactVal);
@@ -156,7 +163,7 @@ for i = 1:simiter
         %Solve individual components of hill model
         FLactVal = (1-Ftol).*FLactFunc([b1,b2],x{i}(j)) + Ftol;
         %use x(j) to solve for muscle velocity
-        eval = k(i)*(tl-x{i}(j)) - (FLactVal.*(FVactVal+FVlinear).*ta + FLpasFunc([p1,p2],x{i}(j)));
+        eval = k(i)*(tl-x{i}(j)) - (FLactVal.*(FVactVal+FVsoft).*ta + FLpasFunc([p1,p2],x{i}(j)));
         %Find root of function where velocity is valid
         [errval,vind] = min(abs(eval));
         err{i}(j) = eval(vind);
@@ -172,7 +179,6 @@ for i = 1:simiter
 
     %Plot output
     plot(simt, v{i},'color',col(i,:))
-    plot(simt, x{i},'color',col(i,:))
     drawnow
     
 end

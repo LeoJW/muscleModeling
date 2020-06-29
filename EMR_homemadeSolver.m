@@ -56,10 +56,10 @@ s2 = s1-s4; % Enforces FV(0)=1
 s3 = 6; % affects steepness of slope at 0
 s = [s1,s2,s3,cmax,vmax];
 
-% FV curve linear portion
-m1 = 0.6; % slope when v > m2, needs to be <= 1
-m2 = 0.2; % value of v where FV becomes linear
-m3 = -(m1*m2); % y-intercept for FVactLin
+% FV curve, smooth ramp portion
+m1 = 1; % vertical translation
+m2 = 2.5; % steepness of slope
+m3 = 0.7; % horizontal translation
 m = [m1,m2,m3];
 
 % Neural excitation, vector of zeros except one chunk which is 1s
@@ -83,14 +83,8 @@ a = (1-atol).*a+atol;
 FLactFunc = @(b,x) exp(-(((x-b(2))-1)./b(1)).^2);
 %FL passive component function
 FLpasFunc = @(p,x) heaviside(x-p(2)).*p(1).*(x-p(2)).^2;
-%FV linear portion
-FVactLine = @(m,v) heaviside(v).*(m(1)*v);
-%FV "linear" SoftPlus function
-mm1 = 1;
-mm2 = 2.5;
-mm3 = 0.7;
-mm = [mm1,mm2,mm3];
-FVactHinge = @(mm,v) log10(mm(1)+exp(mm(2)*(v-mm(3))));
+%FV smooth ramp function
+FVactHinge = @(m,v) log10(m(1)+exp(m(2)*(v-m(3))));
 
 
 %% Run Simulation
@@ -128,16 +122,7 @@ pwr = cell(size(k));
 %Calculate FV function at all velocities
 % FVactVal = FVsig(s,vsweep);
 FVactVal = FV4param(fvc,vsweep);
-FVlinear = FVactLine(m,vsweep);
-FVhinge = FVactHinge(mm,vsweep);
-
-% Adjustment for singularity dFV/dv -> 0
-% dFV = gradient(FVactVal);
-% if FVactVal(dFV<0.1)
-%     dFV = 0.1;
-% end
-% or
-% dv = diff(vsweep)/diff(simt); % acceleration
+FVhinge = FVactHinge(m,vsweep);
 
 
 %Loop through different spring constants

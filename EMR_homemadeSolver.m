@@ -120,7 +120,6 @@ vsweep = linspace(-1,1,velBruteForceSize);
 wrk = cell(size(k));
 pwr = cell(size(k));
 %Calculate FV function at all velocities
-% FVactVal = FVsig(s,vsweep);
 FVactVal = FV4param(fvc,vsweep);
 FVhinge = FVactHinge(m,vsweep);
 

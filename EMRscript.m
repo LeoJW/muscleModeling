@@ -21,14 +21,14 @@ stimPhase = linspace(0.1,0.7,simiter); % would this be tstart?
 w = 1; % frequency in Hz or cycles/s
 ncycles = 4; % number of cycles
 tstart = 0.1;% point in cycle where activation begins (scaled 0 to 1)
-duration = 0.4; % duration of cycle that is activated (scaled 0 to 1)
+duration = 0.5; % duration of cycle that is activated (scaled 0 to 1)
 
 %---Simulation constants setup
 totaltime = ncycles/w; % time in s
 t = linspace(0,totaltime,1e4); % time vector, 1e4 long
 dt = totaltime/length(t); % time step
 niter = length(t); % number of iterations in loop
-lcycle = niter/ncycles; % cycle length
+lcycle = niter/ncycles; % cycle length in 1/1e4 s
 startdur = ceil(stimPhase*lcycle); % start of activation in cycle
 enddur = ceil(startdur + duration*lcycle); % duration of cycle activated in 1/1e4 s
 
@@ -42,13 +42,17 @@ p = [p1,p2];
 
 Fmax = 1; % maximum force in N
 cmax = 1.8; % asymptote as v approaches -inf
-vmax = 1; % maximum velocity within range Wakeling (2012), Josephson (1993)
+vmax = 1; % maximum velocity
 
 s1 = 1.8; % FVsig, "asymptote" (cmax)
 s4 = 1;
 s2 = s1-s4; % FVsig, enforces FV(0)=1
 s3 = 6; % FVsig, affects steepness of slope at 0
 s = [s1,s2,s3,s4,vmax];
+
+c1 = 0.29; % from Biewener et al. (2014)
+c2 = 1; % overall curvature of FV
+fvc = [c1,c2,cmax,vmax];
 
 delay = 50; % activation delay, in ms -> rescaled in a
 gam1 = -0.993; % activation constant
@@ -67,26 +71,26 @@ k = 0.1; % spring constant
 d = (delay*1e-3)*(niter/totaltime); % delay, scaled
 
 % Prep variables for loop
-u = cell(length(simt),length(stimPhase));
-a = cell(length(simt),length(stimPhase));
+u = cell(niter,length(stimPhase));
+a = cell(niter,length(stimPhase));
 
 % Loop through different stimulation phases
 for i = 1:simiter
     
     % Neural excitation and activation vectors
-    u{i} = zeros(1,length(simt));
-    a{i} = zeros(1,length(simt));
+    ucycle = zeros(1,lcycle);
+    u{i} = zeros(1,niter);
+    a{i} = zeros(1,niter);
     % Loop through each time point
-    for j = 1:length(simt)
+    for j = 1:niter
         % Solve for a
-        ucycle = zeros(1,lcycle);
         ucycle(startdur(i):enddur(i)) = 1;
         u{i}(j) = repmat(ucycle(i),1,ncycles);
         a{i}(j) = activationODE2(u{i}(j),d,gam1,gam2);
     end
     
     % Plot output
-    plot(simt,a{i},'color',col(i,:))
+    plot(t,a{i},'color',col(i,:))
     drawnow
     
 end

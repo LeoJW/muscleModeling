@@ -95,6 +95,7 @@ for i = 1:simiter
 
     % Plot output
     plot(t,a{i},'color',col(i,:))
+    xlabel("Time (s)"), ylabel("Activation")
     drawnow
     
 end
@@ -102,7 +103,7 @@ end
 %---Singularity adjustments
 Ftol = 0.1; % tolerance for F to avoid singularities
 atol = 0.01; % tolerance for a to avoid singularities
-a = (1-atol).*a+atol;
+a{i} = (1-atol).*a{i}+atol;
 
 
 %---Anonymous functions for Hill model
@@ -124,7 +125,6 @@ l = lamplitude.*sin(wr.*t) + 2; % MTU length, l/Lopt
 ldot = lamplitude.*wr.*cos(wr*t); % MTU velocity, ldot/vmax
 
 % Prep figure for loop
-close all
 figure(2)
 hold on
 box on

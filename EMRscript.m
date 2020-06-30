@@ -14,7 +14,7 @@ simiter = 6; % number of activation phases to compare
 h = 1e-3; % step size
 velBruteSize = 1e4; % number of points to solve for v
 
-stimPhase = linspace(0.1,0.7,simiter); % would this be tstart?
+stimPhase = linspace(0.1,0.7,simiter); % version of tstart that varies
 
 %---Secondary controls
 
@@ -44,15 +44,14 @@ Fmax = 1; % maximum force in N
 cmax = 1.8; % asymptote as v approaches -inf
 vmax = 1; % maximum velocity
 
-s1 = 1.8; % FVsig, "asymptote" (cmax)
-s4 = 1;
-s2 = s1-s4; % FVsig, enforces FV(0)=1
-s3 = 6; % FVsig, affects steepness of slope at 0
-s = [s1,s2,s3,s4,vmax];
-
 c1 = 0.29; % from Biewener et al. (2014)
 c2 = 1; % overall curvature of FV
 fvc = [c1,c2,cmax,vmax];
+
+m1 = 1; % vertical translation
+m2 = 2.5; % steepness of slope
+m3 = 0.7; % horizontal translation
+m = [m1,m2,m3]; % FV curve, smooth ramp portion
 
 delay = 50; % activation delay, in ms -> rescaled in a
 gam1 = -0.993; % activation constant
@@ -101,18 +100,17 @@ atol = 0.01; % tolerance for a to avoid singularities
 a = (1-atol).*a+atol;
 
 
-%% Anonymous functions for Hill model
-
-%---FL active component
-FLactFunc = @(b,x) exp(-(((x-b(2))-1)./b(1)).^2);
-%---FL passive component
-FLpasFunc = @(p,x) heaviside(x-p(2)).*p(1).*(x-p(2)).^2;
+%---Anonymous functions for Hill model
+FLactFunc = @(b,x) exp(-(((x-b(2))-1)./b(1)).^2); % FL active component
+FLpasFunc = @(p,x) heaviside(x-p(2)).*p(1).*(x-p(2)).^2; % FL passive component
+FVactHinge = @(m,v) log10(m(1)+exp(m(2)*(v-m(3)))); % FV smooth ramp function
 
 
 %% Run Simulation
 
 %---Vector input for Hill constants
-B = [b1,b2,p1,p2,s1,s2,s3,s4,vmax,Fmax];
+B = [b1,b2,p1,p2,s1,s2,s3,s4,vmax,Fmax]; % hillv2
+C = [b1,b2,p1,p2,c1,c2,cmax,vmax,Fmax]; % hill
 
 %---MTU overall length/velocity parameters
 wr = 2*pi*w; % frequency in radians/s
@@ -136,8 +134,11 @@ Ferr = cell(size(stimPhase));
 v = cell(size(stimPhase));
 x = cell(size(stimPhase));
 vsweep = linspace(-1,1,velBruteSize);
+wrk = cell(size(k));
+pwr = cell(size(k));
 % Calculate FV function at all velocities
 FVactVal = FVsig([s1,s2,s3,s4,vmax],vsweep);
+FVhinge = FVactHinge(m,vsweep);
 
 %---Loop through different phases of activation
 for i = 1:simiter
@@ -160,13 +161,13 @@ for i = 1:simiter
         % Solve individual components of Hill model
         FLactVal = (1-Ftol).*FLactFunc([b1,b2],x{i}(j)) + Ftol;
         % Use x(j) to solve for muscle v
-        eval = k*(tl-x{i}(j)) - (FLactVal.*FVactVal.*ta + FLpasFunc([p1,p2],x{i}(j)));
+        eval = k*(tl-x{i}(j)) - (FLactVal.*(FVactVal+FVhinge).*ta + FLpasFunc([p1,p2],x{i}(j)));
         % Find root of function where velocity is valid
         [errval,vind] = min(abs(eval));
         err{i}(j) = eval(vind);
         v{i}(j) = vsweep(vind);
         
-        F{i}(j) = hillv2(x{i}(j),v{i}(j),ta,B);
+        F{i}(j) = hill(x{i}(j),v{i}(j),ta,C);
     end
     
     % Plot output

@@ -10,7 +10,7 @@ clear vars; close all;
 
 %---Primary controls
 
-simiter = 6; % number of spring constants to compare
+simiter = 6; % number of activation phases to compare
 h = 1e-3; % step size
 velBruteSize = 1e4; % number of points to solve for v
 
@@ -28,7 +28,7 @@ totaltime = ncycles/w; % time in s
 t = linspace(0,totaltime,1e4); % time vector, 1e4 long
 dt = totaltime/length(t); % time step
 niter = length(t); % number of iterations in loop
-lcycle = niter/ncycles; % cycle length in 1/1e4 s
+lcycle = niter/ncycles; % cycle length
 startdur = ceil(stimPhase*lcycle); % start of activation in cycle
 enddur = ceil(startdur + duration*lcycle); % duration of cycle activated in 1/1e4 s
 
@@ -67,9 +67,8 @@ k = 0.1; % spring constant
 d = (delay*1e-3)*(niter/totaltime); % delay, scaled
 
 % Prep variables for loop
-ucycle = zeros(1,lcycle);
-u = cell(size(stimPhase));
-a = cell(size(stimPhase));
+u = cell(length(simt),length(stimPhase));
+a = cell(length(simt),length(stimPhase));
 
 % Loop through different stimulation phases
 for i = 1:simiter
@@ -80,8 +79,9 @@ for i = 1:simiter
     % Loop through each time point
     for j = 1:length(simt)
         % Solve for a
+        ucycle = zeros(1,lcycle);
         ucycle(startdur(i):enddur(i)) = 1;
-        u{i}(j) = repmat(ucycle,1,ncycles);
+        u{i}(j) = repmat(ucycle(i),1,ncycles);
         a{i}(j) = activationODE2(u{i}(j),d,gam1,gam2);
     end
     

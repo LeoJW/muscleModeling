@@ -14,7 +14,7 @@ simiter = 6; % number of activation phases to compare
 h = 1e-3; % step size
 velBruteSize = 1e4; % number of points to solve for v
 
-stimPhase = linspace(0.1,0.7,simiter); % version of tstart that varies
+stimPhase = linspace(0.1,0.5,simiter); % version of tstart that varies
 
 %---Secondary controls
 
@@ -66,6 +66,14 @@ k = 0.1; % spring constant
 % ucycle(startdur:enddur) = 1;
 % u = repmat(ucycle,1,ncycles);
 
+%---Prep figure
+close all
+figure(1)
+hold on
+box on
+grid on
+col = copper(simiter);
+
 %---Activation function
 d = (delay*1e-3)*(niter/totaltime); % delay, scaled
 
@@ -80,14 +88,11 @@ for i = 1:simiter
     ucycle = zeros(1,lcycle);
     u{i} = zeros(1,niter);
     a{i} = zeros(1,niter);
-    % Loop through each time point
-    for j = 1:niter
-        % Solve for a
-        ucycle(startdur(i):enddur(i)) = 1;
-        u{i}(j) = repmat(ucycle(i),1,ncycles);
-        a{i}(j) = activationODE2(u{i}(j),d,gam1,gam2);
-    end
-    
+    % Solve for a
+    ucycle(startdur(i):enddur(i)) = 1;
+    u{i} = repmat(ucycle,1,ncycles);
+    a{i} = activationODE2(u{i},d,gam1,gam2);
+
     % Plot output
     plot(t,a{i},'color',col(i,:))
     drawnow
@@ -120,7 +125,7 @@ ldot = lamplitude.*wr.*cos(wr*t); % MTU velocity, ldot/vmax
 
 % Prep figure for loop
 close all
-figure(1)
+figure(2)
 hold on
 box on
 grid on
@@ -188,7 +193,7 @@ set(cbh,'YTickLabel', num2str(k.'))
         
 %% Plot error
 
-figure(2)
+figure(3)
 hold on
 box on
 grid on

@@ -31,7 +31,7 @@ p = [p1,p2];
 c1 = 0.29; % FV curvature of contracting phase
 c2 = 1; % FV overall curvature
 cmax = 1.8; % FV asymptote as x approaches -inf
-vmax = 2.52; % FV max velocity, normalized
+vmax = 1; % FV max velocity, normalized
 fvc = [c1,c2,cmax,vmax];
 
 Fmax = 1; % max force
@@ -57,6 +57,7 @@ FV_lu = FV4param([c1,c2,cmax,vmax],v);
 plot(v,FV_lu)
 xlim([-1 1])
 ylim([0 1.8])
+xlabel("Velocity"), ylabel("Force")
 
 %% Winters et al. (2011) rabbit TA
 % TA fast twitch
@@ -72,15 +73,14 @@ figure(2)
 % ylim([0 1.2])
 FLpas_lu = FLpasFunc([4,1],x);
 plot(x,FLpas_lu)
+xlabel("Length"), ylabel("Force")
 
 % FL active component
 figure(3)
-FLact_win = FLactFunc([0.14,0],x);
-plot(x,FLact_win)
-hold on;
 FLact_lu = FLactFunc([0.25,0],x);
 plot(x,FLact_lu)
-hold off;
+xlabel("Length"), ylabel("Force")
+
 
 %% Vectors for dummy work loops
 

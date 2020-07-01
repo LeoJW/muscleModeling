@@ -115,7 +115,7 @@ FVactHinge = @(m,v) log10(m(1)+exp(m(2)*(v-m(3)))); % FV smooth ramp function
 %% Run Simulation
 
 %---Vector input for Hill constants
-B = [b1,b2,p1,p2,s1,s2,s3,s4,vmax,Fmax]; % hillv2
+% B = [b1,b2,p1,p2,s1,s2,s3,s4,vmax,Fmax]; % hillv2
 C = [b1,b2,p1,p2,c1,c2,cmax,vmax,Fmax]; % hill
 
 %---MTU overall length/velocity parameters
@@ -182,8 +182,8 @@ for i = 1:simiter
 end
 
 %---Aesthetics
-xlabel('Muscle Length')
-ylabel('Force')
+xlabel('Time (s)')
+ylabel('Velocity')
 %---Aesthetics for colorbar
 colormap(copper)
 cbh = colorbar;

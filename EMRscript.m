@@ -188,7 +188,7 @@ ylabel('Force')
 colormap(copper)
 cbh = colorbar;
 set(cbh,'YTick',linspace(0,1,simiter))
-set(cbh,'YTickLabel', num2str(k.'))
+set(cbh,'YTickLabel', num2str(stimPhase.'))
 
         
 %% Plot error
@@ -207,7 +207,7 @@ title('error')
 colormap(copper)
 cbh = colorbar;
 set(cbh,'YTick',linspace(0,1,simiter))
-set(cbh,'YTickLabel', num2str(k.'))
+set(cbh,'YTickLabel', num2str(stimPhase.'))
 
 
 

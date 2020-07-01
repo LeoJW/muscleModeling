@@ -104,6 +104,7 @@ end
 Ftol = 0.1; % tolerance for F to avoid singularities
 atol = 0.08; % tolerance for a to avoid singularities
 a{i} = (1-atol).*a{i}+atol;
+% see FVactHinge below - added FV func to avoid singularities
 
 
 %---Anonymous functions for Hill model
@@ -135,7 +136,7 @@ col = copper(simiter);
 simt = 0:h:totaltime;
 % Prepare variables for loop
 err = cell(size(stimPhase));
-Ferr = cell(size(stimPhase));
+F = cell(size(stimPhase));
 v = cell(size(stimPhase));
 x = cell(size(stimPhase));
 vsweep = linspace(-1,1,velBruteSize);

@@ -162,7 +162,7 @@ for i = 1:simiter
         end
         % Interpolate l,a at time point
         tl = interp1(t,l,simt(j));
-        ta = interp1(t,a,simt(j));
+        ta = interp1(t,a{i},simt(j));
         % Solve individual components of Hill model
         FLactVal = (1-Ftol).*FLactFunc([b1,b2],x{i}(j)) + Ftol;
         % Use x(j) to solve for muscle v

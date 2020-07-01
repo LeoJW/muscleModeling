@@ -102,7 +102,7 @@ end
 
 %---Singularity adjustments
 Ftol = 0.1; % tolerance for F to avoid singularities
-atol = 0.01; % tolerance for a to avoid singularities
+atol = 0.08; % tolerance for a to avoid singularities
 a{i} = (1-atol).*a{i}+atol;
 
 
@@ -176,7 +176,7 @@ for i = 1:simiter
     end
     
     % Plot output
-    plot(x{i},F{i},'color',col(i,:))
+    plot(simt,v{i},'color',col(i,:))
     drawnow
     
 end

@@ -142,7 +142,7 @@ vsweep = linspace(-1,1,velBruteSize);
 wrk = cell(size(k));
 pwr = cell(size(k));
 % Calculate FV function at all velocities
-FVactVal = FVsig([s1,s2,s3,s4,vmax],vsweep);
+FVactVal = FV4param(fvc,vsweep);
 FVhinge = FVactHinge(m,vsweep);
 
 %---Loop through different phases of activation

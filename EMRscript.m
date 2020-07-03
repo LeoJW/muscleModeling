@@ -177,6 +177,10 @@ for i = 1:simiter
         F{i}(j) = hill(x{i}(j),v{i}(j),ta,C);
     end
     
+    % Separate cycle numbers
+    cycL = round(length(simt)/4); 
+    cycNum = [ones(1,cycL), 2*ones(1,cycL), 3*ones(1,cycL), 4*ones(1,cycL+1)];
+    
     % Plot output
     plot(x{i},F{i},'color',col(i,:))
     drawnow

@@ -59,6 +59,12 @@ gam2 = -0.993; % activation constant
 
 k = 0.1; % spring constant
 
+%---Singularity adjustments
+Ftol = 0.1; % tolerance for F to avoid singularities
+atol = 0.08; % tolerance for a to avoid singularities
+% see FVactHinge below - added FV func to avoid singularities
+
+
 %% Neural excitation and muscle activation
 
 %---Neural excitation, vector of zeros w/ chunks of 1s
@@ -92,6 +98,7 @@ for i = 1:simiter
     ucycle(startdur(i):enddur(i)) = 1;
     u{i} = repmat(ucycle,1,ncycles);
     a{i} = activationODE2(u{i},d,gam1,gam2);
+    a{i} = (1-atol).*a{i}+atol;
 
     % Plot output
     plot(t,a{i},'color',col(i,:))
@@ -99,12 +106,6 @@ for i = 1:simiter
     drawnow
     
 end
-
-%---Singularity adjustments
-Ftol = 0.1; % tolerance for F to avoid singularities
-atol = 0.08; % tolerance for a to avoid singularities
-a{i} = (1-atol).*a{i}+atol;
-% see FVactHinge below - added FV func to avoid singularities
 
 
 %---Anonymous functions for Hill model
@@ -177,14 +178,14 @@ for i = 1:simiter
     end
     
     % Plot output
-    plot(simt,v{i},'color',col(i,:))
+    plot(x{i},F{i},'color',col(i,:))
     drawnow
     
 end
 
 %---Aesthetics
-xlabel('Time (s)')
-ylabel('Velocity')
+xlabel('Muscle Length')
+ylabel('F/Fmax')
 %---Aesthetics for colorbar
 colormap(copper)
 cbh = colorbar;

@@ -81,7 +81,7 @@ d = (delay*1e-3)*(niter/totaltime); % delay, scaled
 u = cell(niter,length(stimPhase));
 a = cell(niter,length(stimPhase));
 
-% Loop through different stimulation phases
+% Loop through different stimulation onsets
 for i = 1:simiter
     
     % Neural excitation and activation vectors
@@ -146,7 +146,7 @@ pwr = cell(size(k));
 FVactVal = FV4param(fvc,vsweep);
 FVhinge = FVactHinge(m,vsweep);
 
-%---Loop through different phases of activation
+%---Loop through different stimulation phases
 for i = 1:simiter
     
     % Declare vectors for simulation run

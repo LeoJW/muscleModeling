@@ -144,14 +144,19 @@ for i = 1:simiter
         %interpolate l,a at this time
         tl = interp1(t,l,simt(j));
         ta = interp1(t,a,simt(j));
+        tldot = interp1(t,ldot,simt(j));
         %Solve individual components of hill model
         FLactVal = (1-Ftol).*FLactFunc([b1,b2],x{i}(j)) + Ftol;
         %use x(j) to solve for muscle velocity
-        eval = k(i)*(tl-x{i}(j)) - (FLactVal.*(FVactVal+FVhinge).*ta + FLpasFunc([p1,p2],x{i}(j)));
-        %Find root of function where velocity is valid
-        [errval,vind] = min(abs(eval));
-        err{i}(j) = eval(vind);
-        v{i}(j) = vsweep(vind);
+        if ta > 0
+            eval = k(i)*(tl-x{i}(j)) - (FLactVal.*(FVactVal+FVhinge).*ta + FLpasFunc([p1,p2],x{i}(j)));
+            %Find root of function where velocity is valid
+            [errval,vind] = min(abs(eval));
+            err{i}(j) = eval(vind);
+            v{i}(j) = vsweep(vind);
+        else
+            v{i}(j) = tldot./((FLpasFunc([p1,p2],x{i}(j)))/k(i) + 1);
+        end
         F{i}(j) = hill(x{i}(j),v{i}(j),ta,C);
         
         % work, area under curve w/ neg vs pos velocity

@@ -179,7 +179,7 @@ for i = 1:simiter
         F{i}(j) = hill(x{i}(j),v{i}(j),ta,C);
         
         % work, area under curve w/ neg vs pos velocity
-        wrk{i}(j) = trapz(x{i}(j),F{i}(j).*sign(v{i}(j)));
+        wrk{i} = trapz(x{i},F{i}.*sign(v{i}));
         % instantaneous power
         pwr{i}(j) = F{i}(j).*v{i}(j);
         

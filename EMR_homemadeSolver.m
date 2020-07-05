@@ -74,7 +74,7 @@ a = activationODE2(u,d,gam1,gam2);
 
 %Singularity adjustments
 Ftol = 0.1; %Tolerance for F to avoid singularities
-atol = 0.08; %Tolerance for a to avoid singularities
+atol = 0.0; %Tolerance for a to avoid singularities
 a = (1-atol).*a+atol;
 
 
@@ -148,7 +148,7 @@ for i = 1:simiter
         %Solve individual components of hill model
         FLactVal = (1-Ftol).*FLactFunc([b1,b2],x{i}(j)) + Ftol;
         %use x(j) to solve for muscle velocity
-        if ta > 0
+        if ta > 0.08
             eval = k(i)*(tl-x{i}(j)) - (FLactVal.*(FVactVal+FVhinge).*ta + FLpasFunc([p1,p2],x{i}(j)));
             %Find root of function where velocity is valid
             [errval,vind] = min(abs(eval));
@@ -167,14 +167,14 @@ for i = 1:simiter
     end
 
     %Plot output
-    plot(simt, v{i},'color',col(i,:))
+    plot(simt, x{i},'color',col(i,:))
     drawnow
     
 end
 
 %Aesthetics
 xlabel('Time (s)')
-ylabel('Muscle Velocity')
+ylabel('Muscle Length')
 %Aesthetics for colorbar
 colormap(copper)
 cbh = colorbar;

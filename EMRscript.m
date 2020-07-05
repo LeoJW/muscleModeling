@@ -182,7 +182,7 @@ for i = 1:simiter
     cycNum = [ones(1,cycL), 2*ones(1,cycL), 3*ones(1,cycL), 4*ones(1,cycL+1)];
     
     % Plot output
-    plot(x{i}(cycNum(i)>1),F{i}(cycNum(i)>1),'color',col(i,:))
+    plot(x{i}(cycNum>2),F{i}(cycNum>2),'color',col(i,:))
     drawnow
     
 end

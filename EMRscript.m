@@ -155,6 +155,8 @@ for i = 1:simiter
     v{i} = zeros(1,length(simt)); % velocity
     err{i} = zeros(1,length(simt)); % error
     F{i} = zeros(1,length(simt)); % force
+    wrk{i} = zeros(1,length(simt));
+    pwr{i} = zeros(1,length(simt));
     
     % Loop through each time point
     for j = 1:length(simt)
@@ -175,6 +177,12 @@ for i = 1:simiter
         v{i}(j) = vsweep(vind);
         
         F{i}(j) = hill(x{i}(j),v{i}(j),ta,C);
+        
+        % work, area under curve w/ neg vs pos velocity
+        wrk{i}(j) = trapz(x{i}(j),F{i}(j).*sign(v{i}(j)));
+        % instantaneous power
+        pwr{i}(j) = F{i}(j).*v{i}(j);
+        
     end
     
     % Separate cycle numbers

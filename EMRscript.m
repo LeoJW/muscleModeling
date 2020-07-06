@@ -61,7 +61,7 @@ k = 0.1; % spring constant
 
 %---Singularity adjustments
 Ftol = 0.1; % tolerance for F to avoid singularities
-atol = 0.08; % tolerance for a to avoid singularities
+atol = 0.0; % tolerance for a to avoid singularities
 % see FVactHinge below - added FV func to avoid singularities
 
 
@@ -170,16 +170,20 @@ for i = 1:simiter
         % Solve individual components of Hill model
         FLactVal = (1-Ftol).*FLactFunc([b1,b2],x{i}(j)) + Ftol;
         % Use x(j) to solve for muscle v
-        eval = k*(tl-x{i}(j)) - (FLactVal.*(FVactVal+FVhinge).*ta + FLpasFunc([p1,p2],x{i}(j)));
-        % Find root of function where velocity is valid
-        [errval,vind] = min(abs(eval));
-        err{i}(j) = eval(vind);
-        v{i}(j) = vsweep(vind);
+        if ta > 0.08
+            eval = k*(tl-x{i}(j)) - (FLactVal.*(FVactVal+FVhinge).*ta + FLpasFunc([p1,p2],x{i}(j)));
+            % Find root of function where velocity is valid
+            [errval,vind] = min(abs(eval));
+            err{i}(j) = eval(vind);
+            v{i}(j) = vsweep(vind);
+        else
+            v{i}(j) = tldot./((FLpasFunc([p1,p2],x{i}(j)))/k + 1);
+        end
         
         F{i}(j) = hill(x{i}(j),v{i}(j),ta,C);
         
         % work, area under curve w/ neg vs pos velocity
-        wrk{i} = trapz(x{i},F{i}.*sign(v{i}));
+        wrk{i} = trapz(x{i},F{i}.*-sign(v{i}));
         % instantaneous power
         pwr{i}(j) = F{i}(j).*v{i}(j);
         
@@ -190,14 +194,15 @@ for i = 1:simiter
     cycNum = [ones(1,cycL), 2*ones(1,cycL), 3*ones(1,cycL), 4*ones(1,cycL+1)];
     
     % Plot output
-    plot(x{i}(cycNum>2),F{i}(cycNum>2),'color',col(i,:))
+    % plot(x{i}(cycNum>2),F{i}(cycNum>2),'color',col(i,:))
+    plot(simt,v{i},'color',col(i,:))
     drawnow
     
 end
 
 %---Aesthetics
-xlabel('Muscle Length')
-ylabel('F/Fmax')
+xlabel('Time (s)')
+ylabel('Muscle Velocity')
 %---Aesthetics for colorbar
 colormap(copper)
 cbh = colorbar;

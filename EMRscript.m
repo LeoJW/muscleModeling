@@ -49,8 +49,8 @@ c2 = 1; % overall curvature of FV
 fvc = [c1,c2,cmax,vmax];
 
 m1 = 1; % vertical translation
-m2 = 2.5; % steepness of slope
-m3 = 0.7; % horizontal translation
+m2 = 1.8; % steepness of slope
+m3 = 1.3; % horizontal translation
 m = [m1,m2,m3]; % FV curve, smooth ramp portion
 
 delay = 50; % activation delay, in ms -> rescaled in a
@@ -111,7 +111,7 @@ end
 %---Anonymous functions for Hill model
 FLactFunc = @(b,x) exp(-(((x-b(2))-1)./b(1)).^2); % FL active component
 FLpasFunc = @(p,x) heaviside(x-p(2)).*p(1).*(x-p(2)).^2; % FL passive component
-FVactHinge = @(m,v) log10(m(1)+exp(m(2)*(v-m(3)))); % FV smooth ramp function
+FVactHinge = @(m,v) log(m(1)+exp(m(2)*(v-m(3)))); % FV smooth ramp function
 
 
 %% Run Simulation

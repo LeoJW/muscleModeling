@@ -136,13 +136,13 @@ col = copper(simiter);
 % Create simulation time vector
 simt = 0:h:totaltime;
 % Prepare variables for loop
-err = cell(size(stimPhase));
-F = cell(size(stimPhase));
-v = cell(size(stimPhase));
-x = cell(size(stimPhase));
+err = cell(1,simiter);
+F = cell(1,simiter);
+v = cell(1,simiter);
+x = cell(1,simiter);
 vsweep = linspace(-1,1,velBruteSize);
-wrk = cell(size(k));
-pwr = cell(size(k));
+wrk = cell(1,simiter);
+pwr = cell(1,simiter);
 % Calculate FV function at all velocities
 FVactVal = FV4param(fvc,vsweep);
 FVhinge = FVactHinge(m,vsweep);
@@ -167,6 +167,7 @@ for i = 1:simiter
         % Interpolate l,a at time point
         tl = interp1(t,l,simt(j));
         ta = interp1(t,a{i},simt(j));
+        tldot = interp1(t,ldot,simt(j));
         % Solve individual components of Hill model
         FLactVal = (1-Ftol).*FLactFunc([b1,b2],x{i}(j)) + Ftol;
         % Use x(j) to solve for muscle v

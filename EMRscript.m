@@ -50,7 +50,7 @@ fvc = [c1,c2,cmax,vmax];
 
 m1 = 20; % scaling factor
 m2 = 6; % horizontal translation
-m3 = 0.6; % slope
+m3 = 0.5; % slope
 m = [m1,m2,m3]; % FV curve, smooth ramp portion
 
 delay = 50; % activation delay, in ms -> rescaled in a

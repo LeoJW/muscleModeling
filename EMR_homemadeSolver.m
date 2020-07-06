@@ -111,14 +111,14 @@ col = copper(simiter);
 %Create simulation time vector
 simt = 0:h:totaltime;
 %Prepare variables for loop
-err = cell(size(k));
-Ferr = cell(size(k));
-v = cell(size(k));
-x = cell(size(k));
-F = cell(size(k));
+err = cell(simiter);
+Ferr = cell(simiter);
+v = cell(simiter);
+x = cell(simiter);
+F = cell(simiter);
 vsweep = linspace(-1,1,velBruteForceSize);
-wrk = cell(size(k));
-pwr = cell(size(k));
+wrk = cell(simiter);
+pwr = cell(simiter);
 %Calculate FV function at all velocities
 FVactVal = FV4param(fvc,vsweep);
 FVhinge = FVactHinge(m,vsweep);

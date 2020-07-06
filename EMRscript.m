@@ -61,7 +61,7 @@ k = 0.1; % spring constant
 
 %---Singularity adjustments
 Ftol = 0.1; % tolerance for F to avoid singularities
-atol = 0.0; % tolerance for a to avoid singularities
+atol = 0.08; % tolerance for a to avoid singularities
 % see FVactHinge below - added FV func to avoid singularities
 
 
@@ -84,8 +84,8 @@ col = copper(simiter);
 d = (delay*1e-3)*(niter/totaltime); % delay, scaled
 
 % Prep variables for loop
-u = cell(niter,length(stimPhase));
-a = cell(niter,length(stimPhase));
+u = cell(niter,simiter);
+a = cell(niter,simiter);
 
 % Loop through different stimulation onsets
 for i = 1:simiter
@@ -171,16 +171,11 @@ for i = 1:simiter
         % Solve individual components of Hill model
         FLactVal = (1-Ftol).*FLactFunc([b1,b2],x{i}(j)) + Ftol;
         % Use x(j) to solve for muscle v
-        if ta > 0.08
-            eval = k*(tl-x{i}(j)) - (FLactVal.*(FVactVal+FVhinge).*ta + FLpasFunc([p1,p2],x{i}(j)));
-            % Find root of function where velocity is valid
-            [errval,vind] = min(abs(eval));
-            err{i}(j) = eval(vind);
-            v{i}(j) = vsweep(vind);
-        else
-            v{i}(j) = tldot./((FLpasFunc([p1,p2],x{i}(j)))/k + 1);
-        end
-        
+        eval = k*(tl-x{i}(j)) - (FLactVal.*(FVactVal+FVhinge).*ta + FLpasFunc([p1,p2],x{i}(j)));
+        % Find root of function where velocity is valid
+        [errval,vind] = min(abs(eval));
+        err{i}(j) = eval(vind);
+        v{i}(j) = vsweep(vind);
         F{i}(j) = hill(x{i}(j),v{i}(j),ta,C);
         
         % work, area under curve w/ neg vs pos velocity

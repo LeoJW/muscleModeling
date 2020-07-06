@@ -190,15 +190,15 @@ for i = 1:simiter
     cycNum = [ones(1,cycL), 2*ones(1,cycL), 3*ones(1,cycL), 4*ones(1,cycL+1)];
     
     % Plot output
-    % plot(x{i}(cycNum>2),F{i}(cycNum>2),'color',col(i,:))
-    plot(simt,v{i},'color',col(i,:))
+    plot(x{i}(cycNum>2),F{i}(cycNum>2),'color',col(i,:))
+    % plot(simt,pwr{i},'color',col(i,:))
     drawnow
     
 end
 
 %---Aesthetics
-xlabel('Time (s)')
-ylabel('Muscle Velocity')
+xlabel('Muscle Length (L/Lopt)')
+ylabel('F/Fmaz')
 %---Aesthetics for colorbar
 colormap(copper)
 cbh = colorbar;

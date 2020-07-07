@@ -179,7 +179,7 @@ for i = 1:simiter
         F{i}(j) = hill(x{i}(j),v{i}(j),ta,C);
         
         % work, area under curve w/ neg vs pos velocity
-        wrk{i} = trapz(x{i},F{i}.*-sign(v{i}));
+        wrk{i} = trapz(x{i},F{i}.*sign(-v{i}));
         % instantaneous power
         pwr{i}(j) = F{i}(j).*v{i}(j);
         
@@ -224,7 +224,15 @@ cbh = colorbar;
 set(cbh,'YTick',linspace(0,1,simiter))
 set(cbh,'YTickLabel', num2str(stimPhase.'))
 
+figure(4)
+hold on
+box on
+grid on
 
+bob = [wrk{1:6}];
+scatter(stimPhase,bob,'filled')
+xlim([0 0.6])
+xlabel('Stimulation Phase'), ylabel('Net Work')
 
 
 

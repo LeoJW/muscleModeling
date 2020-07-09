@@ -99,6 +99,7 @@ for i = 1:simiter
     u{i} = repmat(ucycle,1,ncycles);
     a{i} = activationODE2(u{i},d,gam1,gam2);
     a{i} = (1-atol).*a{i}+atol;
+    a{i}(niter+1:end) = [];
 
     % Plot output
     plot(t,a{i},'color',col(i,:))
@@ -198,7 +199,7 @@ end
 
 %---Aesthetics
 xlabel('Muscle Length (L/Lopt)')
-ylabel('F/Fmaz')
+ylabel('F/Fmax')
 %---Aesthetics for colorbar
 colormap(copper)
 cbh = colorbar;
@@ -231,7 +232,7 @@ grid on
 
 bob = [wrk{1:6}];
 scatter(stimPhase,bob,'filled')
-xlim([0 0.6])
+xlim([0 1])
 xlabel('Stimulation Phase'), ylabel('Net Work')
 
 

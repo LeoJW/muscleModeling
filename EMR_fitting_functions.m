@@ -71,7 +71,7 @@ figure(2)
 % plot(x,FLpas_win)
 % xlim([0.5 2])
 % ylim([0 1.2])
-FLpas_lu = FLpasFunc([4,1],x);
+FLpas_lu = FLpasFunc([4,0.8],x);
 plot(x,FLpas_lu)
 xlabel("Length"), ylabel("Force")
 

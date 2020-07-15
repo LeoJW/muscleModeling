@@ -37,7 +37,7 @@ b1 = 0.25; % FLact
 b2 = 0; % FLact
 b = [b1,b2];
 p1 = 4; % FLpas
-p2 = 0.8; % FLpas
+p2 = 1; % FLpas
 p = [p1,p2];
 
 Fmax = 1; % maximum force in N
@@ -205,8 +205,8 @@ for i = 1:simiter
     cycNum = [ones(1,cycL), 2*ones(1,cycL), 3*ones(1,cycL), 4*ones(1,cycL+1)];
     
     % Plot output
-    plot(x{i}(cycNum>2),F{i}(cycNum>2),'color',col(i,:))
-    % plot(simt,pwr{i},'color',col(i,:))
+    % plot(x{i}(cycNum>2),F{i}(cycNum>2),'color',col(i,:))
+    plot(simt,v{i},'color',col(i,:))
     drawnow
     
 end

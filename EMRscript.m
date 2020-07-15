@@ -37,7 +37,7 @@ b1 = 0.25; % FLact
 b2 = 0; % FLact
 b = [b1,b2];
 p1 = 4; % FLpas
-p2 = 1; % FLpas
+p2 = 0.8; % FLpas
 p = [p1,p2];
 
 Fmax = 1; % maximum force in N

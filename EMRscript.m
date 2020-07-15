@@ -138,8 +138,10 @@ C = [b1,b2,p1,p2,c1,c2,cmax,vmax,Fmax]; % hill
 %---MTU overall length/velocity parameters
 wr = 2*pi*w; % frequency in radians/s
 lamplitude = 0.2; % amplitude of l
-l = lamplitude.*sin(wr.*t) + 2; % MTU length, l/Lopt
+% l = lamplitude.*sin(wr.*t) + 2; % MTU length, l/Lopt
 ldot = lamplitude.*wr.*cos(wr*t); % MTU velocity, ldot/vmax
+
+l = 0.4*sawtooth(2*pi*t,0.3)+1.8; % MTU length asymmetrical pattern
 
 % Prep figure for loop
 figure(2)
@@ -205,8 +207,8 @@ for i = 1:simiter
     cycNum = [ones(1,cycL), 2*ones(1,cycL), 3*ones(1,cycL), 4*ones(1,cycL+1)];
     
     % Plot output
-    % plot(x{i}(cycNum>2),F{i}(cycNum>2),'color',col(i,:))
-    plot(simt,v{i},'color',col(i,:))
+    plot(x{i}(cycNum>2),F{i}(cycNum>2),'color',col(i,:))
+    % plot(simt,v{i},'color',col(i,:))
     drawnow
     
 end

@@ -14,7 +14,7 @@ simiter = 6; % number of activation phases to compare
 h = 1e-3; % step size
 velBruteSize = 1e4; % number of points to solve for v
 
-stimPhase = linspace(0.1,0.5,simiter); % version of tstart that varies
+stimPhase = linspace(0.1,0.8,simiter); % version of tstart that varies
 
 %---Secondary controls
 
@@ -138,10 +138,10 @@ C = [b1,b2,p1,p2,c1,c2,cmax,vmax,Fmax]; % hill
 %---MTU overall length/velocity parameters
 wr = 2*pi*w; % frequency in radians/s
 lamplitude = 0.2; % amplitude of l
-% l = lamplitude.*sin(wr.*t) + 2; % MTU length, l/Lopt
+l = lamplitude.*sin(wr.*t) + 2; % MTU length, l/Lopt
 ldot = lamplitude.*wr.*cos(wr*t); % MTU velocity, ldot/vmax
 
-l = 0.4*sawtooth(2*pi*t,0.3)+1.8; % MTU length asymmetrical pattern
+% l = 0.4*sawtooth(2*pi*t,0.3)+1.8; % MTU length asymmetrical pattern
 
 % Prep figure for loop
 figure(2)
@@ -195,8 +195,11 @@ for i = 1:simiter
         v{i}(j) = vsweep(vind);
         F{i}(j) = hill(x{i}(j),v{i}(j),ta,C);
         
+        % Separate cycle numbers
+        cycL = round(length(simt)/4);
+        cycNum = [ones(1,cycL), 2*ones(1,cycL), 3*ones(1,cycL), 4*ones(1,cycL+1)];
         % work, area under curve w/ neg vs pos velocity
-        wrk{i} = trapz(x{i},F{i}.*sign(-v{i}));
+        wrk{i} = trapz(x{i}(cycNum>3),F{i}(cycNum>3).*-sign(v{i}(cycNum>3)));
         % instantaneous power
         pwr{i}(j) = F{i}(j).*v{i}(j);
         

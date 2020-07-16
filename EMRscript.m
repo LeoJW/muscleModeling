@@ -1,9 +1,10 @@
 % KINEMATICS-DRIVEN EMR MODEL SCRIPT
 clear vars; close all;
 
-% FL curves are normalized force plotted against L/Lopt
-% velocity in (L/Lopt)/sec normalized to v/vmax
-% FV curve is normalized force plotted against v/vmax
+% Force in Newtons
+% Velocity in m/sec?
+% Length in m?
+% k in N/m
 
 
 %% Constants for Hill model
@@ -14,7 +15,7 @@ simiter = 6; % number of activation phases to compare
 h = 1e-3; % step size
 velBruteSize = 1e4; % number of points to solve for v
 
-stimPhase = linspace(0.1,0.8,simiter); % version of tstart that varies
+stimPhase = linspace(0.1,0.6,simiter); % version of tstart that varies
 
 %---Secondary controls
 
@@ -40,9 +41,9 @@ p1 = 4; % FLpas
 p2 = 1; % FLpas
 p = [p1,p2];
 
-Fmax = 1; % maximum force in N
+Fmax = 18; % maximum force in N
 cmax = 1.8; % asymptote as v approaches -inf
-vmax = 1; % maximum velocity
+vmax = 10; % maximum velocity
 
 c1 = 0.29; % from Biewener et al. (2014)
 c2 = 1; % overall curvature of FV
@@ -157,7 +158,7 @@ err = cell(1,simiter);
 F = cell(1,simiter);
 v = cell(1,simiter);
 x = cell(1,simiter);
-vsweep = linspace(-1,1,velBruteSize);
+vsweep = linspace(-vmax,vmax,velBruteSize);
 wrk = cell(1,simiter);
 pwr = cell(1,simiter);
 % Calculate FV function at all velocities
@@ -217,8 +218,8 @@ for i = 1:simiter
 end
 
 %---Aesthetics
-xlabel('Muscle Length (L/Lopt)')
-ylabel('F/Fmax')
+xlabel('Muscle Length (m)')
+ylabel('Force (N)')
 %---Aesthetics for colorbar
 colormap(copper)
 cbh = colorbar;

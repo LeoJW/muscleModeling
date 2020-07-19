@@ -116,6 +116,19 @@ FLpasFunc = @(p,x) heaviside(x-p(2)).*p(1).*(x-p(2)).^2; % FL passive component
 FVactHinge = @(m,v) m(3)/m(1)*log(1+exp(m(1)*v-m(2))); % FV smooth ramp function
 
 
+%% Morpho data
+
+elbowAngle = 1;
+manusAngle = 1;
+humOriginL = 1; % how far up humerus EMR attaches
+ruL = 1; % length of r-u
+r = 1; % radius of wrist joint arc section
+EMRa = (ruL)^2 + (humOriginL)^2 - 2*ruL*humOriginL*cos(elbowAngle);
+EMRb = 1; % how far down manus EMR attaches, fixed length?
+EMRarc = arcRad.*manusAngle; % length of EMR arc section
+EMRlength = EMRa+EMRb+EMRarc; % total EMR length
+
+
 %% TPB external force
 
 Fmaxtpb = 1;

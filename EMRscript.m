@@ -116,18 +116,27 @@ FLpasFunc = @(p,x) heaviside(x-p(2)).*p(1).*(x-p(2)).^2; % FL passive component
 FVactHinge = @(m,v) m(3)/m(1)*log(1+exp(m(1)*v-m(2))); % FV smooth ramp function
 
 
-%% Morpho data
+%% Morpho and kinematics data
+
+[kine,EMG] = readKineEMG();
 
 % need updated cycle frequency
-elbowAngle = 1;
-manusAngle = 1;
-humOriginL = 1; % how far up humerus EMR attaches
-ruL = 1; % length of r-u
-r = 1; % radius of wrist joint arc section
-EMRa = (ruL)^2 + (humOriginL)^2 - 2*ruL*humOriginL*cos(elbowAngle);
-EMRb = 1; % how far down manus EMR attaches, fixed length?
-EMRarc = arcRad.*manusAngle; % length of EMR arc section
+% lengths are in mm, angles are in deg
+theta = kine(:,2); % elbow angle
+phi = kine(:,3); % manus angle
+humActualL = [23,22,22];
+humL = mean(humActualL); % length of humerus
+humOriginL = (1/7)*humL; % how far up humerus EMR attaches, guess for now
+radialCOR2end = [32,32,31.5];
+radL = mean(radialCOR2end); % length of radius bone
+manusL = 0.75*radL; % length of manus, guess for now
+manusr = 0.1*manusL; % radius of wrist joint arc section (radius of manus)
+% can approximate manusr with manus diameter, but guess for now
+EMRa = sqrt((radL)^2 + (humOriginL)^2 - 2*radL*humOriginL*cosd(theta));
+EMRb = 0.1*manusL; % how far down manus EMR attaches, fixed length, guess for now
+EMRarc = manusr.*(phi*pi/180); % length of EMR arc section
 EMRlength = EMRa+EMRb+EMRarc; % total EMR length
+
 
 
 %% TPB external force

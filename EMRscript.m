@@ -118,6 +118,7 @@ FVactHinge = @(m,v) m(3)/m(1)*log(1+exp(m(1)*v-m(2))); % FV smooth ramp function
 
 %% Morpho data
 
+% need updated cycle frequency
 elbowAngle = 1;
 manusAngle = 1;
 humOriginL = 1; % how far up humerus EMR attaches
@@ -154,8 +155,9 @@ wr = 2*pi*w; % frequency in radians/s
 lamplitude = 0.2; % amplitude of l
 l = lamplitude.*sin(wr.*t) + 2; % MTU length, l/Lopt
 ldot = lamplitude.*wr.*cos(wr*t); % MTU velocity, ldot/vmax
+% can redefine with digitized kinematics data
 
-% l = 0.4*sawtooth(2*pi*t,0.3)+1.8; % MTU length asymmetrical pattern
+% l = 0.4*sawtooth(2*pi*t,0.3)+1.8; % MTU length basic asymmetric pattern
 
 % Prep figure for loop
 figure(2)

@@ -279,6 +279,13 @@ scatter(stimPhase,bob,'filled')
 xlim([0 1])
 xlabel('Stimulation Phase'), ylabel('Net Work')
 
+figure(5)
+hold on
+box on
+grid on
+kineTime = kine(:,1);
+plot(kineTime,EMRlength)
+xlabel('Time (s)'), ylabel('EMR MTU Length (mm)')
 
 
 %% Kinematics data

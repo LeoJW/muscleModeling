@@ -163,6 +163,7 @@ t = t - t(end);
 %Define kinematics time vector using known last frame, sample rate
 tk = (-kineL + (lastFrame))/fksamp :1/fksamp: (lastFrame-1)/fksamp;
 tk = tk + 1/fksamp;
+tk = tk-tk(1);
 
 %---Pick out and snip kinematics data---%
 %Keep only EMG data overlapping kinematics

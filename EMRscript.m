@@ -1,10 +1,10 @@
 % KINEMATICS-DRIVEN EMR MODEL SCRIPT
 clear vars; close all;
 
-% Force in Newtons
-% Velocity in mm/sec
-% Length in mm
-% k in N/mm?
+% Force is F/Fmax -> convert to N
+% Velocity in Lopt/s -> convert to mm/sec
+% Length in L/Lopt -> convert to mm
+% k is dimensionless -> convert to N/mm
 
 
 %% Constants for Hill model
@@ -41,9 +41,9 @@ p1 = 4; % FLpas
 p2 = 1; % FLpas
 p = [p1,p2];
 
-Fmax = 5; % maximum force in N
+Fmax = 1; % maximum force in N
 cmax = 1.8; % asymptote as v approaches -inf
-vmax = 1; % maximum velocity in mm/s
+vmax = 1; % maximum velocity in Lopt/s, want to convert to mm/s
 
 c1 = 0.29; % from Biewener et al. (2014)
 c2 = 1; % overall curvature of FV
@@ -58,7 +58,7 @@ delay = 50; % activation delay, in ms -> rescaled in a
 gam1 = -0.993; % activation constant
 gam2 = -0.993; % activation constant
 
-k = 5; % spring constant, N/mm
+k = 0.1; % spring constant, dimensionless, want to convert to N/mm
 
 %---Singularity adjustments
 Ftol = 0.1; % tolerance for F to avoid singularities
@@ -166,12 +166,12 @@ C = [b1,b2,p1,p2,c1,c2,cmax,vmax,Fmax]; % hill
 %---MTU overall length/velocity parameters
 wr = 2*pi*w; % frequency in radians/s
 lamplitude = 0.2; % amplitude of l
-% l = lamplitude.*sin(wr.*t) + 2; % MTU length, l/Lopt
+l = lamplitude.*sin(wr.*t) + 2; % MTU length, l/Lopt
 ldot = lamplitude.*wr.*cos(wr*t); % MTU velocity, ldot/vmax
 % can redefine with digitized kinematics data
 
 % l = 0.4*sawtooth(2*pi*t,0.3)+1.8; % MTU length basic asymmetric pattern
-l = 2*sin(wr.*t) + 33;
+% l = 2*sin(wr.*t) + 33; % example strain pattern in mm
 
 % Prep figure for loop
 figure(2)
@@ -198,7 +198,7 @@ FVhinge = FVactHinge(m,vsweep);
 for i = 1:simiter
     
     % Declare vectors for simulation run
-    x{i} = [33,zeros(1,length(simt)-1)]; % muscle length initial condition
+    x{i} = [1,zeros(1,length(simt)-1)]; % muscle length initial condition
     v{i} = zeros(1,length(simt)); % velocity
     err{i} = zeros(1,length(simt)); % error
     F{i} = zeros(1,length(simt)); % force

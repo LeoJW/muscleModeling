@@ -140,7 +140,7 @@ EMRarc = manusr.*(phi*pi/180); % length of EMR arc section
 EMRlength = EMRa+EMRb+EMRarc; % total EMR length
 % interpolate missing values for EMR length
 EMRl = fillmissing(EMRlength,'linear','SamplePoints',kineTime);
-
+% need to trim before first data point and after last data point
 
 
 %% TPB external force

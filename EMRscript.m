@@ -15,7 +15,7 @@ simiter = 6; % number of activation phases to compare
 h = 1e-3; % step size
 velBruteSize = 1e4; % number of points to solve for v
 
-stimPhase = linspace(0.1,0.5,simiter); % version of tstart that varies
+stimPhase = linspace(0.1,0.6,simiter); % version of tstart that varies
 
 %---Secondary controls
 
@@ -226,7 +226,7 @@ for i = 1:simiter
         F{i}(j) = hill(x{i}(j),v{i}(j),ta,C);
         
         % Separate cycle numbers
-        cycL = round(length(simt)/4);
+        cycL = round(length(simt)/ncycles);
         cycNum = [ones(1,cycL), 2*ones(1,cycL), 3*ones(1,cycL), 4*ones(1,cycL+1)];
         % work, area under curve w/ neg vs pos velocity
         wrk{i} = trapz(x{i}(cycNum>3),F{i}(cycNum>3).*-sign(v{i}(cycNum>3)));
@@ -236,7 +236,7 @@ for i = 1:simiter
     end
     
     % Separate cycle numbers
-    cycL = round(length(simt)/4); 
+    cycL = round(length(simt)/ncycles); 
     cycNum = [ones(1,cycL), 2*ones(1,cycL), 3*ones(1,cycL), 4*ones(1,cycL+1)];
     
     % Plot output
@@ -279,8 +279,7 @@ hold on
 box on
 grid on
 
-bob = [wrk{1:6}];
-scatter(stimPhase,bob,'filled')
+scatter(stimPhase,[wrk{1:simiter}],'filled')
 xlim([0 1])
 xlabel('Stimulation Phase'), ylabel('Net Work')
 

@@ -2,9 +2,9 @@
 clear vars; close all;
 
 % Force in Newtons
-% Velocity in m/sec?
-% Length in m?
-% k in N/m
+% Velocity in mm/sec
+% Length in mm
+% k in N/mm?
 
 
 %% Constants for Hill model
@@ -15,7 +15,7 @@ simiter = 6; % number of activation phases to compare
 h = 1e-3; % step size
 velBruteSize = 1e4; % number of points to solve for v
 
-stimPhase = linspace(0.1,0.6,simiter); % version of tstart that varies
+stimPhase = linspace(0.1,0.5,simiter); % version of tstart that varies
 
 %---Secondary controls
 
@@ -41,9 +41,9 @@ p1 = 4; % FLpas
 p2 = 1; % FLpas
 p = [p1,p2];
 
-Fmax = 18; % maximum force in N
+Fmax = 5; % maximum force in N
 cmax = 1.8; % asymptote as v approaches -inf
-vmax = 10; % maximum velocity
+vmax = 1; % maximum velocity in mm/s
 
 c1 = 0.29; % from Biewener et al. (2014)
 c2 = 1; % overall curvature of FV
@@ -58,7 +58,7 @@ delay = 50; % activation delay, in ms -> rescaled in a
 gam1 = -0.993; % activation constant
 gam2 = -0.993; % activation constant
 
-k = 0.1; % spring constant
+k = 5; % spring constant, N/mm
 
 %---Singularity adjustments
 Ftol = 0.1; % tolerance for F to avoid singularities
@@ -120,7 +120,9 @@ FVactHinge = @(m,v) m(3)/m(1)*log(1+exp(m(1)*v-m(2))); % FV smooth ramp function
 
 [kine,EMG] = readKineEMG();
 
-% need updated cycle frequency
+% time vector for kinematics
+kineTime = kine(:,1);
+% cycle frequency?
 % lengths are in mm, angles are in deg
 theta = kine(:,2); % elbow angle
 phi = kine(:,3); % manus angle
@@ -136,6 +138,8 @@ EMRa = sqrt((radL)^2 + (humOriginL)^2 - 2*radL*humOriginL*cosd(theta));
 EMRb = 0.1*manusL; % how far down manus EMR attaches, fixed length, guess for now
 EMRarc = manusr.*(phi*pi/180); % length of EMR arc section
 EMRlength = EMRa+EMRb+EMRarc; % total EMR length
+% interpolate missing values for EMR length
+EMRl = fillmissing(EMRlength,'linear','SamplePoints',kineTime);
 
 
 
@@ -162,11 +166,12 @@ C = [b1,b2,p1,p2,c1,c2,cmax,vmax,Fmax]; % hill
 %---MTU overall length/velocity parameters
 wr = 2*pi*w; % frequency in radians/s
 lamplitude = 0.2; % amplitude of l
-l = lamplitude.*sin(wr.*t) + 2; % MTU length, l/Lopt
+% l = lamplitude.*sin(wr.*t) + 2; % MTU length, l/Lopt
 ldot = lamplitude.*wr.*cos(wr*t); % MTU velocity, ldot/vmax
 % can redefine with digitized kinematics data
 
 % l = 0.4*sawtooth(2*pi*t,0.3)+1.8; % MTU length basic asymmetric pattern
+l = 2*sin(wr.*t) + 33;
 
 % Prep figure for loop
 figure(2)
@@ -193,7 +198,7 @@ FVhinge = FVactHinge(m,vsweep);
 for i = 1:simiter
     
     % Declare vectors for simulation run
-    x{i} = [1,zeros(1,length(simt)-1)]; % muscle length initial condition
+    x{i} = [33,zeros(1,length(simt)-1)]; % muscle length initial condition
     v{i} = zeros(1,length(simt)); % velocity
     err{i} = zeros(1,length(simt)); % error
     F{i} = zeros(1,length(simt)); % force
@@ -242,7 +247,7 @@ for i = 1:simiter
 end
 
 %---Aesthetics
-xlabel('Muscle Length (m)')
+xlabel('Muscle Length (mm)')
 ylabel('Force (N)')
 %---Aesthetics for colorbar
 colormap(copper)
@@ -283,8 +288,7 @@ figure(5)
 hold on
 box on
 grid on
-kineTime = kine(:,1);
-plot(kineTime,EMRlength)
+plot(kineTime,EMRl)
 xlabel('Time (s)'), ylabel('EMR MTU Length (mm)')
 
 

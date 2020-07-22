@@ -15,7 +15,7 @@ simiter = 6; % number of activation phases to compare
 h = 1e-3; % step size
 velBruteSize = 1e4; % number of points to solve for v
 
-stimPhase = linspace(0.1,0.6,simiter); % version of tstart that varies
+stimPhase = linspace(0.1,0.8,simiter); % version of tstart that varies
 
 %---Secondary controls
 
@@ -97,10 +97,11 @@ for i = 1:simiter
     a{i} = zeros(1,niter);
     % Solve for a
     ucycle(startdur(i):enddur(i)) = 1;
-    u{i} = repmat(ucycle,1,ncycles);
+    ucycle(1:length(lcycle+1:end)) = ucycle(lcycle+1:end);
+    % ucycle(1:startdur(1)) = 0; this is wrong
+    u{i} = repmat(ucycle(1:lcycle),1,ncycles);
     a{i} = activationODE2(u{i},d,gam1,gam2);
     a{i} = (1-atol).*a{i}+atol;
-    a{i}(niter+1:end) = [];
 
     % Plot output
     plot(t,a{i},'color',col(i,:))

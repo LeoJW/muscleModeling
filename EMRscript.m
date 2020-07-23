@@ -97,10 +97,12 @@ for i = 1:simiter
     a{i} = zeros(1,niter);
     % Define each cycle
     ucycle(startdur(i):enddur(i)) = 1;
-    ucycle(1:length(lcycle+1:end)) = ucycle(lcycle+1:end);
+    if enddur(i)>lcycle
+        ucycle(1:(enddur(i)-lcycle)) = 1;
+    end
     % Define u
     u{i} = repmat(ucycle(1:lcycle),1,ncycles);
-    u{i}(1:(startdur-1)) = 0;
+    u{i}(1:(startdur(i)-1)) = 0;
     % Solve for a
     a{i} = activationODE2(u{i},d,gam1,gam2);
     a{i} = (1-atol).*a{i}+atol;

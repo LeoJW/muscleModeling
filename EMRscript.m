@@ -95,11 +95,13 @@ for i = 1:simiter
     ucycle = zeros(1,lcycle);
     u{i} = zeros(1,niter);
     a{i} = zeros(1,niter);
-    % Solve for a
+    % Define each cycle
     ucycle(startdur(i):enddur(i)) = 1;
     ucycle(1:length(lcycle+1:end)) = ucycle(lcycle+1:end);
-    % ucycle(1:startdur(1)) = 0; this is wrong
+    % Define u
     u{i} = repmat(ucycle(1:lcycle),1,ncycles);
+    u{i}(1:(startdur-1)) = 0;
+    % Solve for a
     a{i} = activationODE2(u{i},d,gam1,gam2);
     a{i} = (1-atol).*a{i}+atol;
 
@@ -228,7 +230,7 @@ for i = 1:simiter
         
         % Separate cycle numbers
         cycL = round(length(simt)/ncycles);
-        cycNum = [ones(1,cycL), 2*ones(1,cycL), 3*ones(1,cycL), 4*ones(1,cycL+1)];
+        cycNum = repelem(1:ncycles,cycL);
         % work, area under curve w/ neg vs pos velocity
         wrk{i} = trapz(x{i}(cycNum>3),F{i}(cycNum>3).*-sign(v{i}(cycNum>3)));
         % instantaneous power
@@ -237,8 +239,8 @@ for i = 1:simiter
     end
     
     % Separate cycle numbers
-    cycL = round(length(simt)/ncycles); 
-    cycNum = [ones(1,cycL), 2*ones(1,cycL), 3*ones(1,cycL), 4*ones(1,cycL+1)];
+    cycL = round(length(simt)/ncycles);
+    cycNum = repelem(1:ncycles,cycL);
     
     % Plot output
     plot(x{i}(cycNum>2),F{i}(cycNum>2),'color',col(i,:))

@@ -129,8 +129,21 @@ FVactHinge = @(m,v) m(3)/m(1)*log(1+exp(m(1)*v-m(2))); % FV smooth ramp function
 kineTime = kine(:,1);
 % cycle frequency?
 % lengths are in mm, angles are in deg
-theta = kine(:,2); % elbow angle
-phi = kine(:,3); % manus angle
+thetaraw = kine(:,2); % elbow angle
+[thetapks,tploc] = findpeaks(-thetaraw);
+thetawave = zeros(1,length(tploc)-1);
+for i = 1:length(tploc)
+    thetawave(i) = thetaraw(tploc(i):tploc(i+1));
+end
+%thetafilled = fillmissing(thetaraw,'linear','SamplePoints',kineTime);
+phiraw = kine(:,3); % manus angle
+%phifilled = fillmissing(phiraw,'linear','SamplePoints',kineTime);
+
+% Lowpass filter on theta and phi
+[beep,boop] = butter(5,0.5);
+theta = filtfilt(beep,boop,thetaraw);
+phi = filtfilt(beep,boop,phiraw);
+
 humActualL = [23,22,22];
 humL = mean(humActualL); % length of humerus
 humOriginL = (1/7)*humL; % how far up humerus EMR attaches, guess for now
@@ -144,7 +157,7 @@ EMRb = 0.1*manusL; % how far down manus EMR attaches, fixed length, guess for no
 EMRarc = manusr.*(phi*pi/180); % length of EMR arc section
 EMRlength = EMRa+EMRb+EMRarc; % total EMR length
 % interpolate missing values for EMR length
-EMRl = fillmissing(EMRlength,'linear','SamplePoints',kineTime);
+%EMRl = fillmissing(EMRlength,'linear','SamplePoints',kineTime);
 % need to trim before first data point and after last data point
 
 

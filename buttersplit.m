@@ -4,16 +4,26 @@ function meanClean = buttersplit(tdata,rawdata,tnew)
 convertNaN = isnan(rawdata);
 dataTrimmed = rawdata(find(convertNaN>0,1):find(convertNaN>0,1,'last'));
 %--Interpolate gaps in data
-dataFull = spline(tdata,dataTrimmed,tnew);
+dataFilled = spline(tdata,dataTrimmed,tnew);
 %--Apply LPF
 [beep,boop] = butter(5,0.5);
-dataFilt = filtfilt(beep,boop,dataFull);
+dataFilt = filtfilt(beep,boop,dataFilled);
 %--Find local minima w/ findpeaks
 [~,locs] = findpeaks(-dataFilt);
 %--Use locations of minima to define beginning/end of each cycle
-wave = zeros(1,length(locs));
-for i = 1:length(locs)
-    wave(i) = rawdata(locs(i):locs(i+1));
+nwaves = length(locs)+1;
+for i = 1:nwaves
+    % Define each wave/cycle duration
+    wavedur(i) = length(locs(i):locs(i+1));
+    % Prep wave var for next loop
+    wave = cell(wavedur(i),nwaves);
+    % Loop through different cycles
+    for j = 1:length(wavedur(i))
+        % Declare vars
+        wave{j} = zeros(1,wavedur(i));
+        % Define each wave
+        wave{j} = rawdata(locs(i):locs(i+1));
+    end
 end
 %--Take avg of all split cycles
 meanClean = mean(wave);

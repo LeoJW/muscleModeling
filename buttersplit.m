@@ -18,7 +18,7 @@ for i = 1:nwaves+1
     % Define each wave/cycle duration
     wavedur(i) = locs(i+1)-locs(i);
     % Prep wave var for next loop
-    wave = cell(length(wave,nwaves);
+    wave = cell(wavedur,nwaves);
     % Loop through different cycles
     for j = 1:nwaves
         % Declare vars

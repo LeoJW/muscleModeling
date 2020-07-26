@@ -32,6 +32,7 @@ for i = 1:nwaves+1
         wave{j} = dataFilt(locs(i):locs(i+1));
     end
 end
+t = [twave(1:end)];
 %--Take avg/overlay of all cycles
 meanClean = mean(wave); % use another method
 % Overlay, then use Lowess model or equiv

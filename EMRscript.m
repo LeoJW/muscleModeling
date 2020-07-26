@@ -130,19 +130,11 @@ kineTime = kine(:,1);
 % cycle frequency?
 % lengths are in mm, angles are in deg
 thetaraw = kine(:,2); % elbow angle
-[thetapks,tploc] = findpeaks(-thetaraw);
-thetawave = zeros(1,length(tploc)-1);
-for i = 1:length(tploc)
-    thetawave(i) = thetaraw(tploc(i):tploc(i+1));
-end
-%thetafilled = fillmissing(thetaraw,'linear','SamplePoints',kineTime);
 phiraw = kine(:,3); % manus angle
-%phifilled = fillmissing(phiraw,'linear','SamplePoints',kineTime);
 
-% Lowpass filter on theta and phi
-[beep,boop] = butter(5,0.5);
-theta = filtfilt(beep,boop,thetaraw);
-phi = filtfilt(beep,boop,phiraw);
+% Trim, LPF and splitting waveforms for theta and phi
+%theta = buttersplit(kineTime,thetaraw,kineTime);
+%phi = buttersplit(kineTime,thetaraw,kineTime);
 
 humActualL = [23,22,22];
 humL = mean(humActualL); % length of humerus
@@ -184,11 +176,11 @@ C = [b1,b2,p1,p2,c1,c2,cmax,vmax,Fmax]; % hill
 %---MTU overall length/velocity parameters
 wr = 2*pi*w; % frequency in radians/s
 lamplitude = 0.2; % amplitude of l
-l = lamplitude.*sin(wr.*t) + 2; % MTU length, l/Lopt
+%l = lamplitude.*sin(wr.*t) + 2; % MTU length, l/Lopt
 ldot = lamplitude.*wr.*cos(wr*t); % MTU velocity, ldot/vmax
 % can redefine with digitized kinematics data
 
-% l = 0.4*sawtooth(2*pi*t,0.3)+1.8; % MTU length basic asymmetric pattern
+l = 0.4*sawtooth(2*pi*t,0.3)+1.8; % MTU length basic asymmetric pattern
 % l = 2*sin(wr.*t) + 33; % example strain pattern in mm
 
 % Prep figure for loop
@@ -265,8 +257,8 @@ for i = 1:simiter
 end
 
 %---Aesthetics
-xlabel('Muscle Length (mm)')
-ylabel('Force (N)')
+xlabel('L/Lopt')
+ylabel('F/Fmax')
 %---Aesthetics for colorbar
 colormap(copper)
 cbh = colorbar;

@@ -14,10 +14,11 @@ dataFilt = filtfilt(beep,boop,dataFilled);
 [~,locs] = findpeaks(-dataFilt);
 %--Use locations of minima to define beginning/end of each cycle
 nwaves = length(locs)+1;
+wavedur = zeros(1,nwaves);
 for i = 1:nwaves+1
     % Define each wave/cycle duration
     wavedur(i) = locs(i+1)-locs(i);
-    % Prep wave var for next loop
+    % Prep wave var
     wave = cell(wavedur,nwaves);
     % Loop through different cycles
     for j = 1:nwaves

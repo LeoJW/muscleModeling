@@ -132,6 +132,15 @@ kineTime = kine(:,1);
 thetaraw = kine(:,2); % elbow angle
 phiraw = kine(:,3); % manus angle
 
+convertNaN = isnan(thetaraw);
+timeTrimmed = kineTime(find(convertNaN<1,1):find(convertNaN<1,1,'last'));
+dataTrimmed = thetaraw(find(convertNaN<1,1):find(convertNaN<1,1,'last'));
+%--Interpolate gaps in data
+dataFilled = spline(timeTrimmed,dataTrimmed,timeTrimmed);
+%--Apply LPF
+[beep,boop] = butter(5,0.3);
+dataFilt = filtfilt(beep,boop,dataFilled);
+
 % Trim, LPF and splitting waveforms for theta and phi
 %theta = buttersplit(kineTime,thetaraw,kineTime);
 %phi = buttersplit(kineTime,thetaraw,kineTime);
@@ -144,10 +153,10 @@ radL = mean(radialCOR2end); % length of radius bone
 manusL = 0.75*radL; % length of manus, guess for now
 manusr = 0.1*manusL; % radius of wrist joint arc section (radius of manus)
 % can approximate manusr with manus diameter, but guess for now
-EMRa = sqrt((radL)^2 + (humOriginL)^2 - 2*radL*humOriginL*cosd(theta));
-EMRb = 0.1*manusL; % how far down manus EMR attaches, fixed length, guess for now
-EMRarc = manusr.*(phi*pi/180); % length of EMR arc section
-EMRlength = EMRa+EMRb+EMRarc; % total EMR length
+%EMRa = sqrt((radL)^2 + (humOriginL)^2 - 2*radL*humOriginL*cosd(theta));
+%EMRb = 0.1*manusL; % how far down manus EMR attaches, fixed length, guess for now
+%EMRarc = manusr.*(phi*pi/180); % length of EMR arc section
+%EMRlength = EMRa+EMRb+EMRarc; % total EMR length
 % interpolate missing values for EMR length
 %EMRl = fillmissing(EMRlength,'linear','SamplePoints',kineTime);
 % need to trim before first data point and after last data point
@@ -180,7 +189,7 @@ lamplitude = 0.2; % amplitude of l
 ldot = lamplitude.*wr.*cos(wr*t); % MTU velocity, ldot/vmax
 % can redefine with digitized kinematics data
 
-l = 0.4*sawtooth(2*pi*t,0.3)+1.8; % MTU length basic asymmetric pattern
+l = 0.2*sawtooth(2*pi*t,0.2)+2; % MTU length basic asymmetric pattern
 % l = 2*sin(wr.*t) + 33; % example strain pattern in mm
 
 % Prep figure for loop
@@ -297,8 +306,8 @@ figure(5)
 hold on
 box on
 grid on
-plot(kineTime,EMRl)
-xlabel('Time (s)'), ylabel('EMR MTU Length (mm)')
+plot(timeTrimmed,dataFilt)
+xlabel('Time (s)'), ylabel('Elbow Angle')
 
 
 %% Kinematics data

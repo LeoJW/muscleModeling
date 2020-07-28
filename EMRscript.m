@@ -185,12 +185,15 @@ C = [b1,b2,p1,p2,c1,c2,cmax,vmax,Fmax]; % hill
 %---MTU overall length/velocity parameters
 wr = 2*pi*w; % frequency in radians/s
 lamplitude = 0.2; % amplitude of l
-%l = lamplitude.*sin(wr.*t) + 2; % MTU length, l/Lopt
+l = lamplitude.*sin(wr.*t) + 2; % MTU length, l/Lopt
 ldot = lamplitude.*wr.*cos(wr*t); % MTU velocity, ldot/vmax
 % can redefine with digitized kinematics data
-
-l = 0.2*sawtooth(2*pi*t,0.2)+2; % MTU length basic asymmetric pattern
+% l = 0.2*sawtooth(2*pi*t,0.2)+2; % MTU length basic asymmetric pattern
 % l = 2*sin(wr.*t) + 33; % example strain pattern in mm
+
+%---Split cycles
+cycL = round(length(t)/ncycles);
+cycNum = repelem(1:ncycles,cycL);
 
 % Prep figure for loop
 figure(2)
@@ -244,22 +247,17 @@ for i = 1:simiter
         v{i}(j) = vsweep(vind);
         F{i}(j) = hill(x{i}(j),v{i}(j),ta,C);
         
-        % Separate cycle numbers
-        cycL = round(length(simt)/ncycles);
-        cycNum = repelem(1:ncycles,cycL);
+        % Interpolate cycle numbers
+        tcycNum = interp1(t,cycNum,simt);
         % work, area under curve w/ neg vs pos velocity
-        wrk{i} = trapz(x{i}(cycNum>3),F{i}(cycNum>3).*-sign(v{i}(cycNum>3)));
+        wrk{i} = -trapz(x{i}(tcycNum>3),F{i}(tcycNum>3));
         % instantaneous power
         pwr{i}(j) = F{i}(j).*v{i}(j);
         
     end
     
-    % Separate cycle numbers
-    cycL = round(length(simt)/ncycles);
-    cycNum = repelem(1:ncycles,cycL);
-    
     % Plot output
-    plot(x{i}(cycNum>2),F{i}(cycNum>2),'color',col(i,:))
+    plot(x{i}(tcycNum>2),F{i}(tcycNum>2),'color',col(i,:))
     % plot(simt,v{i},'color',col(i,:))
     drawnow
     

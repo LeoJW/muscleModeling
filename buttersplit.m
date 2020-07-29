@@ -1,4 +1,4 @@
-function [t,?] = buttersplit(tdata,rawdata,tnew)
+function [t,flap] = buttersplit(tdata,rawdata,tnew)
 % Function for cleaning up data and splitting + overlaying waveforms
 % tdata is time vector from raw data
 % tnew is desired new time vector
@@ -32,11 +32,10 @@ for i = 1:nwaves+1
         wave{j} = dataFilt(locs(i):locs(i+1));
     end
 end
+% Big time vector for overlaying the cycles
+allwaves = wave(1:end);
 t = twave(1:end);
-%--Take avg/overlay of all cycles
-meanClean = mean(wave); % use another method
-% Overlay cycles
-
 % Smooth overlaid cycles
+flap = fit([t allwaves],'lowess');
 end
 

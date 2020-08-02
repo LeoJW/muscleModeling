@@ -142,8 +142,8 @@ dataFilled = spline(timeTrimmed,dataTrimmed,timeTrimmed);
 dataFilt = filtfilt(beep,boop,dataFilled);
 
 % Trim, LPF and splitting waveforms for theta and phi
-%theta = buttersplit(kineTime,thetaraw,kineTime);
-%phi = buttersplit(kineTime,thetaraw,kineTime);
+theta = buttersplit(kineTime,thetaraw,kineTime);
+phi = buttersplit(kineTime,thetaraw,kineTime);
 
 humActualL = [23,22,22];
 humL = mean(humActualL); % length of humerus

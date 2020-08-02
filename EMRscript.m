@@ -142,24 +142,17 @@ dataFilled = spline(timeTrimmed,dataTrimmed,timeTrimmed);
 dataFilt = filtfilt(beep,boop,dataFilled);
 
 % Trim, LPF and splitting waveforms for theta and phi
-theta = buttersplit(kineTime,thetaraw,kineTime);
-phi = buttersplit(kineTime,thetaraw,kineTime);
+theta = buttersplit(kineTime,thetaraw,kineTime); % elbow angle
+phi = buttersplit(kineTime,thetaraw,kineTime); % phi
 
-humActualL = [23,22,22];
-humL = mean(humActualL); % length of humerus
-humOriginL = (1/7)*humL; % how far up humerus EMR attaches, guess for now
-radialCOR2end = [32,32,31.5];
-radL = mean(radialCOR2end); % length of radius bone
-manusL = 0.75*radL; % length of manus, guess for now
-manusr = 0.1*manusL; % radius of wrist joint arc section (radius of manus)
-% can approximate manusr with manus diameter, but guess for now
-%EMRa = sqrt((radL)^2 + (humOriginL)^2 - 2*radL*humOriginL*cosd(theta));
-%EMRb = 0.1*manusL; % how far down manus EMR attaches, fixed length, guess for now
-%EMRarc = manusr.*(phi*pi/180); % length of EMR arc section
-%EMRlength = EMRa+EMRb+EMRarc; % total EMR length
-% interpolate missing values for EMR length
-%EMRl = fillmissing(EMRlength,'linear','SamplePoints',kineTime);
-% need to trim before first data point and after last data point
+humL = mean([26.01,24.12,24.73]); % length of humerus
+humOriginL = mean([3.17,3.81,3.66]); % how far up humerus EMR attaches, guess for now
+radL = mean([32.18,31.74,32.26]); % length of radius bone
+manusr = 0.5*mean([3.71,3.69,3.79]); % radius of wrist joint arc section (radius of manus)
+EMRa = sqrt((radL)^2 + (humOriginL)^2 - 2*radL*humOriginL*cosd(theta));
+EMRb = mean([2.37,1.98,2.02]); % how far down manus EMR attaches, fixed length
+EMRarc = manusr.*(phi*pi/180); % length of EMR arc section
+EMRlength = EMRa+EMRb+EMRarc; % total EMR length
 
 
 %% TPB external force

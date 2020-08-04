@@ -144,15 +144,15 @@ dataFilt = filtfilt(beep,boop,dataFilled);
 [~,locs] = findpeaks(-dataFilt);
 %---Preallocate for loop
 nwaves = length(locs)-1;
-tVecNew = zeros(1,length(timeTrimmed));
+tVecNew = zeros(1,length(kineTime));
 for i = 1:nwaves
     % Make new time vector so all waves go from 0 to 1 (dimensionless)
     tVecNew(locs(i):locs(i+1)) = linspace(0,1,locs(i+1)-locs(i)+1);
 end
 
 % Trim, LPF and splitting waveforms for theta and phi
-theta = buttersplit(kineTime,thetaraw,kineTime); % elbow angle
-phi = buttersplit(kineTime,thetaraw,kineTime); % phi
+theta = buttersplit(kineTime,thetaraw); % elbow angle
+phi = buttersplit(kineTime,phiraw); % phi
 
 humL = mean([26.01,24.12,24.73]); % length of humerus
 humOriginL = mean([3.17,3.81,3.66]); % how far up humerus EMR attaches, guess for now

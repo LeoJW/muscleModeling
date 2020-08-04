@@ -306,8 +306,15 @@ figure(5)
 hold on
 box on
 grid on
-plot(timeTrimmed,dataFilt)
-xlabel('Time (s)'), ylabel('Elbow Angle')
+plot(theta)
+xlabel('Normalized Time'), ylabel('Elbow Angle (deg)')
+
+figure(6)
+hold on
+box on
+grid on
+plot(phi)
+xlabel('Normalized Time'), ylabel('Manus Angle (deg)')
 
 
 %% Kinematics data

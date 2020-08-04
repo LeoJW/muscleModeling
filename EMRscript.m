@@ -140,6 +140,15 @@ dataFilled = spline(timeTrimmed,dataTrimmed,timeTrimmed);
 %--Apply LPF
 [beep,boop] = butter(5,0.3);
 dataFilt = filtfilt(beep,boop,dataFilled);
+%--Find local minima w/ findpeaks
+[~,locs] = findpeaks(-dataFilt);
+%---Preallocate for loop
+nwaves = length(locs)-1;
+tVecNew = zeros(1,length(timeTrimmed));
+for i = 1:nwaves
+    % Make new time vector so all waves go from 0 to 1 (dimensionless)
+    tVecNew(locs(i):locs(i+1)) = linspace(0,1,locs(i+1)-locs(i)+1);
+end
 
 % Trim, LPF and splitting waveforms for theta and phi
 theta = buttersplit(kineTime,thetaraw,kineTime); % elbow angle
@@ -149,10 +158,10 @@ humL = mean([26.01,24.12,24.73]); % length of humerus
 humOriginL = mean([3.17,3.81,3.66]); % how far up humerus EMR attaches, guess for now
 radL = mean([32.18,31.74,32.26]); % length of radius bone
 manusr = 0.5*mean([3.71,3.69,3.79]); % radius of wrist joint arc section (radius of manus)
-EMRa = sqrt((radL)^2 + (humOriginL)^2 - 2*radL*humOriginL*cosd(theta));
-EMRb = mean([2.37,1.98,2.02]); % how far down manus EMR attaches, fixed length
-EMRarc = manusr.*(phi*pi/180); % length of EMR arc section
-EMRlength = EMRa+EMRb+EMRarc; % total EMR length
+% EMRa = sqrt((radL)^2 + (humOriginL)^2 - 2*radL*humOriginL*cosd(theta));
+% EMRb = mean([2.37,1.98,2.02]); % how far down manus EMR attaches, fixed length
+% EMRarc = manusr.*(phi*pi/180); % length of EMR arc section
+% EMRlength = EMRa+EMRb+EMRarc; % total EMR length
 
 
 %% TPB external force
@@ -251,7 +260,7 @@ for i = 1:simiter
     
     % Plot output
     plot(x{i}(tcycNum>2),F{i}(tcycNum>2),'color',col(i,:))
-    % plot(simt,v{i},'color',col(i,:))
+    %plot(simt,F{i},'color',col(i,:))
     drawnow
     
 end

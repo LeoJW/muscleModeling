@@ -21,6 +21,7 @@ for i = 1:nwaves
     tVecNew(locs(i):locs(i+1)) = linspace(0,1,locs(i+1)-locs(i)+1);
 end
 % Smooth overlaid cycles
-flap = fit([tVecNew dataFilt],'lowess');
+[xOut,yOut] = prepareCurveData(tVecNew,dataFilt);
+flap = fit(xOut, yOut,'smoothingspline');
 end
 

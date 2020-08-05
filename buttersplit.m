@@ -27,5 +27,6 @@ dataIn = dataFilt(locs(1):locs(end));
 % Smooth overlaid cycles
 [tOut,dataOut] = prepareCurveData(tVecNew,dataIn);
 flap = fit(tOut,dataOut,'smoothingspline');
+%flap = smooth(tOut,dataOut,'lowess');
 end
 

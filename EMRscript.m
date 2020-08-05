@@ -132,24 +132,6 @@ kineTime = kine(:,1);
 thetaraw = kine(:,2); % elbow angle
 phiraw = kine(:,3); % manus angle
 
-convertNaN = isnan(thetaraw);
-timeTrimmed = kineTime(find(convertNaN<1,1):find(convertNaN<1,1,'last'));
-dataTrimmed = thetaraw(find(convertNaN<1,1):find(convertNaN<1,1,'last'));
-%--Interpolate gaps in data
-dataFilled = spline(timeTrimmed,dataTrimmed,timeTrimmed);
-%--Apply LPF
-[beep,boop] = butter(5,0.3);
-dataFilt = filtfilt(beep,boop,dataFilled);
-%--Find local minima w/ findpeaks
-[~,locs] = findpeaks(-dataFilt);
-%---Preallocate for loop
-nwaves = length(locs)-1;
-tVecNew = zeros(1,length(kineTime));
-for i = 1:nwaves
-    % Make new time vector so all waves go from 0 to 1 (dimensionless)
-    tVecNew(locs(i):locs(i+1)) = linspace(0,1,locs(i+1)-locs(i)+1);
-end
-
 % Trim, LPF and splitting waveforms for theta and phi
 theta = buttersplit(kineTime,thetaraw); % elbow angle
 phi = buttersplit(kineTime,phiraw); % phi

@@ -7,7 +7,8 @@ convertNaN = isnan(rawdata);
 dataTrimmed = rawdata(find(convertNaN<1,1):find(convertNaN<1,1,'last'));
 timeTrimmed = tdata(find(convertNaN<1,1):find(convertNaN<1,1,'last'));
 %--Interpolate gaps in data
-dataFilled = spline(timeTrimmed,dataTrimmed,timeTrimmed);
+nonans = isnan(dataTrimmed);
+dataFilled = spline(timeTrimmed(~nonans),dataTrimmed(~nonans),timeTrimmed);
 %--Apply LPF
 [beep,boop] = butter(5,0.3);
 dataFilt = filtfilt(beep,boop,dataFilled);
@@ -15,7 +16,7 @@ dataFilt = filtfilt(beep,boop,dataFilled);
 [~,locs] = findpeaks(-dataFilt);
 %---Preallocate for loop
 nwaves = length(locs)-1;
-tVecNew = NaN(1,length(timeTrimmed));
+tVecNew = NaN(length(timeTrimmed),1);
 for i = 1:nwaves
     % Convert time vector so all waves go from 0 to 1 (dimensionless)
     tVecNew(locs(i):locs(i+1)) = linspace(0,1,locs(i+1)-locs(i)+1);

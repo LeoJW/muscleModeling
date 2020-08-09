@@ -1,4 +1,4 @@
-function [tOut,y] = buttersplit(tdata,rawdata)
+function [tOut,dataOut] = buttersplit(tdata,rawdata)
 % Function for cleaning up data and splitting + overlaying waveforms
 % tdata is time vector from raw data
 % tnew is desired new time vector
@@ -26,7 +26,5 @@ tVecNew(isnan(tVecNew)) = [];
 dataIn = dataFilt(locs(1):locs(end));
 % Smooth overlaid cycles
 [tOut,dataOut] = prepareCurveData(tVecNew,dataIn);
-flap = fit(tOut,dataOut,'smoothingspline','SmoothingParam',0.995);
-y = flap(tOut);
 end
 

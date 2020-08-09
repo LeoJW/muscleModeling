@@ -136,6 +136,17 @@ phiraw = kine(:,3); % manus angle
 [thetaTime,theta] = buttersplit(kineTime,thetaraw); % elbow angle
 [phiTime,phi] = buttersplit(kineTime,phiraw); % phi
 
+thetaSmooth = fit(thetaTime,theta,'smoothingspline','SmoothingParam',0.995);
+phiSmooth = fit(phiTime,phi,'smoothingspline','SmoothingParam',0.995);
+
+thetaTime = thetaTime.';
+thetaY = thetaSmooth(thetaTime).';
+phiTime = phiTime.';
+phiY = phiSmooth(phiTime).';
+
+%repmat(thetaY,1,ncycles);
+
+% Wing geometry measurements for EMR length calculations
 humL = mean([26.01,24.12,24.73]); % length of humerus
 humOriginL = mean([3.17,3.81,3.66]); % how far up humerus EMR attaches, guess for now
 radL = mean([32.18,31.74,32.26]); % length of radius bone
@@ -230,6 +241,7 @@ for i = 1:simiter
         err{i}(j) = eval(vind);
         v{i}(j) = vsweep(vind);
         F{i}(j) = hill(x{i}(j),v{i}(j),ta,C);
+        %F{i}(j) = F{i}(j)*18; % converts force to Newtons (mult by Fmax)
         
         % Interpolate cycle numbers
         tcycNum = interp1(t,cycNum,simt);
@@ -288,14 +300,14 @@ figure(5)
 hold on
 box on
 grid on
-scatter(thetaTime,theta)
+plot(thetaSmooth)
 xlabel('Normalized Time'), ylabel('Elbow Angle (deg)')
 
 figure(6)
 hold on
 box on
 grid on
-scatter(phiTime,phi)
+plot(phiSmooth)
 xlabel('Normalized Time'), ylabel('Manus Angle (deg)')
 
 

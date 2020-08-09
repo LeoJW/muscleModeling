@@ -133,8 +133,8 @@ thetaraw = kine(:,2); % elbow angle
 phiraw = kine(:,3); % manus angle
 
 % Trim, LPF and splitting waveforms for theta and phi
-theta = buttersplit(kineTime,thetaraw); % elbow angle
-phi = buttersplit(kineTime,phiraw); % phi
+[thetaTime,theta] = buttersplit(kineTime,thetaraw); % elbow angle
+[phiTime,phi] = buttersplit(kineTime,phiraw); % phi
 
 humL = mean([26.01,24.12,24.73]); % length of humerus
 humOriginL = mean([3.17,3.81,3.66]); % how far up humerus EMR attaches, guess for now
@@ -288,14 +288,14 @@ figure(5)
 hold on
 box on
 grid on
-plot(theta)
+scatter(thetaTime,theta)
 xlabel('Normalized Time'), ylabel('Elbow Angle (deg)')
 
 figure(6)
 hold on
 box on
 grid on
-plot(phi)
+scatter(phiTime,phi)
 xlabel('Normalized Time'), ylabel('Manus Angle (deg)')
 
 

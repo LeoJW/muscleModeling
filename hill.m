@@ -10,7 +10,6 @@ c1 = C(5);
 c2 = C(6);
 cmax = C(7);
 vmax = C(8);
-Fmax = C(9);
 
 b = C(1:2);
 p = C(3:4);
@@ -23,5 +22,5 @@ FLactFunc = @(b,x) exp(-(((x-b(2))-1)./b(1)).^2); % FL active component
     y(x<p(2)) = 0;
     end
 
-H = Fmax.*((FLactFunc(b,x).*FV4param(fvc,v).*a) + FLpasFunc(p,x));
+H = (FLactFunc(b,x).*FV4param(fvc,v).*a) + FLpasFunc(p,x);
 end

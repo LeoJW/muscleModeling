@@ -41,7 +41,7 @@ p1 = 4; % FLpas
 p2 = 1; % FLpas
 p = [p1,p2];
 
-Fmax = 1; % maximum force in N
+Fmax = 1; % maximum force for Hill model, normalized
 cmax = 1.8; % asymptote as v approaches -inf
 vmax = 1; % maximum velocity in Lopt/s, want to convert to mm/s
 
@@ -59,6 +59,7 @@ gam1 = -0.993; % activation constant
 gam2 = -0.993; % activation constant
 
 k = 0.1; % spring constant, dimensionless, want to convert to N/mm
+% k = 5; N/mm, mult by Lopt/Fmax to make dimensionless
 
 %---Singularity adjustments
 Ftol = 0.1; % tolerance for F to avoid singularities
@@ -139,24 +140,22 @@ phiraw = kine(:,3); % manus angle
 thetaSmooth = fit(thetaTime,theta,'smoothingspline','SmoothingParam',0.995);
 phiSmooth = fit(phiTime,phi,'smoothingspline','SmoothingParam',0.995);
 
-thetaY = repmat(thetaSmooth(thetaTime).',1,ncycles);
-%thetaT = [thetaTime thetaTime+1 thetaTime+2 thetaTime+3];
+thetaY = thetaSmooth(thetaTime);
+phiY = interp1phiSmooth(phiTime);
 
-ncyc = linspace(1,ncycles,ncycles);
-thetaT = zeros(1,length(thetaTime));
-for i = 1:ncycles
-    thetaT(i) = [thetaTime+ncyc(i)]; % UGH
-end
+%thetaY = repmat(thetaSmooth(thetaTime).',1,ncycles);
+%phiY = repmat(phiSmooth(phiTime).',1,ncycles);
+%thetaT = [thetaTime thetaTime+1 thetaTime+2 thetaTime+3];
 
 % Wing geometry measurements for EMR length calculations
 humL = mean([26.01,24.12,24.73]); % length of humerus
 humOriginL = mean([3.17,3.81,3.66]); % how far up humerus EMR attaches, guess for now
 radL = mean([32.18,31.74,32.26]); % length of radius bone
 manusr = 0.5*mean([3.71,3.69,3.79]); % radius of wrist joint arc section (radius of manus)
-% EMRa = sqrt((radL)^2 + (humOriginL)^2 - 2*radL*humOriginL*cosd(theta));
-% EMRb = mean([2.37,1.98,2.02]); % how far down manus EMR attaches, fixed length
-% EMRarc = manusr.*(phi*pi/180); % length of EMR arc section
-% EMRlength = EMRa+EMRb+EMRarc; % total EMR length
+EMRa = sqrt((radL)^2 + (humOriginL)^2 - 2*radL*humOriginL*cosd(thetaY));
+EMRb = mean([2.37,1.98,2.02]); % how far down manus EMR attaches, fixed length
+EMRarc = manusr.*(phiY*pi/180); % length of EMR arc section
+EMRlength = EMRa+EMRb+EMRarc; % total EMR length
 
 
 %% TPB external force
@@ -188,6 +187,10 @@ ldot = lamplitude.*wr.*cos(wr*t); % MTU velocity, ldot/vmax
 % l = 0.2*sawtooth(2*pi*t,0.2)+2; % MTU length basic asymmetric pattern
 % l = 2*sin(wr.*t) + 33; % example strain pattern in mm
 
+% CONVERT length and velocity to dimensionless units
+% velocity to L/s or mm/s
+% Guess Lopt and divide length/Lopt (Lopt is max force production)
+
 %---Split cycles
 cycL = round(length(t)/ncycles);
 cycNum = repelem(1:ncycles,cycL);
@@ -206,7 +209,7 @@ err = cell(1,simiter);
 F = cell(1,simiter);
 v = cell(1,simiter);
 x = cell(1,simiter);
-vsweep = linspace(-vmax,vmax,velBruteSize);
+vsweep = linspace(-1,1,velBruteSize);
 wrk = cell(1,simiter);
 pwr = cell(1,simiter);
 % Calculate FV function at all velocities
@@ -253,6 +256,9 @@ for i = 1:simiter
         pwr{i}(j) = F{i}(j).*v{i}(j);
         
     end
+    
+    %% Convert to real units
+    % length to mm
     
     % Plot output
     plot(x{i}(tcycNum>2),F{i}(tcycNum>2),'color',col(i,:))

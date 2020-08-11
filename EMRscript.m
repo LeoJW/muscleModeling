@@ -41,7 +41,6 @@ p1 = 4; % FLpas
 p2 = 1; % FLpas
 p = [p1,p2];
 
-Fmax = 1; % maximum force for Hill model, normalized
 cmax = 1.8; % asymptote as v approaches -inf
 vmax = 1; % maximum velocity in Lopt/s, want to convert to mm/s
 
@@ -58,8 +57,14 @@ delay = 50; % activation delay, in ms -> rescaled in a
 gam1 = -0.993; % activation constant
 gam2 = -0.993; % activation constant
 
+%--Conversion constants
+Fmax = 10; % maximum force in N
+Lopt = 35; % guess in mm
+vmaxActual = 5*Lopt; % mm/s
+
 k = 0.1; % spring constant, dimensionless, want to convert to N/mm
-% k = 5; N/mm, mult by Lopt/Fmax to make dimensionless
+% kActual = 5; N/mm
+% k = kActual*(Lopt/Fmax) % dimensionless
 
 %---Singularity adjustments
 Ftol = 0.1; % tolerance for F to avoid singularities
@@ -141,21 +146,20 @@ thetaSmooth = fit(thetaTime,theta,'smoothingspline','SmoothingParam',0.995);
 phiSmooth = fit(phiTime,phi,'smoothingspline','SmoothingParam',0.995);
 
 thetaY = thetaSmooth(thetaTime);
-phiY = interp1phiSmooth(phiTime);
 
 %thetaY = repmat(thetaSmooth(thetaTime).',1,ncycles);
 %phiY = repmat(phiSmooth(phiTime).',1,ncycles);
 %thetaT = [thetaTime thetaTime+1 thetaTime+2 thetaTime+3];
 
 % Wing geometry measurements for EMR length calculations
-humL = mean([26.01,24.12,24.73]); % length of humerus
-humOriginL = mean([3.17,3.81,3.66]); % how far up humerus EMR attaches, guess for now
-radL = mean([32.18,31.74,32.26]); % length of radius bone
-manusr = 0.5*mean([3.71,3.69,3.79]); % radius of wrist joint arc section (radius of manus)
-EMRa = sqrt((radL)^2 + (humOriginL)^2 - 2*radL*humOriginL*cosd(thetaY));
-EMRb = mean([2.37,1.98,2.02]); % how far down manus EMR attaches, fixed length
-EMRarc = manusr.*(phiY*pi/180); % length of EMR arc section
-EMRlength = EMRa+EMRb+EMRarc; % total EMR length
+% humL = mean([26.01,24.12,24.73]); % length of humerus
+% humOriginL = mean([3.17,3.81,3.66]); % how far up humerus EMR attaches, guess for now
+% radL = mean([32.18,31.74,32.26]); % length of radius bone
+% manusr = 0.5*mean([3.71,3.69,3.79]); % radius of wrist joint arc section (radius of manus)
+% EMRa = sqrt((radL)^2 + (humOriginL)^2 - 2*radL*humOriginL*cosd(thetaY));
+% EMRb = mean([2.37,1.98,2.02]); % how far down manus EMR attaches, fixed length
+% EMRarc = manusr.*(phiY*pi/180); % length of EMR arc section
+% EMRlength = EMRa+EMRb+EMRarc; % total EMR length
 
 
 %% TPB external force
@@ -176,7 +180,7 @@ Ftpb = Fmaxtpb*atpb;
 
 %---Vector input for Hill constants
 % B = [b1,b2,p1,p2,s1,s2,s3,s4,vmax,Fmax]; % hillv2
-C = [b1,b2,p1,p2,c1,c2,cmax,vmax,Fmax]; % hill
+C = [b1,b2,p1,p2,c1,c2,cmax,vmax]; % hill
 
 %---MTU overall length/velocity parameters
 wr = 2*pi*w; % frequency in radians/s
@@ -190,6 +194,9 @@ ldot = lamplitude.*wr.*cos(wr*t); % MTU velocity, ldot/vmax
 % CONVERT length and velocity to dimensionless units
 % velocity to L/s or mm/s
 % Guess Lopt and divide length/Lopt (Lopt is max force production)
+
+% l = EMRlength/Lopt
+% vmax??
 
 %---Split cycles
 cycL = round(length(t)/ncycles);
@@ -246,7 +253,6 @@ for i = 1:simiter
         err{i}(j) = eval(vind);
         v{i}(j) = vsweep(vind);
         F{i}(j) = hill(x{i}(j),v{i}(j),ta,C);
-        %F{i}(j) = F{i}(j)*18; % converts force to Newtons (mult by Fmax)
         
         % Interpolate cycle numbers
         tcycNum = interp1(t,cycNum,simt);
@@ -257,8 +263,9 @@ for i = 1:simiter
         
     end
     
-    %% Convert to real units
-    % length to mm
+    %--Convert values to real units
+    x{i} = x{i}*Lopt; % converts length to mm
+    F{i} = F{i}*Fmax; % converts force to Newtons
     
     % Plot output
     plot(x{i}(tcycNum>2),F{i}(tcycNum>2),'color',col(i,:))

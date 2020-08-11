@@ -139,12 +139,14 @@ phiraw = kine(:,3); % manus angle
 thetaSmooth = fit(thetaTime,theta,'smoothingspline','SmoothingParam',0.995);
 phiSmooth = fit(phiTime,phi,'smoothingspline','SmoothingParam',0.995);
 
-thetaTime = thetaTime.';
-thetaY = thetaSmooth(thetaTime).';
-phiTime = phiTime.';
-phiY = phiSmooth(phiTime).';
+thetaY = repmat(thetaSmooth(thetaTime).',1,ncycles);
+%thetaT = [thetaTime thetaTime+1 thetaTime+2 thetaTime+3];
 
-%repmat(thetaY,1,ncycles);
+ncyc = linspace(1,ncycles,ncycles);
+thetaT = zeros(1,length(thetaTime));
+for i = 1:ncycles
+    thetaT(i) = [thetaTime+ncyc(i)]; % UGH
+end
 
 % Wing geometry measurements for EMR length calculations
 humL = mean([26.01,24.12,24.73]); % length of humerus

@@ -154,9 +154,8 @@ EMRlengthRaw = EMRa+EMRb+EMRarc; % total EMR length (mm)
 
 % Apply Butterworth LPF
 [lTime,EMRlength,EMRcycDur] = buttersplit(kineTime,EMRlengthRaw,butterOrder,butterFreq);
-EMRsmooth = fit(lTime,EMRlength,'smoothingspline','SmoothingParam',0.995);
-EMRy = repmat(EMRsmooth(lTime).',1,ncycles);
-EMRt = linspace(0,ncycles*EMRcycDur,length(EMRy));
+%EMRy = repmat(EMRsmooth(lTime).',1,ncycles);
+%EMRt = linspace(0,ncycles*EMRcycDur,length(EMRy));
 
 %% TPB external force
 

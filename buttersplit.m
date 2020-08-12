@@ -1,4 +1,4 @@
-function [tOut,dataOut] = buttersplit(tdata,rawdata)
+function [tOut,dataOut,cycDur] = buttersplit(tdata,rawdata,butterOrder,butterFreq)
 % Function for cleaning up data and splitting + overlaying waveforms
 % tdata is time vector from raw data
 % tnew is desired new time vector
@@ -10,10 +10,12 @@ timeTrimmed = tdata(find(convertNaN<1,1):find(convertNaN<1,1,'last'));
 nonans = isnan(dataTrimmed);
 dataFilled = spline(timeTrimmed(~nonans),dataTrimmed(~nonans),timeTrimmed);
 %--Apply LPF
-[beep,boop] = butter(5,0.3);
+[beep,boop] = butter(butterOrder,butterFreq);
 dataFilt = filtfilt(beep,boop,dataFilled);
 %--Find local minima w/ findpeaks
 [~,locs] = findpeaks(-dataFilt);
+% Find mean cycle duration
+cycDur = mean(diff(locs));
 %---Preallocate for loop
 nwaves = length(locs)-1;
 tVecNew = NaN(length(timeTrimmed),1);

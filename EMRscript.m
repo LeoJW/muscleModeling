@@ -135,39 +135,28 @@ FVactHinge = @(m,v) m(3)/m(1)*log(1+exp(m(1)*v-m(2))); % FV smooth ramp function
 butterOrder = 7;
 butterFreq = 0.2;
 
-% time vector for kinematics
+% time vector for kinematics (s)
 kineTime = kine(:,1);
 % cycle frequency?
-% lengths are in mm, angles are in deg
-thetaraw = kine(:,2); % elbow angle
-phiraw = kine(:,3); % manus angle
-
-% Trim, LPF and splitting waveforms for theta and phi
-% [thetaTime,theta] = buttersplit(kineTime,thetaraw); % elbow angle
-% [phiTime,phi] = buttersplit(kineTime,phiraw); % phi
-% 
-% thetaSmooth = fit(thetaTime,theta,'smoothingspline','SmoothingParam',0.995);
-% phiSmooth = fit(phiTime,phi,'smoothingspline','SmoothingParam',0.995);
-% 
-% thetaY = thetaSmooth(thetaTime);
-
-%thetaY = repmat(thetaSmooth(thetaTime).',1,ncycles);
-%phiY = repmat(phiSmooth(phiTime).',1,ncycles);
-%thetaT = [thetaTime thetaTime+1 thetaTime+2 thetaTime+3];
+% Angles in deg
+theta = kine(:,2); % elbow angle
+phi = kine(:,3); % manus angle
 
 % Wing geometry measurements for EMR length calculations
 humL = mean([26.01,24.12,24.73]); % length of humerus
 humOriginL = mean([3.17,3.81,3.66]); % how far up humerus EMR attaches, guess for now
 radL = mean([32.18,31.74,32.26]); % length of radius bone
 manusr = 0.5*mean([3.71,3.69,3.79]); % radius of wrist joint arc section (radius of manus)
-EMRa = sqrt((radL)^2 + (humOriginL)^2 - 2*radL*humOriginL*cosd(thetaraw));
+EMRa = sqrt((radL)^2 + (humOriginL)^2 - 2*radL*humOriginL*cosd(theta));
 EMRb = mean([2.37,1.98,2.02]); % how far down manus EMR attaches, fixed length
-EMRarc = manusr.*(phiraw*pi/180); % length of EMR arc section
-EMRlengthRaw = EMRa+EMRb+EMRarc; % total EMR length
+EMRarc = manusr.*(phi*pi/180); % length of EMR arc section
+EMRlengthRaw = EMRa+EMRb+EMRarc; % total EMR length (mm)
 
-[lTime,EMRlength] = buttersplit(kineTime,EMRlengthRaw,butterOrder,butterFreq);
-EMRlSmooth = fit(lTime,EMRlength,'smoothingspline','SmoothingParam',0.995);
-EMRlY = repmat(EMRlSmooth(lTime).',1,ncycles);
+% Apply Butterworth LPF
+[lTime,EMRlength,EMRcycDur] = buttersplit(kineTime,EMRlengthRaw,butterOrder,butterFreq);
+EMRsmooth = fit(lTime,EMRlength,'smoothingspline','SmoothingParam',0.995);
+EMRy = repmat(EMRsmooth(lTime).',1,ncycles);
+EMRt = linspace(0,ncycles*EMRcycDur,length(EMRy));
 
 %% TPB external force
 

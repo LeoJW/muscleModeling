@@ -131,6 +131,10 @@ FVactHinge = @(m,v) m(3)/m(1)*log(1+exp(m(1)*v-m(2))); % FV smooth ramp function
 
 [kine,EMG] = readKineEMG();
 
+%--Buttersplit inputs
+butterOrder = 7;
+butterFreq = 0.2;
+
 % time vector for kinematics
 kineTime = kine(:,1);
 % cycle frequency?
@@ -139,28 +143,31 @@ thetaraw = kine(:,2); % elbow angle
 phiraw = kine(:,3); % manus angle
 
 % Trim, LPF and splitting waveforms for theta and phi
-[thetaTime,theta] = buttersplit(kineTime,thetaraw); % elbow angle
-[phiTime,phi] = buttersplit(kineTime,phiraw); % phi
-
-thetaSmooth = fit(thetaTime,theta,'smoothingspline','SmoothingParam',0.995);
-phiSmooth = fit(phiTime,phi,'smoothingspline','SmoothingParam',0.995);
-
-thetaY = thetaSmooth(thetaTime);
+% [thetaTime,theta] = buttersplit(kineTime,thetaraw); % elbow angle
+% [phiTime,phi] = buttersplit(kineTime,phiraw); % phi
+% 
+% thetaSmooth = fit(thetaTime,theta,'smoothingspline','SmoothingParam',0.995);
+% phiSmooth = fit(phiTime,phi,'smoothingspline','SmoothingParam',0.995);
+% 
+% thetaY = thetaSmooth(thetaTime);
 
 %thetaY = repmat(thetaSmooth(thetaTime).',1,ncycles);
 %phiY = repmat(phiSmooth(phiTime).',1,ncycles);
 %thetaT = [thetaTime thetaTime+1 thetaTime+2 thetaTime+3];
 
 % Wing geometry measurements for EMR length calculations
-% humL = mean([26.01,24.12,24.73]); % length of humerus
-% humOriginL = mean([3.17,3.81,3.66]); % how far up humerus EMR attaches, guess for now
-% radL = mean([32.18,31.74,32.26]); % length of radius bone
-% manusr = 0.5*mean([3.71,3.69,3.79]); % radius of wrist joint arc section (radius of manus)
-% EMRa = sqrt((radL)^2 + (humOriginL)^2 - 2*radL*humOriginL*cosd(thetaY));
-% EMRb = mean([2.37,1.98,2.02]); % how far down manus EMR attaches, fixed length
-% EMRarc = manusr.*(phiY*pi/180); % length of EMR arc section
-% EMRlength = EMRa+EMRb+EMRarc; % total EMR length
+humL = mean([26.01,24.12,24.73]); % length of humerus
+humOriginL = mean([3.17,3.81,3.66]); % how far up humerus EMR attaches, guess for now
+radL = mean([32.18,31.74,32.26]); % length of radius bone
+manusr = 0.5*mean([3.71,3.69,3.79]); % radius of wrist joint arc section (radius of manus)
+EMRa = sqrt((radL)^2 + (humOriginL)^2 - 2*radL*humOriginL*cosd(thetaraw));
+EMRb = mean([2.37,1.98,2.02]); % how far down manus EMR attaches, fixed length
+EMRarc = manusr.*(phiraw*pi/180); % length of EMR arc section
+EMRlengthRaw = EMRa+EMRb+EMRarc; % total EMR length
 
+[lTime,EMRlength] = buttersplit(kineTime,EMRlengthRaw,butterOrder,butterFreq);
+EMRlSmooth = fit(lTime,EMRlength,'smoothingspline','SmoothingParam',0.995);
+EMRlY = repmat(EMRlSmooth(lTime).',1,ncycles);
 
 %% TPB external force
 
@@ -311,19 +318,19 @@ scatter(stimPhase,[wrk{1:simiter}],'filled')
 xlim([0 1])
 xlabel('Stimulation Phase'), ylabel('Net Work')
 
-figure(5)
-hold on
-box on
-grid on
-plot(thetaSmooth)
-xlabel('Normalized Time'), ylabel('Elbow Angle (deg)')
-
-figure(6)
-hold on
-box on
-grid on
-plot(phiSmooth)
-xlabel('Normalized Time'), ylabel('Manus Angle (deg)')
+% figure(5)
+% hold on
+% box on
+% grid on
+% plot(thetaSmooth)
+% xlabel('Normalized Time'), ylabel('Elbow Angle (deg)')
+% 
+% figure(6)
+% hold on
+% box on
+% grid on
+% plot(phiSmooth)
+% xlabel('Normalized Time'), ylabel('Manus Angle (deg)')
 
 
 %% Kinematics data

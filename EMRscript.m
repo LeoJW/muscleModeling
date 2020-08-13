@@ -1,5 +1,5 @@
 % KINEMATICS-DRIVEN EMR MODEL SCRIPT
-clear vars; close all;
+clear all; close all;
 
 % Force is N -> F/Fmax -> N
 % Velocity is mm/s -> Lopt/s -> mm/s
@@ -34,10 +34,6 @@ EMRlengthRaw = EMRa+EMRb+EMRarc; % total EMR length (mm)
 
 % Apply Butterworth LPF, split and smooth cycles
 [lTime,EMRlength,EMRcycDur,EMRfreq] = buttersplit(kineTime,EMRlengthRaw,butterOrder,butterFreq);
-EMRy = repmat(EMRlength.',1,ncycles);
-% Convert time back to sec
-tSec = linspace(0,max(kineTime)*EMRcycDur/length(kineTime),EMRcycDur);
-EMRt = linspace(0,max(tSec)*ncycles,length(EMRy));
 
 
 %% Constants for Hill model
@@ -107,11 +103,6 @@ atol = 0.08; % tolerance for a to avoid singularities
 
 %% Neural excitation and muscle activation
 
-%---Neural excitation, vector of zeros w/ chunks of 1s
-% ucycle = zeros(1,lcycle);
-% ucycle(startdur:enddur) = 1;
-% u = repmat(ucycle,1,ncycles);
-
 %---Prep figure
 close all
 figure(1)
@@ -154,7 +145,7 @@ for i = 1:simiter
 end
 
 
-%---Anonymous functions for Hill model
+%% Anonymous functions for Hill model
 FLactFunc = @(b,x) exp(-(((x-b(2))-1)./b(1)).^2); % FL active component
 FLpasFunc = @(p,x) heaviside(x-p(2)).*p(1).*(x-p(2)).^2; % FL passive component
 FVactHinge = @(m,v) m(3)/m(1)*log(1+exp(m(1)*v-m(2))); % FV smooth ramp function
@@ -184,10 +175,13 @@ C = [b1,b2,p1,p2,c1,c2,cmax,vmax]; % hill
 wr = 2*pi*w; % frequency in radians/s
 lamplitude = 0.2; % amplitude of l
 %l = lamplitude.*sin(wr.*t) + 2; % MTU length, l/Lopt
-ldot = lamplitude.*wr.*cos(wr*t); % MTU velocity, ldot/vmax
-% can redefine with digitized kinematics data
 % l = 0.2*sawtooth(2*pi*t,0.2)+2; % MTU length basic asymmetric pattern
-% l = 2*sin(wr.*t) + 33; % example strain pattern in mm
+
+% Define length from kinematics data
+EMRy = repmat(EMRlength.',1,ncycles);
+% Convert time back to sec
+tSec = linspace(0,max(kineTime)*EMRcycDur/length(kineTime),EMRcycDur);
+EMRt = linspace(0,max(tSec)*ncycles,length(EMRy));
 
 % CONVERT length and velocity to dimensionless units and prep for sim
 % velocity to L/s or mm/s
@@ -239,7 +233,6 @@ for i = 1:simiter
         % Interpolate l,a at time point
         tl = interp1(t,l,simt(j));
         ta = interp1(t,a{i},simt(j));
-        tldot = interp1(t,ldot,simt(j));
         % Solve individual components of Hill model
         FLactVal = (1-Ftol).*FLactFunc([b1,b2],x{i}(j)) + Ftol;
         % Use x(j) to solve for muscle v
@@ -306,20 +299,6 @@ grid on
 scatter(stimPhase,[wrk{1:simiter}],'filled')
 xlim([0 1])
 xlabel('Stimulation Phase'), ylabel('Net Work')
-
-% figure(5)
-% hold on
-% box on
-% grid on
-% plot(thetaSmooth)
-% xlabel('Normalized Time'), ylabel('Elbow Angle (deg)')
-% 
-% figure(6)
-% hold on
-% box on
-% grid on
-% plot(phiSmooth)
-% xlabel('Normalized Time'), ylabel('Manus Angle (deg)')
 
 
 %% Kinematics data

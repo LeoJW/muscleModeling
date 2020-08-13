@@ -30,5 +30,6 @@ dataIn = dataFilt(locs(1):locs(end));
 [tOut,dataToSmooth] = prepareCurveData(tVecNew,dataIn);
 dataSmooth = fit(tOut,dataToSmooth,'smoothingspline','SmoothingParam',0.995);
 dataOut = dataSmooth(tOut);
+
 end
 

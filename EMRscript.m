@@ -58,8 +58,8 @@ gam1 = -0.993; % activation constant
 gam2 = -0.993; % activation constant
 
 %--Conversion constants
-Fmax = 10; % maximum force in N
-Lopt = 35; % guess in mm
+Fmax = 0.84; % maximum force in N
+Lopt = 34; % guess in mm
 vmaxActual = 5*Lopt; % mm/s
 
 k = 0.1; % spring constant, dimensionless, want to convert to N/mm
@@ -270,8 +270,8 @@ for i = 1:simiter
 end
 
 %---Aesthetics
-xlabel('L/Lopt')
-ylabel('F/Fmax')
+xlabel('EMR length (mm)')
+ylabel('Force (N)')
 %---Aesthetics for colorbar
 colormap(copper)
 cbh = colorbar;

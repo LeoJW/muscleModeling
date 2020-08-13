@@ -27,8 +27,9 @@ end
 tVecNew(isnan(tVecNew)) = [];
 dataIn = dataFilt(locs(1):locs(end));
 % Smooth overlaid cycles
-[tOut,dataToSmooth] = prepareCurveData(tVecNew,dataIn);
-dataSmooth = fit(tOut,dataToSmooth,'smoothingspline','SmoothingParam',0.995);
+[tSmooth,dataToSmooth] = prepareCurveData(tVecNew,dataIn);
+dataSmooth = fit(tSmooth,dataToSmooth,'smoothingspline','SmoothingParam',0.995);
+tOut = linspace(0,1,cycDur);
 dataOut = dataSmooth(tOut);
 
 end

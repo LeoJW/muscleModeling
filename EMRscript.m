@@ -1,10 +1,43 @@
 % KINEMATICS-DRIVEN EMR MODEL SCRIPT
 clear vars; close all;
 
-% Force is F/Fmax -> convert to N
-% Velocity in Lopt/s -> convert to mm/sec
-% Length in L/Lopt -> convert to mm
-% k is dimensionless -> convert to N/mm
+% Force is N -> F/Fmax -> N
+% Velocity is mm/s -> Lopt/s -> mm/s
+% Length is mm -> L/Lopt -> mm
+% k is N/mm -> dimensionless
+
+
+%% Get morpho and kinematics data for EMR length
+
+[kine,EMG] = readKineEMG();
+
+%--Buttersplit inputs
+butterOrder = 5;
+butterFreq = 0.2;
+
+% time vector for kinematics (s)
+kineTime = kine(:,1);
+% cycle frequency?
+% Angles in deg
+theta = kine(:,2); % elbow angle
+phi = kine(:,3); % manus angle
+
+% Wing geometry measurements for EMR length calculations
+humL = mean([26.01,24.12,24.73]); % length of humerus
+humOriginL = mean([3.17,3.81,3.66]); % how far up humerus EMR attaches, guess for now
+radL = mean([32.18,31.74,32.26]); % length of radius bone
+manusr = 0.5*mean([3.71,3.69,3.79]); % radius of wrist joint arc section (radius of manus)
+EMRa = sqrt((radL)^2 + (humOriginL)^2 - 2*radL*humOriginL*cosd(theta));
+EMRb = mean([2.37,1.98,2.02]); % how far down manus EMR attaches, fixed length
+EMRarc = manusr.*(phi*pi/180); % length of EMR arc section
+EMRlengthRaw = EMRa+EMRb+EMRarc; % total EMR length (mm)
+
+% Apply Butterworth LPF, split and smooth cycles
+[lTime,EMRlength,EMRcycDur,EMRfreq] = buttersplit(kineTime,EMRlengthRaw,butterOrder,butterFreq);
+EMRy = repmat(EMRlength.',1,ncycles);
+% Convert time back to sec
+tSec = linspace(0,max(kineTime)*EMRcycDur/length(kineTime),EMRcycDur);
+EMRt = linspace(0,max(tSec)*ncycles,length(EMRy));
 
 
 %% Constants for Hill model
@@ -19,14 +52,14 @@ stimPhase = linspace(0.1,0.8,simiter); % version of tstart that varies
 
 %---Secondary controls
 
-w = 1; % frequency in Hz or cycles/s
+w = EMRfreq; % frequency in Hz or cycles/s
 ncycles = 4; % number of cycles
 tstart = 0.1;% point in cycle where activation begins (scaled 0 to 1)
 duration = 0.5; % duration of cycle that is activated (scaled 0 to 1)
 
 %---Simulation constants setup
 totaltime = ncycles/w; % time in s
-t = linspace(0,totaltime,1e4); % time vector, 1e4 long
+t = linspace(0,totaltime,1e4); % time vector
 dt = totaltime/length(t); % time step
 niter = length(t); % number of iterations in loop
 lcycle = niter/ncycles; % cycle length in 1/1e4 s
@@ -127,36 +160,6 @@ FLpasFunc = @(p,x) heaviside(x-p(2)).*p(1).*(x-p(2)).^2; % FL passive component
 FVactHinge = @(m,v) m(3)/m(1)*log(1+exp(m(1)*v-m(2))); % FV smooth ramp function
 
 
-%% Morpho and kinematics data
-
-[kine,EMG] = readKineEMG();
-
-%--Buttersplit inputs
-butterOrder = 7;
-butterFreq = 0.2;
-
-% time vector for kinematics (s)
-kineTime = kine(:,1);
-% cycle frequency?
-% Angles in deg
-theta = kine(:,2); % elbow angle
-phi = kine(:,3); % manus angle
-
-% Wing geometry measurements for EMR length calculations
-humL = mean([26.01,24.12,24.73]); % length of humerus
-humOriginL = mean([3.17,3.81,3.66]); % how far up humerus EMR attaches, guess for now
-radL = mean([32.18,31.74,32.26]); % length of radius bone
-manusr = 0.5*mean([3.71,3.69,3.79]); % radius of wrist joint arc section (radius of manus)
-EMRa = sqrt((radL)^2 + (humOriginL)^2 - 2*radL*humOriginL*cosd(theta));
-EMRb = mean([2.37,1.98,2.02]); % how far down manus EMR attaches, fixed length
-EMRarc = manusr.*(phi*pi/180); % length of EMR arc section
-EMRlengthRaw = EMRa+EMRb+EMRarc; % total EMR length (mm)
-
-% Apply Butterworth LPF
-[lTime,EMRlength,EMRcycDur] = buttersplit(kineTime,EMRlengthRaw,butterOrder,butterFreq);
-%EMRy = repmat(EMRsmooth(lTime).',1,ncycles);
-%EMRt = linspace(0,ncycles*EMRcycDur,length(EMRy));
-
 %% TPB external force
 
 Fmaxtpb = 1;
@@ -180,18 +183,16 @@ C = [b1,b2,p1,p2,c1,c2,cmax,vmax]; % hill
 %---MTU overall length/velocity parameters
 wr = 2*pi*w; % frequency in radians/s
 lamplitude = 0.2; % amplitude of l
-l = lamplitude.*sin(wr.*t) + 2; % MTU length, l/Lopt
+%l = lamplitude.*sin(wr.*t) + 2; % MTU length, l/Lopt
 ldot = lamplitude.*wr.*cos(wr*t); % MTU velocity, ldot/vmax
 % can redefine with digitized kinematics data
 % l = 0.2*sawtooth(2*pi*t,0.2)+2; % MTU length basic asymmetric pattern
 % l = 2*sin(wr.*t) + 33; % example strain pattern in mm
 
-% CONVERT length and velocity to dimensionless units
+% CONVERT length and velocity to dimensionless units and prep for sim
 % velocity to L/s or mm/s
-% Guess Lopt and divide length/Lopt (Lopt is max force production)
-
-% l = EMRlength/Lopt
-% vmax??
+linterp = interp1(EMRt,EMRy,t);
+l = linterp./Lopt;
 
 %---Split cycles
 cycL = round(length(t)/ncycles);

@@ -1,4 +1,4 @@
-function [tOut,dataOut,cycDur] = buttersplit(tdata,rawdata,butterOrder,butterFreq)
+function [tOut,dataOut,cycDur,EMRfreq] = buttersplit(tdata,rawdata,butterOrder,butterFreq)
 % Function for cleaning up data and splitting + overlaying waveforms
 % tdata is time vector from raw data
 % tnew is desired new time vector
@@ -16,23 +16,22 @@ dataFilt = filtfilt(beep,boop,dataFilled);
 [~,locs] = findpeaks(-dataFilt);
 % Find mean cycle duration
 cycDur = mean(diff(locs));
-% Convert samples back to s
-tSec = max(tdata)*cycDur/length(tdata);
 %---Preallocate for loop
 nwaves = length(locs)-1;
 tVecNew = NaN(length(timeTrimmed),1);
 for i = 1:nwaves
-    % Convert time vector so all waves go from 0 to 1 (dimensionless)
-    tVecNew(locs(i):locs(i+1)) = linspace(0,tSec,locs(i+1)-locs(i)+1);
+    % Convert time vector so all waves go from 0 to avg cycle length (s)
+    tVecNew(locs(i):locs(i+1)) = linspace(0,1,locs(i+1)-locs(i)+1);
 end
 % Trim NaNs out
 tVecNew(isnan(tVecNew)) = [];
 dataIn = dataFilt(locs(1):locs(end));
 % Smooth overlaid cycles
 [tSmooth,dataToSmooth] = prepareCurveData(tVecNew,dataIn);
-dataSmooth = fit(tSmooth,dataToSmooth,'smoothingspline','SmoothingParam',0.99);
-tOut = linspace(0,tSec,cycDur);
+dataSmooth = fit(tSmooth,dataToSmooth,'smoothingspline','SmoothingParam',0.995);
+tOut = linspace(0,1,cycDur);
 dataOut = dataSmooth(tOut);
+EMRfreq = round(length(tdata)/(cycDur*max(tdata)));
 
 end
 

@@ -36,7 +36,7 @@ EMRlengthRaw = EMRa+EMRb+EMRarc; % total EMR length (mm)
 [lTime,EMRlength,EMRcycDur,EMRfreq] = buttersplit(kineTime,EMRlengthRaw,butterOrder,butterFreq);
 
 
-%% Constants for Hill model
+%% Constants for Hill model and solver
 
 %---Primary controls
 

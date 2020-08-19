@@ -12,7 +12,7 @@ clear all; close all;
 %---Primary controls
 
 simiter = 6; % number of activation phases to compare
-h = 1e-3; % step size
+h = 1e-4; % step size
 velBruteSize = 1e4; % number of points to solve for v
 stimPhase = linspace(0.1,0.8,simiter); % version of tstart that varies
 
@@ -98,9 +98,8 @@ EMRmtuLengthRaw = EMRa+EMRb+EMRarc; % total EMR length (mm)
 %---Create simulation time vector
 totaltime = ncycles/w; % time in s
 simt = 0:h:totaltime;
-%t = linspace(0,totaltime,1e4); % time vector - get rid of!
 niter = length(simt); % number of iterations in loop
-lcycle = niter/ncycles; % cycle length in 1/1e4 s
+lcycle = round(niter/ncycles); % cycle length in 1/1e4 s
 startdur = ceil(stimPhase*lcycle); % start of activation in cycle
 enddur = ceil(startdur + duration*lcycle); % duration of cycle activated in 1/1e4 s
 
@@ -116,7 +115,7 @@ grid on
 col = copper(simiter);
 
 %---Activation function
-d = (delay*1e-3)*(niter/totaltime); % delay, scaled
+d = round((delay*1e-3)*(niter/totaltime)); % delay, scaled
 
 % Prep variables for loop
 u = cell(niter,simiter);
@@ -142,7 +141,7 @@ for i = 1:simiter
     a{i} = (1-atol).*a{i}+atol;
 
     % Plot output
-    plot(t,a{i},'color',col(i,:))
+    plot(simt,a{i},'color',col(i,:))
     xlabel("Time (s)"), ylabel("Activation")
     drawnow
     

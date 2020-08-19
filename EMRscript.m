@@ -7,62 +7,23 @@ clear all; close all;
 % k is N/mm -> dimensionless
 
 
-%% Get morpho and kinematics data for EMR length
-
-[kine,EMG] = readKineEMG();
-
-%--Buttersplit inputs
-butterOrder = 5;
-butterFreq = 0.2;
-
-% time vector for kinematics (s)
-kineTime = kine(:,1);
-% cycle frequency?
-% Angles in deg
-theta = kine(:,2); % elbow angle
-phi = kine(:,3); % manus angle
-
-% Wing geometry measurements for EMR length calculations
-humL = mean([26.01,24.12,24.73]); % length of humerus
-humOriginL = mean([3.17,3.81,3.66]); % how far up humerus EMR attaches, guess for now
-radL = mean([32.18,31.74,32.26]); % length of radius bone
-manusr = 0.5*mean([3.71,3.69,3.79]); % radius of wrist joint arc section (radius of manus)
-EMRa = sqrt((radL)^2 + (humOriginL)^2 - 2*radL*humOriginL*cosd(theta));
-EMRb = mean([2.37,1.98,2.02]); % how far down manus EMR attaches, fixed length
-EMRarc = manusr.*(phi*pi/180); % length of EMR arc section
-EMRlengthRaw = EMRa+EMRb+EMRarc; % total EMR length (mm)
-
-% Apply Butterworth LPF, split and smooth cycles
-[lTime,EMRlength,EMRcycDur,EMRfreq] = buttersplit(kineTime,EMRlengthRaw,butterOrder,butterFreq);
-
-
-%% Constants for Hill model and solver
+%% Control constants
 
 %---Primary controls
 
 simiter = 6; % number of activation phases to compare
 h = 1e-3; % step size
 velBruteSize = 1e4; % number of points to solve for v
-
 stimPhase = linspace(0.1,0.8,simiter); % version of tstart that varies
 
 %---Secondary controls
 
-w = EMRfreq; % frequency in Hz or cycles/s
 ncycles = 4; % number of cycles
 tstart = 0.1;% point in cycle where activation begins (scaled 0 to 1)
 duration = 0.5; % duration of cycle that is activated (scaled 0 to 1)
 
-%---Simulation constants setup
-totaltime = ncycles/w; % time in s
-t = linspace(0,totaltime,1e4); % time vector
-dt = totaltime/length(t); % time step
-niter = length(t); % number of iterations in loop
-lcycle = niter/ncycles; % cycle length in 1/1e4 s
-startdur = ceil(stimPhase*lcycle); % start of activation in cycle
-enddur = ceil(startdur + duration*lcycle); % duration of cycle activated in 1/1e4 s
-
 %---Hill constants
+
 b1 = 0.25; % FLact
 b2 = 0; % FLact
 b = [b1,b2];
@@ -87,6 +48,7 @@ gam1 = -0.993; % activation constant
 gam2 = -0.993; % activation constant
 
 %--Conversion constants
+
 Fmax = 0.84; % maximum force in N
 Lopt = 34; % guess in mm
 vmaxActual = 5*Lopt; % mm/s
@@ -96,9 +58,49 @@ k = 0.1; % spring constant, dimensionless, want to convert to N/mm
 % k = kActual*(Lopt/Fmax) % dimensionless
 
 %---Singularity adjustments
+
 Ftol = 0.1; % tolerance for F to avoid singularities
 atol = 0.08; % tolerance for a to avoid singularities
 % see FVactHinge below - added FV func to avoid singularities
+
+
+%% Get morpho and kinematics data for EMR length
+
+[kine,EMG] = readKineEMG();
+
+%--Buttersplit inputs
+butterOrder = 5;
+butterFreq = 0.2;
+
+% time vector for kinematics (s)
+kineTime = kine(:,1);
+% cycle frequency?
+% Angles in deg
+theta = kine(:,2); % elbow angle
+phi = kine(:,3); % manus angle
+
+% Wing geometry measurements for EMR length calculations
+humL = mean([26.01,24.12,24.73]); % length of humerus
+humOriginL = mean([3.17,3.81,3.66]); % how far up humerus EMR attaches, guess for now
+radL = mean([32.18,31.74,32.26]); % length of radius bone
+manusr = 0.5*mean([3.71,3.69,3.79]); % radius of wrist joint arc section (radius of manus)
+EMRa = sqrt((radL)^2 + (humOriginL)^2 - 2*radL*humOriginL*cosd(theta));
+EMRb = mean([2.37,1.98,2.02]); % how far down manus EMR attaches, fixed length
+EMRarc = manusr.*(phi*pi/180); % length of EMR arc section
+EMRmtuLengthRaw = EMRa+EMRb+EMRarc; % total EMR length (mm)
+
+% Apply Butterworth LPF, split and smooth cycles
+[EMRsmooth,EMRcycDur,w] = buttersplit(kineTime,EMRmtuLengthRaw,butterOrder,butterFreq);
+
+
+%% Simulation constants setup
+
+totaltime = ncycles/w; % time in s
+t = linspace(0,totaltime,1e4); % time vector
+niter = length(t); % number of iterations in loop
+lcycle = niter/ncycles; % cycle length in 1/1e4 s
+startdur = ceil(stimPhase*lcycle); % start of activation in cycle
+enddur = ceil(startdur + duration*lcycle); % duration of cycle activated in 1/1e4 s
 
 
 %% Neural excitation and muscle activation
@@ -168,17 +170,22 @@ Ftpb = Fmaxtpb*atpb;
 %% Run Simulation
 
 %---Vector input for Hill constants
-% B = [b1,b2,p1,p2,s1,s2,s3,s4,vmax,Fmax]; % hillv2
 C = [b1,b2,p1,p2,c1,c2,cmax,vmax]; % hill
 
+%---Create simulation time vector
+simt = 0:h:totaltime;
+
 %---MTU overall length/velocity parameters
+tcyc = linspace(0,1,length(simt)/ncycles);
+EMRmtuLength = EMRsmooth(tcyc);
+
 wr = 2*pi*w; % frequency in radians/s
 lamplitude = 0.2; % amplitude of l
 %l = lamplitude.*sin(wr.*t) + 2; % MTU length, l/Lopt
 % l = 0.2*sawtooth(2*pi*t,0.2)+2; % MTU length basic asymmetric pattern
 
 % Define length from kinematics data
-EMRy = repmat(EMRlength.',1,ncycles);
+EMRy = repmat(EMRmtuLength.',1,ncycles);
 % Convert time back to sec
 tSec = linspace(0,max(kineTime)*EMRcycDur/length(kineTime),EMRcycDur);
 EMRt = linspace(0,max(tSec)*ncycles,length(EMRy));
@@ -197,10 +204,7 @@ figure(2)
 hold on
 box on
 grid on
-col = copper(simiter);
 
-% Create simulation time vector
-simt = 0:h:totaltime;
 % Prepare variables for loop
 err = cell(1,simiter);
 F = cell(1,simiter);
@@ -299,31 +303,4 @@ grid on
 scatter(stimPhase,[wrk{1:simiter}],'filled')
 xlim([0 1])
 xlabel('Stimulation Phase'), ylabel('Net Work')
-
-
-%% Kinematics data
-
-kineData = readtable("2019_07_02_Tae_gut_allFlights.csv");
-
-%---Create n*3 matrices for each point
-humerus = [kineData.humerus_x, kineData.humerus_y, kineData.humerus_z];
-elbow = [kineData.elbow_x, kineData.elbow_y, kineData.elbow_z];
-wrist = [kineData.wrist_x, kineData.wrist_y, kineData.wrist_z];
-cmc = [kineData.cmc_x, kineData.cmc_y, kineData.cmc_z];
-
-%---Create vectors for distances between points
-humerus_elbow = humerus-elbow;
-elbow_wrist = elbow-wrist;
-wrist_cmc = wrist-cmc;
-
-%---Calculate angle between two vectors
-ab = dot(humerus_elbow, elbow_wrist, 2);
-mag_a = vecnorm(humerus_elbow,2,2);
-mag_b = vecnorm(elbow_wrist,2,2);
-bc = dot(elbow_wrist, wrist_cmc, 2);
-mag_c = vecnorm(wrist_cmc,2,2);
-% Angles in degrees
-theta_elbow = acos(ab./(mag_a.*mag_b))*180/pi;
-theta_wrist = acos(bc./(mag_b.*mag_c))*180/pi;
-
 

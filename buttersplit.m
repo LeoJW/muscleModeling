@@ -1,7 +1,14 @@
-function [tOut,dataOut,cycDur,EMRfreq] = buttersplit(tdata,rawdata,butterOrder,butterFreq)
+function [dataSmooth,cycDur,w] = buttersplit(tdata,rawdata,butterOrder,butterFreq)
 % Function for cleaning up data and splitting + overlaying waveforms
-% tdata is time vector from raw data
-% tnew is desired new time vector
+% tdata = time vector from raw data
+% rawdata = raw y values
+% butterOrder and butterFreq = parameters for Butterworth LPF
+% nSamples = sample rate
+% tOut = normalized time vector based on avg cycle duration
+% dataOut = smoothed fit of 'average' overlaid cycles
+% cycDur = the mean cycle duration
+% w = cycle frequency from data in Hz
+
 %--Trim data
 convertNaN = isnan(rawdata);
 dataTrimmed = rawdata(find(convertNaN<1,1):find(convertNaN<1,1,'last'));
@@ -29,9 +36,7 @@ dataIn = dataFilt(locs(1):locs(end));
 % Smooth overlaid cycles
 [tSmooth,dataToSmooth] = prepareCurveData(tVecNew,dataIn);
 dataSmooth = fit(tSmooth,dataToSmooth,'smoothingspline','SmoothingParam',0.995);
-tOut = linspace(0,1,cycDur);
-dataOut = dataSmooth(tOut);
-EMRfreq = round(length(tdata)/(cycDur*max(tdata)));
+w = round(length(tdata)/(cycDur*max(tdata)));
 
 end
 

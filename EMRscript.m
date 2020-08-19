@@ -95,9 +95,11 @@ EMRmtuLengthRaw = EMRa+EMRb+EMRarc; % total EMR length (mm)
 
 %% Simulation constants setup
 
+%---Create simulation time vector
 totaltime = ncycles/w; % time in s
-t = linspace(0,totaltime,1e4); % time vector
-niter = length(t); % number of iterations in loop
+simt = 0:h:totaltime;
+%t = linspace(0,totaltime,1e4); % time vector - get rid of!
+niter = length(simt); % number of iterations in loop
 lcycle = niter/ncycles; % cycle length in 1/1e4 s
 startdur = ceil(stimPhase*lcycle); % start of activation in cycle
 enddur = ceil(startdur + duration*lcycle); % duration of cycle activated in 1/1e4 s
@@ -172,31 +174,24 @@ Ftpb = Fmaxtpb*atpb;
 %---Vector input for Hill constants
 C = [b1,b2,p1,p2,c1,c2,cmax,vmax]; % hill
 
-%---Create simulation time vector
-simt = 0:h:totaltime;
-
 %---MTU overall length/velocity parameters
-tcyc = linspace(0,1,length(simt)/ncycles);
+tcyc = linspace(0,1,round(length(simt)/ncycles));
 EMRmtuLength = EMRsmooth(tcyc);
 
-wr = 2*pi*w; % frequency in radians/s
-lamplitude = 0.2; % amplitude of l
+%wr = 2*pi*w; % frequency in radians/s
+%lamplitude = 0.2; % amplitude of l
 %l = lamplitude.*sin(wr.*t) + 2; % MTU length, l/Lopt
-% l = 0.2*sawtooth(2*pi*t,0.2)+2; % MTU length basic asymmetric pattern
+%l = 0.2*sawtooth(2*pi*t,0.2)+2; % MTU length basic asymmetric pattern
 
 % Define length from kinematics data
 EMRy = repmat(EMRmtuLength.',1,ncycles);
-% Convert time back to sec
-tSec = linspace(0,max(kineTime)*EMRcycDur/length(kineTime),EMRcycDur);
-EMRt = linspace(0,max(tSec)*ncycles,length(EMRy));
 
-% CONVERT length and velocity to dimensionless units and prep for sim
+% Convert length and velocity to dimensionless units and prep for sim
 % velocity to L/s or mm/s
-linterp = interp1(EMRt,EMRy,t);
-l = linterp./Lopt;
+l = EMRy./Lopt;
 
 %---Split cycles
-cycL = round(length(t)/ncycles);
+cycL = round(length(simt)/ncycles);
 cycNum = repelem(1:ncycles,cycL);
 
 % Prep figure for loop
@@ -234,23 +229,18 @@ for i = 1:simiter
         if j~=1
             x{i}(j) = x{i}(j-1) + v{i}(j-1)*h;
         end
-        % Interpolate l,a at time point
-        tl = interp1(t,l,simt(j));
-        ta = interp1(t,a{i},simt(j));
         % Solve individual components of Hill model
         FLactVal = (1-Ftol).*FLactFunc([b1,b2],x{i}(j)) + Ftol;
         % Use x(j) to solve for muscle v
-        eval = k*(tl-x{i}(j)) - (FLactVal.*(FVactVal+FVhinge).*ta + FLpasFunc([p1,p2],x{i}(j)));
+        eval = k*(l-x{i}(j)) - (FLactVal.*(FVactVal+FVhinge).*a + FLpasFunc([p1,p2],x{i}(j)));
         % Find root of function where velocity is valid
         [errval,vind] = min(abs(eval));
         err{i}(j) = eval(vind);
         v{i}(j) = vsweep(vind);
-        F{i}(j) = hill(x{i}(j),v{i}(j),ta,C);
+        F{i}(j) = hill(x{i}(j),v{i}(j),a,C);
         
-        % Interpolate cycle numbers
-        tcycNum = interp1(t,cycNum,simt);
         % work, area under curve w/ neg vs pos velocity
-        wrk{i} = -trapz(x{i}(tcycNum>3),F{i}(tcycNum>3));
+        wrk{i} = -trapz(x{i}(cycNum>3),F{i}(cycNum>3));
         % instantaneous power
         pwr{i}(j) = F{i}(j).*v{i}(j);
         
@@ -261,7 +251,7 @@ for i = 1:simiter
     F{i} = F{i}*Fmax; % converts force to Newtons
     
     % Plot output
-    plot(x{i}(tcycNum>2),F{i}(tcycNum>2),'color',col(i,:))
+    plot(x{i}(cycNum>2),F{i}(cycNum>2),'color',col(i,:))
     %plot(simt,F{i},'color',col(i,:))
     drawnow
     

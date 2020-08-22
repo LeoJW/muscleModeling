@@ -48,13 +48,17 @@ gam2 = -0.993; % activation constant
 
 %--Conversion constants
 
-Fmax = 0.84; % maximum force in N
-Lopt = 34; % guess in mm
+Lopt = 12.167; % from Bird17, WO, Morpho.xlsx
+EMRArea = 0.0428/(0.000325*Lopt); % (mm^2) dry density in g/mm^3, mass in g
+Fmax = 300e3*1e-6*EMRArea; % max force in N (convert from 300kPa to N/mm^2, multiply by EMR area)
 vmaxActual = 5*Lopt; % mm/s
+%**** vmax is an issue right now
 
-k = 0.1; % spring constant, dimensionless, want to convert to N/mm
-% kActual = 5; N/mm
-% k = kActual*(Lopt/Fmax) % dimensionless
+tendonStress = 666e6; % (Pa, N/m^2), anywhere from 660-1200
+tslackl = mean([13.62,14.17,14.11])+7; % from EUST dissection on Fran's spreadsheet
+tendonArea = 0.1; %(mm^2), guess based on Fran's spreadsheet
+kActual = tendonStress*1e-6*tendonArea/tslackl;
+k = kActual*(Lopt/Fmax); % dimensionless
 
 %---Singularity adjustments
 
@@ -107,7 +111,6 @@ enddur = ceil(startdur + duration*lcycle); % duration of cycle activated in 1/1e
 %% Neural excitation and muscle activation
 
 %---Prep figure
-close all
 figure(1)
 hold on
 box on
@@ -175,14 +178,7 @@ C = [b1,b2,p1,p2,c1,c2,cmax,vmax]; % hill
 
 %---MTU overall length/velocity parameters
 tcyc = linspace(0,1,round(length(simt)/ncycles));
-EMRmtuLength = EMRsmooth(tcyc);
-
-%wr = 2*pi*w; % frequency in radians/s
-%lamplitude = 0.2; % amplitude of l
-%l = lamplitude.*sin(wr.*t) + 2; % MTU length, l/Lopt
-%l = 0.2*sawtooth(2*pi*t,0.2)+2; % MTU length basic asymmetric pattern
-
-% Define length from kinematics data
+EMRmtuLength = EMRsmooth(tcyc); % from kinematics data
 EMRy = repmat(EMRmtuLength.',1,ncycles);
 
 % Convert length and velocity to dimensionless units and prep for sim
@@ -204,7 +200,7 @@ err = cell(1,simiter);
 F = cell(1,simiter);
 v = cell(1,simiter);
 x = cell(1,simiter);
-vsweep = linspace(-1,1,velBruteSize);
+vsweep = linspace(-1.5*vmax,1.5*vmax,velBruteSize);
 wrk = cell(1,simiter);
 pwr = cell(1,simiter);
 % Calculate FV function at all velocities
@@ -214,9 +210,21 @@ FVhinge = FVactHinge(m,vsweep);
 %---Loop through different stimulation phases
 for i = 1:simiter
     
+    % Initial Conditions
+    %Velocity initial condition
+    v0 = 0;
+    %Find initial muscle length that is valid (assuming v0==0)
+    %Sweep thru range of x0 values
+    x0sweep = linspace(0,2,velBruteSize);
+    %Find the one where spring and muscle forces are balanced
+    x0test = k*(l(1)-x0sweep-tslackl/Lopt).*heaviside(l(1)-x0sweep-tslackl/Lopt) - ...
+        (((1-Ftol).*FLactFunc([b1,b2],x0sweep)+Ftol).*a{i}(1) + FLpasFunc([p1,p2],x0sweep));
+    [~,ind] = min(abs(x0test));
+    x0 = x0sweep(ind);
+    
     % Declare vectors for simulation run
-    x{i} = [1,zeros(1,length(simt)-1)]; % muscle length initial condition
-    v{i} = zeros(1,length(simt)); % velocity
+    x{i} = [x0,zeros(1,length(simt)-1)]; % muscle length initial condition
+    v{i} = [v0,zeros(1,length(simt)-1)]; % velocity initial condition
     err{i} = zeros(1,length(simt)); % error
     F{i} = zeros(1,length(simt)); % force
     wrk{i} = zeros(1,length(simt));
@@ -231,7 +239,8 @@ for i = 1:simiter
         % Solve individual components of Hill model
         FLactVal = (1-Ftol).*FLactFunc([b1,b2],x{i}(j)) + Ftol;
         % Use x(j) to solve for muscle v
-        eval = k*(l-x{i}(j)) - (FLactVal.*(FVactVal+FVhinge).*a{i}(j) + FLpasFunc([p1,p2],x{i}(j)));
+        eval = k*(l-x{i}(j)-tslackl/Lopt).*heaviside(l-x{i}(j)-tslackl/Lopt) - ...
+            (FLactVal.*(FVactVal+FVhinge).*a{i}(j) + FLpasFunc([p1,p2],x{i}(j)));
         % Find root of function where velocity is valid
         [errval,vind] = min(abs(eval));
         err{i}(j) = eval(vind);
@@ -245,7 +254,7 @@ for i = 1:simiter
         
     end
     
-    %--Convert values to real units
+    % Convert values to real units
     x{i} = x{i}*Lopt; % converts length to mm
     F{i} = F{i}*Fmax; % converts force to Newtons
     
@@ -269,21 +278,43 @@ set(cbh,'YTickLabel', num2str(stimPhase.'))
 %% Plot error
 
 figure(3)
+%***Looking at both forms of error for funzies
+subplot(2,1,1)
+hold on
+box on
+grid on
+subplot(2,1,2)
 hold on
 box on
 grid on
 
 for i = 1:simiter
+    %Instantaneous error
+    subplot(2,1,1)
     plot(simt, err{i},'color',col(i,:))
+    title('Instantaneous Error')
+    %Cumulative error
+    subplot(2,1,2)
+    plot(simt, cumsum(err{i})/length(simt), 'color',col(i,:))
+    title('Cumulative Error')
+
 end
-%Aesthetics
-title('error')
-%Aesthetics for colorbar
+%Create colorbars
+%Insant error subplot
+subplot(2,1,1)
+colormap(copper)
+cbh = colorbar;
+set(cbh,'YTick',linspace(0,1,simiter))
+set(cbh,'YTickLabel', num2str(stimPhase.'))
+%Cum. error subplot
+subplot(2,1,2)
 colormap(copper)
 cbh = colorbar;
 set(cbh,'YTick',linspace(0,1,simiter))
 set(cbh,'YTickLabel', num2str(stimPhase.'))
 
+
+%% Plot net work per cycle
 figure(4)
 hold on
 box on

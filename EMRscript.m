@@ -13,7 +13,6 @@ clear all; close all;
 
 simiter = 6; % number of activation phases to compare
 h = 1e-4; % step size
-velBruteSize = 1e4; % number of points to solve for v
 stimPhase = linspace(0.1,0.8,simiter); % version of tstart that varies
 
 %---Secondary controls
@@ -97,8 +96,9 @@ EMRmtuLengthRaw = EMRa+EMRb+EMRarc; % total EMR length (mm)
 
 %---Create simulation time vector
 totaltime = ncycles/w; % time in s
-simt = 0:h:totaltime;
+simt = 0:h:(totaltime+h);
 niter = length(simt); % number of iterations in loop
+velBruteSize = niter; % number of points to solve for v
 lcycle = round(niter/ncycles); % cycle length in 1/1e4 s
 startdur = ceil(stimPhase*lcycle); % start of activation in cycle
 enddur = ceil(startdur + duration*lcycle); % duration of cycle activated in 1/1e4 s
@@ -231,12 +231,12 @@ for i = 1:simiter
         % Solve individual components of Hill model
         FLactVal = (1-Ftol).*FLactFunc([b1,b2],x{i}(j)) + Ftol;
         % Use x(j) to solve for muscle v
-        eval = k*(l-x{i}(j)) - (FLactVal.*(FVactVal+FVhinge).*a + FLpasFunc([p1,p2],x{i}(j)));
+        eval = k*(l-x{i}(j)) - (FLactVal.*(FVactVal+FVhinge).*a{i}(j) + FLpasFunc([p1,p2],x{i}(j)));
         % Find root of function where velocity is valid
         [errval,vind] = min(abs(eval));
         err{i}(j) = eval(vind);
         v{i}(j) = vsweep(vind);
-        F{i}(j) = hill(x{i}(j),v{i}(j),a,C);
+        F{i}(j) = hill(x{i}(j),v{i}(j),a{i}(j),C);
         
         % work, area under curve w/ neg vs pos velocity
         wrk{i} = -trapz(x{i}(cycNum>3),F{i}(cycNum>3));

@@ -177,7 +177,7 @@ Ftpb = Fmaxtpb*atpb;
 C = [b1,b2,p1,p2,c1,c2,cmax,vmax]; % hill
 
 %---MTU overall length/velocity parameters
-tcyc = linspace(0,1,round(length(simt)/ncycles));
+tcyc = linspace(0,1,lcycle);
 EMRmtuLength = EMRsmooth(tcyc); % from kinematics data
 EMRy = repmat(EMRmtuLength.',1,ncycles);
 
@@ -186,8 +186,7 @@ EMRy = repmat(EMRmtuLength.',1,ncycles);
 l = EMRy./Lopt;
 
 %---Split cycles
-cycL = round(length(simt)/ncycles);
-cycNum = repelem(1:ncycles,cycL);
+cycNum = repelem(1:ncycles,lcycle);
 
 % Prep figure for loop
 figure(2)

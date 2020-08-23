@@ -183,7 +183,8 @@ EMRy = repmat(EMRmtuLength.',1,ncycles);
 
 % Convert length and velocity to dimensionless units and prep for sim
 % velocity to L/s or mm/s
-l = EMRy./Lopt;
+EMRmoreSmooth = fit(simt.',EMRy.','smoothingspline','SmoothingParam',0.999999999);
+l = EMRmoreSmooth(simt).'./Lopt;
 
 %---Split cycles
 cycNum = repelem(1:ncycles,lcycle);

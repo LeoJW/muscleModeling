@@ -17,7 +17,7 @@ stimPhase = linspace(0.1,0.8,simiter); % version of tstart that varies
 
 %---Secondary controls
 
-ncycles = 4; % number of cycles
+ncycles = 10; % number of cycles
 tstart = 0.1;% point in cycle where activation begins (scaled 0 to 1)
 duration = 0.5; % duration of cycle that is activated (scaled 0 to 1)
 
@@ -31,7 +31,7 @@ p2 = 1; % FLpas
 p = [p1,p2];
 
 cmax = 1.8; % asymptote as v approaches -inf
-vmax = 1; % maximum velocity in Lopt/s, want to convert to mm/s
+vmax = 5; % maximum velocity in Lopt/s, want to convert to mm/s
 
 c1 = 0.29; % from Biewener et al. (2014)
 c2 = 1; % overall curvature of FV
@@ -183,7 +183,7 @@ EMRy = repmat(EMRmtuLength.',1,ncycles);
 
 % Convert length and velocity to dimensionless units and prep for sim
 % velocity to L/s or mm/s
-EMRmoreSmooth = fit(simt.',EMRy.','smoothingspline','SmoothingParam',0.999999999);
+EMRmoreSmooth = fit(simt.',EMRy.','smoothingspline','SmoothingParam',0.9999999);
 l = EMRmoreSmooth(simt).'./Lopt;
 
 %---Split cycles
@@ -239,7 +239,7 @@ for i = 1:simiter
         % Solve individual components of Hill model
         FLactVal = (1-Ftol).*FLactFunc([b1,b2],x{i}(j)) + Ftol;
         % Use x(j) to solve for muscle v
-        eval = k*(l-x{i}(j)-tslackl/Lopt).*heaviside(l-x{i}(j)-tslackl/Lopt) - ...
+        eval = k*(l(j)-x{i}(j)-tslackl/Lopt).*heaviside(l(j)-x{i}(j)-tslackl/Lopt) - ...
             (FLactVal.*(FVactVal+FVhinge).*a{i}(j) + FLpasFunc([p1,p2],x{i}(j)));
         % Find root of function where velocity is valid
         [errval,vind] = min(abs(eval));

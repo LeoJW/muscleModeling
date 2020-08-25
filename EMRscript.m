@@ -17,7 +17,7 @@ stimPhase = linspace(0.1,0.8,simiter); % version of tstart that varies
 
 %---Secondary controls
 
-ncycles = 10; % number of cycles
+ncycles = 7; % number of cycles
 tstart = 0.1;% point in cycle where activation begins (scaled 0 to 1)
 duration = 0.5; % duration of cycle that is activated (scaled 0 to 1)
 
@@ -100,7 +100,11 @@ EMRmtuLengthRaw = EMRa+EMRb+EMRarc; % total EMR length (mm)
 
 %---Create simulation time vector
 totaltime = ncycles/w; % time in s
-simt = 0:h:(totaltime+h);
+simt = 0:h:totaltime;
+modsimt = mod(length(simt),ncycles);
+if modsimt>0
+    simt = 0:h:totaltime+h*(ncycles-modsimt);
+end
 niter = length(simt); % number of iterations in loop
 velBruteSize = niter; % number of points to solve for v
 lcycle = round(niter/ncycles); % cycle length in 1/1e4 s

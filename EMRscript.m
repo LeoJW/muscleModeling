@@ -17,7 +17,7 @@ stimPhase = linspace(0.1,0.8,simiter); % version of tstart that varies
 
 %---Secondary controls
 
-ncycles = 7; % number of cycles
+ncycles = 8; % number of cycles
 tstart = 0.1;% point in cycle where activation begins (scaled 0 to 1)
 duration = 0.5; % duration of cycle that is activated (scaled 0 to 1)
 

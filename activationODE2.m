@@ -13,6 +13,6 @@ for i = (d+1):length(u)
     a(i) = alpha*u(i-d) - beta1*a(i-1) - beta2*a(i-2);
 end
 
-% a(a > 1) = 1;
+%a(a > 1) = 1;
 end
 

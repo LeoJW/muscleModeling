@@ -252,7 +252,7 @@ for i = 1:simiter
         F{i}(j) = hill(x{i}(j),v{i}(j),a{i}(j),C);
         
         % work, area under curve w/ neg vs pos velocity
-        wrk{i} = -trapz(x{i}(cycNum>3),F{i}(cycNum>3));
+        wrk{i} = -trapz(x{i}(cycNum>(ncycles-2)),F{i}(cycNum>(ncycles-2)));
         % instantaneous power
         pwr{i}(j) = F{i}(j).*v{i}(j);
         
@@ -263,14 +263,14 @@ for i = 1:simiter
     F{i} = F{i}*Fmax; % converts force to Newtons
     
     % Plot output
-    plot(x{i}(cycNum>2),F{i}(cycNum>2),'color',col(i,:))
+    plot(x{i}(cycNum>(ncycles-2)),F{i}(cycNum>(ncycles-2)),'color',col(i,:))
     %plot(simt,F{i},'color',col(i,:))
     drawnow
     
 end
 
 %---Aesthetics
-xlabel('EMR length (mm)')
+xlabel('EMR muscle length (mm)')
 ylabel('Force (N)')
 %---Aesthetics for colorbar
 colormap(copper)

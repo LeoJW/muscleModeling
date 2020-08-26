@@ -137,9 +137,9 @@ for i = 1:simiter
     a{i} = zeros(1,niter);
     % Define each cycle
     ucycle(startdur(i):enddur(i)) = 1;
-    if enddur(i)>lcycle
-        ucycle(1:(enddur(i)-lcycle)) = 1;
-    end
+     if enddur(i)>lcycle
+         ucycle(1:(enddur(i)-lcycle)) = 1;
+     end
     % Define u
     u{i} = repmat(ucycle(1:lcycle),1,ncycles);
     u{i}(1:(startdur(i)-1)) = 0;

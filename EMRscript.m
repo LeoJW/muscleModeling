@@ -17,7 +17,7 @@ stimPhase = linspace(0.1,0.8,simiter); % version of tstart that varies
 
 %---Secondary controls
 
-ncycles = 8; % number of cycles
+ncycles = 6; % number of cycles
 tstart = 0.1;% point in cycle where activation begins (scaled 0 to 1)
 duration = 0.5; % duration of cycle that is activated (scaled 0 to 1)
 
@@ -164,8 +164,8 @@ FVactHinge = @(m,v) m(3)/m(1)*log(1+exp(m(1)*v-m(2))); % FV smooth ramp function
 %% TPB external force
 
 Fmaxtpb = 1;
-tpbonset = 0.1;
-tpbdur = 0.4;
+tpbonset = 0.5;
+tpbdur = 0.3;
 starttpb = ceil(tpbonset*lcycle); % start of activation in cycle
 endtpb = ceil(startdur + tpbdur*lcycle); % duration of cycle activated in 1/1e4 s
 ucyctpb = zeros(1,lcycle);
@@ -252,7 +252,7 @@ for i = 1:simiter
         F{i}(j) = hill(x{i}(j),v{i}(j),a{i}(j),C);
         
         % work, area under curve w/ neg vs pos velocity
-        wrk{i} = -trapz(x{i}(cycNum>(ncycles-2)),F{i}(cycNum>(ncycles-2)));
+        wrk{i} = -trapz(x{i}(cycNum>(ncycles-1)),F{i}(cycNum>(ncycles-1)));
         % instantaneous power
         pwr{i}(j) = F{i}(j).*v{i}(j);
         
@@ -263,7 +263,7 @@ for i = 1:simiter
     F{i} = F{i}*Fmax; % converts force to Newtons
     
     % Plot output
-    plot(x{i}(cycNum>(ncycles-2)),F{i}(cycNum>(ncycles-2)),'color',col(i,:))
+    plot(x{i}(cycNum>(ncycles-1)),F{i}(cycNum>(ncycles-1)),'color',col(i,:))
     %plot(simt,F{i},'color',col(i,:))
     drawnow
     

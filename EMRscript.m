@@ -174,6 +174,8 @@ utpb = repmat(ucyctpb,1,ncycles);
 atpb = activationODE2(utpb,d,gam1,gam2);
 Ftpb = Fmaxtpb*atpb;
 
+FtpbL = 2;
+
 
 %% Run Simulation
 
@@ -260,7 +262,7 @@ for i = 1:simiter
     
     % Convert values to real units
     x{i} = x{i}*Lopt; % converts length to mm
-    F{i} = F{i}*Fmax; % converts force to Newtons
+    F{i} = F{i}*Fmax; % converts force to N
     
     % Plot output
     plot(x{i}(cycNum>(ncycles-1)),F{i}(cycNum>(ncycles-1)),'color',col(i,:))

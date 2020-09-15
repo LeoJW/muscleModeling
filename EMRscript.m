@@ -43,8 +43,9 @@ m3 = 0.5; % slope
 m = [m1,m2,m3]; % FV curve, smooth ramp portion
 
 delay = 50; % activation delay, in ms -> rescaled in a
-gam1 = -0.993; % activation constant
-gam2 = -0.993; % activation constant
+gam1 = -0.985; % activation constant
+gam2 = -0.985; % activation constant
+% 0.993
 
 %--Conversion constants
 

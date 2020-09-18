@@ -64,7 +64,7 @@ k = kActual*(Lopt/Fmax); % dimensionless
 %---Singularity adjustments
 
 Ftol = 0.1; % tolerance for F to avoid singularities
-atol = 0.05; % tolerance for a to avoid singularities
+atol = 0.01; % tolerance for a to avoid singularities
 % see FVactHinge below - added FV func to avoid singularities
 
 

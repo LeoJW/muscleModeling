@@ -56,7 +56,7 @@ vmaxActual = 5*Lopt; % mm/s
 %**** vmax is an issue right now
 
 tendonStress = 1200e3; % (Pa, N/m^2), anywhere from 660-1200
-tslackl = mean([13.62,14.17,14.11])+7; % from EUST dissection on Fran's spreadsheet
+tslackl = mean([13.62,14.17,14.11]); % from EUST dissection on Fran's spreadsheet
 tendonArea = 0.36; %(mm^2), guess based on Fran's spreadsheet
 kActual = tendonStress*1e-6*tendonArea/tslackl; % N/mm^2
 k = kActual*(Lopt/Fmax); % dimensionless

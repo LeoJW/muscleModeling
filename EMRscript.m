@@ -19,7 +19,7 @@ stimPhase = linspace(0.1,0.8,simiter); % version of tstart that varies
 
 ncycles = 6; % number of cycles
 tstart = 0.1;% point in cycle where activation begins (scaled 0 to 1)
-duration = 0.5; % duration of cycle that is activated (scaled 0 to 1)
+duration = 0.2; % duration of cycle that is activated (scaled 0 to 1)
 
 %---Hill constants
 
@@ -64,7 +64,7 @@ k = kActual*(Lopt/Fmax); % dimensionless
 %---Singularity adjustments
 
 Ftol = 0.1; % tolerance for F to avoid singularities
-atol = 0.08; % tolerance for a to avoid singularities
+atol = 0.05; % tolerance for a to avoid singularities
 % see FVactHinge below - added FV func to avoid singularities
 
 

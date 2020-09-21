@@ -11,9 +11,9 @@ clear all; close all;
 
 %---Primary controls
 
-simiter = 6; % number of activation phases to compare
+simiter = 10; % number of activation phases to compare
 h = 1e-4; % step size
-stimPhase = linspace(0.1,0.8,simiter); % version of tstart that varies
+stimPhase = linspace(0.1,1,simiter); % version of tstart that varies
 
 %---Secondary controls
 
@@ -39,7 +39,7 @@ fvc = [c1,c2,cmax,vmax];
 
 m1 = 20; % scaling factor
 m2 = 6; % horizontal translation
-m3 = 0.5; % slope
+m3 = 0.01; % slope
 m = [m1,m2,m3]; % FV curve, smooth ramp portion
 
 delay = 50; % activation delay, in ms -> rescaled in a
@@ -56,7 +56,7 @@ vmaxActual = 5*Lopt; % mm/s
 %**** vmax is an issue right now
 
 tendonStress = 1200e3; % (Pa, N/m^2), anywhere from 660-1200
-tslackl = mean([13.62,14.17,14.11]); % from EUST dissection on Fran's spreadsheet
+tslackl = mean([13.62,14.17,14.11])+7; % from EUST dissection on Fran's spreadsheet
 tendonArea = 0.36; %(mm^2), guess based on Fran's spreadsheet
 kActual = tendonStress*1e-6*tendonArea/tslackl; % N/mm^2
 k = kActual*(Lopt/Fmax); % dimensionless

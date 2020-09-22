@@ -50,7 +50,7 @@ gam2 = -0.985; % activation constant
 %--Conversion constants
 
 Lopt = 12.167; % from Bird17, WO, Morpho.xlsx
-EMRArea = 0.0428/(0.000325*Lopt); % (mm^2) dry density in g/mm^3, mass in g
+EMRArea = 0.134/(0.000325*Lopt); % (mm^2) dry density in g/mm^3, mass in g
 Fmax = 300e3*1e-6*EMRArea; % max force in N (convert from 300kPa to N/mm^2, multiply by EMR area)
 vmaxActual = 5*Lopt; % mm/s
 %**** vmax is an issue right now
@@ -164,7 +164,8 @@ FVactHinge = @(m,v) m(3)/m(1)*log(1+exp(m(1)*v-m(2))); % FV smooth ramp function
 
 %% TPB external force
 
-Fmaxtpb = 1;
+TPBArea = 0.1251/(0.000325*Lopt); % (mm^2) dry density in g/mm^3, mass in g
+Fmaxtpb = 300e3*1e-6*TPBArea;
 tpbonset = 0.5;
 tpbdur = 0.3;
 starttpb = ceil(tpbonset*lcycle); % start of activation in cycle

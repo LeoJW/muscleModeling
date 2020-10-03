@@ -55,10 +55,10 @@ Fmax = 300e3*1e-6*EMRArea; % max force in N (convert from 300kPa to N/mm^2, mult
 vmaxActual = 5*Lopt; % mm/s
 %**** vmax is an issue right now
 
-tendonStress = 1200e3; % (Pa, N/m^2), anywhere from 660-1200
+tendonE = 1e9; % tendon elastic modulus (Pa, N/m^2), anywhere from 660-1200e6
 tslackl = mean([13.62,14.17,14.11]+7); % from EUST dissection on Fran's spreadsheet
 tendonArea = 0.36; %(mm^2), guess based on Fran's spreadsheet
-kActual = tendonStress*1e-6*tendonArea/tslackl; % N/mm^2
+kActual = tendonE*1e-6*tendonArea/tslackl; % N/mm^2
 k = kActual*(Lopt/Fmax); % dimensionless
 
 %---Singularity adjustments
@@ -208,7 +208,7 @@ err = cell(1,simiter);
 F = cell(1,simiter);
 v = cell(1,simiter);
 x = cell(1,simiter);
-vsweep = linspace(-1.5*vmax,1.5*vmax,velBruteSize);
+vsweep = linspace(-4*vmax,4*vmax,velBruteSize);
 wrk = cell(1,simiter);
 pwr = cell(1,simiter);
 % Calculate FV function at all velocities

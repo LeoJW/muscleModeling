@@ -53,7 +53,6 @@ Lopt = 12.167; % from Bird17, WO, Morpho.xlsx
 EMRArea = 0.0544/(0.000325*Lopt); % (mm^2) dry density in g/mm^3, mass in g
 Fmax = 300e3*1e-6*EMRArea; % max force in N (convert from 300kPa to N/mm^2, multiply by EMR area)
 vmaxActual = 5*Lopt; % mm/s
-%**** vmax is an issue right now
 
 tendonE = 1e9; % tendon elastic modulus (Pa, N/m^2), anywhere from 660-1200e6
 tslackl = mean([13.62,14.17,14.11]+7); % from EUST dissection on Fran's spreadsheet

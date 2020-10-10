@@ -19,7 +19,7 @@ stimPhase = linspace(0.1,1,simiter); % version of tstart that varies
 
 ncycles = 6; % number of cycles
 tstart = 0.1;% point in cycle where activation begins (scaled 0 to 1)
-duration = 0.5; % duration of cycle that is activated (scaled 0 to 1)
+duration = 0.4; % duration of cycle that is activated (scaled 0 to 1)
 
 %---Hill constants
 
@@ -43,22 +43,24 @@ m3 = 0.01; % slope
 m = [m1,m2,m3]; % FV curve, smooth ramp portion
 
 delay = 50; % activation delay, in ms -> rescaled in a
-gam1 = -0.985; % activation constant
-gam2 = -0.985; % activation constant
+gam1 = -0.983; % activation constant
+gam2 = -0.983; % activation constant
 % 0.993
 
 %--Conversion constants
 
-Lopt = 12.167; % from Bird17, WO, Morpho.xlsx
+%Lopt = 12.167; % from Bird17, WO, Morpho.xlsx
+Lopt = 15;
 EMRArea = 0.0544/(0.000325*Lopt); % (mm^2) dry density in g/mm^3, mass in g
 Fmax = 300e3*1e-6*EMRArea; % max force in N (convert from 300kPa to N/mm^2, multiply by EMR area)
 vmaxActual = 5*Lopt; % mm/s
 
-tendonE = 1e9; % tendon elastic modulus (Pa, N/m^2), anywhere from 660-1200e6
-tslackl = mean([13.62,14.17,14.11]+7); % from EUST dissection on Fran's spreadsheet
+tendonE = 660e6; % tendon elastic modulus (Pa, N/m^2), anywhere from 660-1200e6
+tslackl = mean([13.62,14.17,14.11]+3); % from EUST dissection on Fran's spreadsheet
 tendonArea = 0.36; %(mm^2), guess based on Fran's spreadsheet
 kActual = tendonE*1e-6*tendonArea/tslackl; % N/mm^2
-k = kActual*(Lopt/Fmax); % dimensionless
+%k = kActual*(Lopt/Fmax); % dimensionless
+k = 50;
 
 %---Singularity adjustments
 

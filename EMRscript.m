@@ -19,7 +19,7 @@ stimPhase = linspace(0.1,1,simiter); % version of tstart that varies
 
 ncycles = 6; % number of cycles
 tstart = 0.1;% point in cycle where activation begins (scaled 0 to 1)
-duration = 0.4; % duration of cycle that is activated (scaled 0 to 1)
+duration = 0.2; % duration of cycle that is activated (scaled 0 to 1)
 
 %---Hill constants
 
@@ -55,12 +55,11 @@ EMRArea = 0.0544/(0.000325*Lopt); % (mm^2) dry density in g/mm^3, mass in g
 Fmax = 300e3*1e-6*EMRArea; % max force in N (convert from 300kPa to N/mm^2, multiply by EMR area)
 vmaxActual = 5*Lopt; % mm/s
 
-tendonE = 660e6; % tendon elastic modulus (Pa, N/m^2), anywhere from 660-1200e6
-tslackl = mean([13.62,14.17,14.11]+3); % from EUST dissection on Fran's spreadsheet
+tendonE = 1000e6; % tendon elastic modulus (Pa, N/m^2), anywhere from 660-1200e6
+tslackl = mean([13.62,14.17,14.11]); % from EUST dissection on Fran's spreadsheet
 tendonArea = 0.36; %(mm^2), guess based on Fran's spreadsheet
 kActual = tendonE*1e-6*tendonArea/tslackl; % N/mm^2
-%k = kActual*(Lopt/Fmax); % dimensionless
-k = 50;
+k = kActual*(Lopt/Fmax); % dimensionless
 
 %---Singularity adjustments
 
@@ -332,4 +331,3 @@ grid on
 scatter(stimPhase,[wrk{1:simiter}],'filled')
 xlim([0 1])
 xlabel('Stimulation Phase'), ylabel('Net Work')
-

@@ -19,7 +19,7 @@ stimPhase = linspace(0.1,1,simiter); % version of tstart that varies
 
 ncycles = 6; % number of cycles
 tstart = 0.1;% point in cycle where activation begins (scaled 0 to 1)
-duration = 0.2; % duration of cycle that is activated (scaled 0 to 1)
+duration = 0.5; % duration of cycle that is activated (scaled 0 to 1)
 
 %---Hill constants
 
@@ -43,8 +43,8 @@ m3 = 0.01; % slope
 m = [m1,m2,m3]; % FV curve, smooth ramp portion
 
 delay = 50; % activation delay, in ms -> rescaled in a
-gam1 = -0.983; % activation constant
-gam2 = -0.983; % activation constant
+gam1 = -0.982; % activation constant
+gam2 = -0.982; % activation constant
 % 0.993
 
 %--Conversion constants
@@ -95,6 +95,7 @@ EMRmtuLengthRaw = EMRa+EMRb+EMRarc; % total EMR length (mm)
 
 % Apply Butterworth LPF, split and smooth cycles
 [EMRsmooth,EMRcycDur,w] = buttersplit(kineTime,EMRmtuLengthRaw,butterOrder,butterFreq);
+%[processed EMR MTU length, cycle duration, cycle freq]
 
 
 %% Simulation constants setup

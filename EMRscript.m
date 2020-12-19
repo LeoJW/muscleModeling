@@ -11,8 +11,8 @@ clear all; close all;
 
 %---Primary controls
 
-simiter = 10; % number of activation phases to compare
-h = 1e-4; % step size
+simiter = 5; % number of activation phases to compare
+h = 1e-5; % step size
 stimPhase = linspace(0.1,1,simiter); % version of tstart that varies
 
 %---Secondary controls
@@ -146,7 +146,7 @@ for i = 1:simiter
     u{i} = repmat(ucycle(1:lcycle),1,ncycles);
     u{i}(1:(startdur(i)-1)) = 0;
     % Solve for a
-    a{i} = activationODE2(u{i},d,gam1,gam2);
+    a{i} = activationODE2(u{i},d,gam1,gam2,1/h);
     a{i} = (1-atol).*a{i}+atol;
 
     % Plot output
@@ -174,7 +174,7 @@ endtpb = ceil(startdur + tpbdur*lcycle); % duration of cycle activated in 1/1e4 
 ucyctpb = zeros(1,lcycle);
 ucyctpb(starttpb:endtpb) = 1;
 utpb = repmat(ucyctpb,1,ncycles);
-atpb = activationODE2(utpb,d,gam1,gam2);
+atpb = activationODE2(utpb,d,gam1,gam2,1/h);
 Ftpb = Fmaxtpb*atpb;
 
 FtpbL = 2;
@@ -332,3 +332,33 @@ grid on
 scatter(stimPhase,[wrk{1:simiter}],'filled')
 xlim([0 1])
 xlabel('Stimulation Phase'), ylabel('Net Work')
+
+
+%% Look at some stuff
+
+
+figure()
+subplot(2,1,1)
+hold on
+box on
+grid on
+subplot(2,1,2)
+hold on
+box on
+grid on
+
+% Plot tendon spring force and muscle force
+for i = 1:simiter
+    
+    tendonF = k*(l-x{i}/Lopt-tslackl/Lopt).*heaviside(l-x{i}/Lopt-tslackl/Lopt);
+    subplot(2,1,1)
+    plot(simt, tendonF, 'color', col(i,:))
+    subplot(2,1,2)
+    plot(simt, F{i}, 'color', col(i,:))
+end
+
+subplot(2,1,1)
+ylabel('Tendon Force')
+subplot(2,1,2)
+ylabel('Tendon Force')
+xlabel('Time')

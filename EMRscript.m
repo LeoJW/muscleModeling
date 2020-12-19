@@ -19,7 +19,7 @@ stimPhase = linspace(0.1,1,simiter); % version of tstart that varies
 
 ncycles = 6; % number of cycles
 tstart = 0.1;% point in cycle where activation begins (scaled 0 to 1)
-duration = 0.5; % duration of cycle that is activated (scaled 0 to 1)
+duration = 0.4; % duration of cycle that is activated (scaled 0 to 1)
 
 %---Hill constants
 
@@ -360,5 +360,5 @@ end
 subplot(2,1,1)
 ylabel('Tendon Force')
 subplot(2,1,2)
-ylabel('Tendon Force')
+ylabel('Muscle Force')
 xlabel('Time')

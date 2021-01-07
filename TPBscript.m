@@ -234,10 +234,11 @@ for i = 1:simiter
     v10 = 0;
     angle10 = 0;
     angle20 = 0;
-    lt0 = tslackl/lopt2; %??
-    %Set initial muscle length
+    %Set initial muscle and tendon length
     l10 = lopt1; % initial length of muscle section 1 at rest
     l20 = lopt2; % initial length of muscle section 2 at rest
+    lt0 = L(1)*Lopt - lopt1 - lopt2;
+    % lt0 = tslackl/lopt2; %?? what is best way to define lt0?
     
     % Declare vectors for simulation run
     l1{i} = [l10,zeros(1,length(simt)-1)]; % muscle length section 1
@@ -273,7 +274,7 @@ for i = 1:simiter
             (FLactVal2.*(FVactVal+FVhinge).*a{i}(j) + FLpasFunc([p1,p2],l2{i}(j)));
         % Find root of function where velocity is valid
         [errval,v2ind] = min(abs(eval));
-        err2{i}(j) = eval(vind);
+        err2{i}(j) = eval(v2ind);
         v2{i}(j) = vsweep(v2ind);
         F2{i}(j) = hill(l2{i}(j),v2{i}(j),a{i}(j),C);
         % Solve for muscle section 1 v using Ftpb equation

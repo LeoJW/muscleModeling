@@ -207,10 +207,17 @@ box on
 grid on
 
 % Prepare variables for loop to solve for l2
-err = cell(1,simiter);
-F = cell(1,simiter);
-v = cell(1,simiter);
+err2 = cell(1,simiter);
+err1 = cell(1,simiter);
+F2 = cell(1,simiter);
+F1 = cell(1,simiter);
+v2 = cell(1,simiter);
+v1 = cell(1,simiter);
 l2 = cell(1,simiter);
+l1 = cell(1,simiter);
+angle2 = cell(1,simiter);
+angle1 = cell(1,simiter);
+lt = cell(1,simiter);
 vsweep = linspace(-4*vmax,4*vmax,velBruteSize);
 wrk = cell(1,simiter);
 pwr = cell(1,simiter);
@@ -224,6 +231,10 @@ for i = 1:simiter
     % Initial Conditions
     %Velocity initial condition
     v20 = 0;
+    v10 = 0;
+    angle10 = 0;
+    angle20 = 0;
+    lt0 = tslackl; %??
     %Find initial muscle length that is valid (assuming v0==0)
     %Sweep thru range of l20 values
     l20sweep = linspace(0,2,velBruteSize);
@@ -241,8 +252,10 @@ for i = 1:simiter
     angle2{i} = [angle20,zeros(1,length(simt)-1)]; % angle 2 initial condition
     v1{i} = [v10,zeros(1,length(simt)-1)]; % velocity section 1 initial condition
     v2{i} = [v20,zeros(1,length(simt)-1)]; % velocity section 2 initial condition
-    err{i} = zeros(1,length(simt)); % error
-    F{i} = zeros(1,length(simt)); % force
+    err2{i} = zeros(1,length(simt)); % error
+    err1{i} = zeros(1,length(simt)); % error
+    F2{i} = zeros(1,length(simt)); % force muscle section 2
+    F1{i} = zeros(1,length(simt)); % force muscle section 1
     wrk{i} = zeros(1,length(simt));
     pwr{i} = zeros(1,length(simt));
     
@@ -258,17 +271,24 @@ for i = 1:simiter
             lt{i}(j) = (L(j) - l1{i}(j).*cos(angle1{i}(j)) - l2{i}(j).*cos(angle2{i}(j)))/cos(angle2{i}(j));
         end
         % Solve individual components of Hill model
-        FLactVal = (1-Ftol).*FLactFunc([b1,b2],l2{i}(j)) + Ftol;
-        % Use l2(j) to solve for muscle v
+        FLactVal2 = (1-Ftol).*FLactFunc([b1,b2],l2{i}(j)) + Ftol;
+        FLactVal1 = (1-Ftol).*FLactFunc([b1,b2],l2{i}(j)) + Ftol;
+        % Use l2(j) to solve for muscle section 2 v
         eval = k*(lt{i}(j)-tslackl/lopt2).*heaviside(lt{i}(j)-tslackl/lopt2) - ...
-            (FLactVal.*(FVactVal+FVhinge).*a{i}(j) + FLpasFunc([p1,p2],l2{i}(j)));
+            (FLactVal2.*(FVactVal+FVhinge).*a{i}(j) + FLpasFunc([p1,p2],l2{i}(j)));
         % Find root of function where velocity is valid
-        [errval,vind] = min(abs(eval));
-        err{i}(j) = eval(vind);
-        v2{i}(j) = vsweep(vind);
+        [errval,v2ind] = min(abs(eval));
+        err2{i}(j) = eval(vind);
+        v2{i}(j) = vsweep(v2ind);
         F2{i}(j) = hill(l2{i}(j),v2{i}(j),a{i}(j),C);
-        v1{i}(j) = ; % will use the two equations linking Ftpb force and geometry to solve for v1
-        % just haven't written this section yet
+        % Solve for muscle section 1 v using Ftpb equation
+        evalagain = Ftpb(j) + F2{i}(j).*cos(angle2).*tan(angle1) - ...
+            (FLactVal1.*(FVactVal+FVhinge).*a{i}(j) + ...
+            FLpasFunc([p1,p2],l1{i}(j))).*cos(angle1).*tan(angle2);
+        % Find root of function where velocity is valid
+        [errvalagain,v1ind] = min(abs(evalagain));
+        err1{i}(j) = evalagain(v1ind);
+        v1{i}(j) = vsweep(v1ind);
         F1{i}(j) = hill(l1{i}(j),v1{i}(j),a{i}(j),C);
         
         % work, area under curve w/ neg vs pos velocity

@@ -260,15 +260,19 @@ for i = 1:simiter
         % Solve individual components of Hill model
         FLactVal = (1-Ftol).*FLactFunc([b1,b2],l2{i}(j)) + Ftol;
         % Use l2(j) to solve for muscle v
-        eval = k*(lt(j)-tslackl/lopt2).*heaviside(lt(j)-tslackl/lopt2) - ...
+        eval = k*(lt{i}(j)-tslackl/lopt2).*heaviside(lt{i}(j)-tslackl/lopt2) - ...
             (FLactVal.*(FVactVal+FVhinge).*a{i}(j) + FLpasFunc([p1,p2],l2{i}(j)));
         % Find root of function where velocity is valid
         [errval,vind] = min(abs(eval));
         err{i}(j) = eval(vind);
-        v{i}(j) = vsweep(vind);
-        F{i}(j) = hill(l2{i}(j),v{i}(j),a{i}(j),C);
+        v2{i}(j) = vsweep(vind);
+        F2{i}(j) = hill(l2{i}(j),v2{i}(j),a{i}(j),C);
+        v1{i}(j) = ; % will use the two equations linking Ftpb force and geometry to solve for v1
+        % just haven't written this section yet
+        F1{i}(j) = hill(l1{i}(j),v1{i}(j),a{i}(j),C);
         
         % work, area under curve w/ neg vs pos velocity
+        % will need to specify which sections of muscle we are solving for
         wrk{i} = -trapz(l2{i}(cycNum>(ncycles-1)),F{i}(cycNum>(ncycles-1)));
         % instantaneous power
         pwr{i}(j) = F{i}(j).*v{i}(j);
@@ -277,10 +281,10 @@ for i = 1:simiter
     
     % Convert values to real units
     l2{i} = l2{i}*lopt2; % converts length to mm
-    F{i} = F{i}*Fmax; % converts force to N
+    F2{i} = F2{i}*Fmax; % converts force to N
     
     % Plot output
-    plot(l2{i}(cycNum>(ncycles-1)),F{i}(cycNum>(ncycles-1)),'color',col(i,:))
+    plot(l2{i}(cycNum>(ncycles-1)),F2{i}(cycNum>(ncycles-1)),'color',col(i,:))
     %plot(simt,F{i},'color',col(i,:))
     drawnow
     

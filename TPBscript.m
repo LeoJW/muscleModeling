@@ -172,7 +172,7 @@ Fmaxtpb = 300e3*1e-6*TPBArea;
 tpbonset = 0.5;
 tpbdur = 0.3;
 starttpb = ceil(tpbonset*lcycle); % start of activation in cycle
-endtpb = ceil(startdur + tpbdur*lcycle); % duration of cycle activated in 1/1e4 s
+endtpb = ceil(starttpb + tpbdur*lcycle); % duration of cycle activated in 1/1e4 s
 ucyctpb = zeros(1,lcycle);
 ucyctpb(starttpb:endtpb) = 1;
 utpb = repmat(ucyctpb,1,ncycles);
@@ -234,24 +234,19 @@ for i = 1:simiter
     v10 = 0;
     angle10 = 0;
     angle20 = 0;
-    lt0 = tslackl; %??
-    %Find initial muscle length that is valid (assuming v0==0)
-    %Sweep thru range of l20 values
-    l20sweep = linspace(0,2,velBruteSize);
-    %Find the one where spring and muscle forces are balanced
-    l20test = k*(lt(1)-tslackl/lopt2).*heaviside(lt(1)-tslackl/lopt2) - ...
-        (((1-Ftol).*FLactFunc([b1,b2],l20sweep)+Ftol).*a{i}(1) + FLpasFunc([p1,p2],l20sweep));
-    [~,ind] = min(abs(l20test));
-    l20 = l20sweep(ind);
+    lt0 = tslackl/lopt2; %??
+    %Set initial muscle length
+    l10 = lopt1; % initial length of muscle section 1 at rest
+    l20 = lopt2; % initial length of muscle section 2 at rest
     
     % Declare vectors for simulation run
-    l1{i} = [l10,zeros(1,length(simt)-1)]; % muscle length section 1 initial condition
-    l2{i} = [l20,zeros(1,length(simt)-1)]; % muscle length section 2 initial condition
-    lt{i} = [lt0,zeros(1,length(simt)-1)]; % tendon length initial condition
-    angle1{i} = [angle10,zeros(1,length(simt)-1)]; % angle 1 intitial condition
-    angle2{i} = [angle20,zeros(1,length(simt)-1)]; % angle 2 initial condition
-    v1{i} = [v10,zeros(1,length(simt)-1)]; % velocity section 1 initial condition
-    v2{i} = [v20,zeros(1,length(simt)-1)]; % velocity section 2 initial condition
+    l1{i} = [l10,zeros(1,length(simt)-1)]; % muscle length section 1
+    l2{i} = [l20,zeros(1,length(simt)-1)]; % muscle length section 2
+    lt{i} = [lt0,zeros(1,length(simt)-1)]; % tendon length
+    angle1{i} = [angle10,zeros(1,length(simt)-1)]; % angle 1
+    angle2{i} = [angle20,zeros(1,length(simt)-1)]; % angle 2
+    v1{i} = [v10,zeros(1,length(simt)-1)]; % velocity section 1
+    v2{i} = [v20,zeros(1,length(simt)-1)]; % velocity section 2
     err2{i} = zeros(1,length(simt)); % error
     err1{i} = zeros(1,length(simt)); % error
     F2{i} = zeros(1,length(simt)); % force muscle section 2

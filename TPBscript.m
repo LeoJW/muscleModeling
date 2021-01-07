@@ -196,7 +196,6 @@ EMRy = repmat(EMRmtuLength.',1,ncycles);
 % velocity to L/s or mm/s
 EMRmoreSmooth = fit(simt.',EMRy.','smoothingspline','SmoothingParam',0.9999999);
 L = EMRmoreSmooth(simt).'./Lopt;
-lside = (lopt2/Lopt)*L; % length of section including tendon, may be sketchy
 
 %---Split cycles
 cycNum = repelem(1:ncycles,lcycle);
@@ -225,18 +224,25 @@ for i = 1:simiter
     % Initial Conditions
     %Velocity initial condition
     v0 = 0;
+    %
+    lt = (L - l1*cos(angle1) - l2*cos(angle2))/cos(angle2); % tendon length
     %Find initial muscle length that is valid (assuming v0==0)
-    %Sweep thru range of x0 values
+    %Sweep thru range of l20 values
     l20sweep = linspace(0,2,velBruteSize);
     %Find the one where spring and muscle forces are balanced
-    l20test = k*(lside(1)-l20sweep-tslackl/lopt2).*heaviside(lside(1)-l20sweep-tslackl/lopt2) - ...
+    l20test = k*(lt(1)-tslackl/lopt2).*heaviside(lt(1)-tslackl/lopt2) - ...
         (((1-Ftol).*FLactFunc([b1,b2],l20sweep)+Ftol).*a{i}(1) + FLpasFunc([p1,p2],l20sweep));
     [~,ind] = min(abs(l20test));
     l20 = l20sweep(ind);
     
     % Declare vectors for simulation run
-    l2{i} = [l20,zeros(1,length(simt)-1)]; % muscle length initial condition
-    v{i} = [v0,zeros(1,length(simt)-1)]; % velocity initial condition
+    l1{i} = [l10,zeros(1,length(simt)-1)]; % muscle length section 1 initial condition
+    l2{i} = [l20,zeros(1,length(simt)-1)]; % muscle length section 2 initial condition
+    lt{i} = [lt0,zeros(1,length(simt)-1)]; % tendon length initial condition
+    angle1{i} = [angle10,zeros(1,length(simt)-1)]; % angle 1 intitial condition
+    angle2{i} = [angle20,zeros(1,length(simt)-1)]; % angle 2 initial condition
+    v1{i} = [v10,zeros(1,length(simt)-1)]; % velocity section 1 initial condition
+    v2{i} = [v20,zeros(1,length(simt)-1)]; % velocity section 2 initial condition
     err{i} = zeros(1,length(simt)); % error
     F{i} = zeros(1,length(simt)); % force
     wrk{i} = zeros(1,length(simt));
@@ -244,14 +250,19 @@ for i = 1:simiter
     
     % Loop through each time point
     for j = 1:length(simt)
-        % Find new x from previous v
+        % Find new l1, l2 from previous velocities
         if j~=1
-            l2{i}(j) = l2{i}(j-1) + v{i}(j-1)*h;
+            l2{i}(j) = l2{i}(j-1) + v2{i}(j-1)*h;
+            l1{i}(j) = l1{i}(j-1) + v1{i}(j-1)*h;
+            % Calculate angle1, angle2 and lt from muscle lengths
+            angle1{i}(j) = acos((L(j)^2 + l1{i}(j)^2 - l2{i}(j)^2)/(2.*(L(j)^2).*(l1{i}(j)^2)));
+            angle2{i}(j) = acos((L(j)^2 + l2{i}(j)^2 - l1{i}(j)^2)/(2.*(L(j)^2).*(l2{i}(j)^2)));
+            lt{i}(j) = (L(j) - l1{i}(j).*cos(angle1{i}(j)) - l2{i}(j).*cos(angle2{i}(j)))/cos(angle2{i}(j));
         end
         % Solve individual components of Hill model
         FLactVal = (1-Ftol).*FLactFunc([b1,b2],l2{i}(j)) + Ftol;
-        % Use x(j) to solve for muscle v
-        eval = k*(lside(j)-l2{i}(j)-tslackl/lopt2).*heaviside(lside(j)-l2{i}(j)-tslackl/lopt2) - ...
+        % Use l2(j) to solve for muscle v
+        eval = k*(lt(j)-tslackl/lopt2).*heaviside(lt(j)-tslackl/lopt2) - ...
             (FLactVal.*(FVactVal+FVhinge).*a{i}(j) + FLpasFunc([p1,p2],l2{i}(j)));
         % Find root of function where velocity is valid
         [errval,vind] = min(abs(eval));

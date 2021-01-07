@@ -223,9 +223,7 @@ for i = 1:simiter
     
     % Initial Conditions
     %Velocity initial condition
-    v0 = 0;
-    %
-    lt = (L - l1*cos(angle1) - l2*cos(angle2))/cos(angle2); % tendon length
+    v20 = 0;
     %Find initial muscle length that is valid (assuming v0==0)
     %Sweep thru range of l20 values
     l20sweep = linspace(0,2,velBruteSize);

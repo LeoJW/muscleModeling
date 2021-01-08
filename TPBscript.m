@@ -278,9 +278,9 @@ for i = 1:simiter
         v2{i}(j) = vsweep(v2ind);
         F2{i}(j) = hill(l2{i}(j),v2{i}(j),a{i}(j),C);
         % Solve for muscle section 1 v using Ftpb equation
-        evalagain = Ftpb(j) + F2{i}(j).*cos(angle2).*tan(angle1) - ...
+        evalagain = Ftpb(j) + F2{i}(j).*cos(angle2{i}(j)).*tan(angle1{i}(j)) - ...
             (FLactVal1.*(FVactVal+FVhinge).*a{i}(j) + ...
-            FLpasFunc([p1,p2],l1{i}(j))).*cos(angle1).*tan(angle2);
+            FLpasFunc([p1,p2],l1{i}(j))).*cos(angle1{i}(j)).*tan(angle2{i}(j));
         % Find root of function where velocity is valid
         [errvalagain,v1ind] = min(abs(evalagain));
         err1{i}(j) = evalagain(v1ind);
@@ -289,9 +289,9 @@ for i = 1:simiter
         
         % work, area under curve w/ neg vs pos velocity
         % will need to specify which sections of muscle we are solving for
-        wrk{i} = -trapz(l2{i}(cycNum>(ncycles-1)),F{i}(cycNum>(ncycles-1)));
+        wrk{i} = -trapz(l2{i}(cycNum>(ncycles-1)),F2{i}(cycNum>(ncycles-1)));
         % instantaneous power
-        pwr{i}(j) = F{i}(j).*v{i}(j);
+        pwr{i}(j) = F2{i}(j).*v2{i}(j);
         
     end
     
@@ -332,11 +332,11 @@ grid on
 for i = 1:simiter
     %Instantaneous error
     subplot(2,1,1)
-    plot(simt, err{i},'color',col(i,:))
+    plot(simt, err2{i},'color',col(i,:))
     title('Instantaneous Error')
     %Cumulative error
     subplot(2,1,2)
-    plot(simt, cumsum(err{i})/length(simt), 'color',col(i,:))
+    plot(simt, cumsum(err2{i})/length(simt), 'color',col(i,:))
     title('Cumulative Error')
 
 end
@@ -382,11 +382,11 @@ grid on
 % Plot tendon spring force and muscle force
 for i = 1:simiter
     
-    tendonF = k*(lside-l2{i}/lopt2-tslackl/lopt2).*heaviside(lside-l2{i}/lopt2-tslackl/lopt2);
+    tendonF = k*(lt-tslackl/lopt2).*heaviside(lt-tslackl/lopt2);
     subplot(2,1,1)
     plot(simt, tendonF, 'color', col(i,:))
     subplot(2,1,2)
-    plot(simt, F{i}, 'color', col(i,:))
+    plot(simt, F2{i}, 'color', col(i,:))
 end
 
 subplot(2,1,1)

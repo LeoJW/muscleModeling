@@ -264,11 +264,11 @@ for i = 1:simiter
             % Calculate angle1, angle2 and lt from muscle lengths
             angle1{i}(j) = acos((L(j)^2 + l1{i}(j)^2 - l2{i}(j)^2)/(2.*(L(j)^2).*(l1{i}(j)^2)));
             angle2{i}(j) = acos((L(j)^2 + l2{i}(j)^2 - l1{i}(j)^2)/(2.*(L(j)^2).*(l2{i}(j)^2)));
-            lt{i}(j) = (L(j) - l1{i}(j).*cos(angle1{i}(j)) - l2{i}(j).*cos(angle2{i}(j)))/cos(angle2{i}(j));
+            lt{i}(j) = (L(j)*Lopt - l1{i}(j).*cos(angle1{i}(j)) - l2{i}(j).*cos(angle2{i}(j)))/cos(angle2{i}(j));
         end
         % Solve individual components of Hill model
-        FLactVal2 = (1-Ftol).*FLactFunc([b1,b2],l2{i}(j)) + Ftol;
-        FLactVal1 = (1-Ftol).*FLactFunc([b1,b2],l2{i}(j)) + Ftol;
+        FLactVal2 = (1-Ftol).*FLactFunc([b1,b2],l2{i}(j)/lopt2) + Ftol;
+        FLactVal1 = (1-Ftol).*FLactFunc([b1,b2],l1{i}(j)/lopt1) + Ftol;
         % Use l2(j) to solve for muscle section 2 v
         eval = k*(lt{i}(j)-tslackl/lopt2).*heaviside(lt{i}(j)-tslackl/lopt2) - ...
             (FLactVal2.*(FVactVal+FVhinge).*a{i}(j) + FLpasFunc([p1,p2],l2{i}(j)));

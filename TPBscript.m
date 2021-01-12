@@ -11,7 +11,7 @@ clear all; close all;
 
 %---Primary controls
 
-simiter = 5; % number of activation phases to compare
+simiter = 2; % number of activation phases to compare
 h = 1e-5; % step size
 stimPhase = linspace(0.1,1,simiter); % version of tstart that varies
 
@@ -61,7 +61,7 @@ tendonE = 1000e6; % tendon elastic modulus (Pa, N/m^2), anywhere from 660-1200e6
 tslackl = mean([13.62,14.17,14.11]); % from EUST dissection on Fran's spreadsheet
 tendonArea = 0.36; %(mm^2), guess based on Fran's spreadsheet
 kActual = tendonE*1e-6*tendonArea/tslackl; % N/mm^2
-k = kActual*(Lopt/Fmax); % dimensionless
+k = kActual*(1/Fmax); % dimensionless (1/Fmax)
 
 %---Singularity adjustments
 
@@ -167,7 +167,7 @@ FVactHinge = @(m,v) m(3)/m(1)*log(1+exp(m(1)*v-m(2))); % FV smooth ramp function
 
 %% TPB external force
 
-TPBArea = 0.0473/(0.000325*Lopt); % (mm^2) dry density in g/mm^3, mass in g
+TPBArea = 0.0473/(0.000325*Lopt); % (mm^2) dry density in g/mm^3, mass in g 
 Fmaxtpb = 300e3*1e-6*TPBArea;
 tpbonset = 0.5;
 tpbdur = 0.3;
@@ -180,6 +180,8 @@ atpb = activationODE2(utpb,d,gam1,gam2,1/h);
 Ftpb = Fmaxtpb*atpb;
 
 FtpbL = 2;
+
+Ftpb = zeros(size(Ftpb));
 
 
 %% Run Simulation
@@ -195,7 +197,7 @@ EMRy = repmat(EMRmtuLength.',1,ncycles);
 % Convert length and velocity to dimensionless units and prep for sim
 % velocity to L/s or mm/s
 EMRmoreSmooth = fit(simt.',EMRy.','smoothingspline','SmoothingParam',0.9999999);
-L = EMRmoreSmooth(simt).'./Lopt;
+L = EMRmoreSmooth(simt).'; %<- note: No ./ needed, just / is fine
 
 %---Split cycles
 cycNum = repelem(1:ncycles,lcycle);
@@ -237,7 +239,7 @@ for i = 1:simiter
     %Set initial muscle and tendon length
     l10 = lopt1; % initial length of muscle section 1 at rest
     l20 = lopt2; % initial length of muscle section 2 at rest
-    lt0 = L(1)*Lopt - lopt1 - lopt2;
+    lt0 = L(1) - lopt1 - lopt2; %units of m
     % lt0 = tslackl/lopt2; %?? what is best way to define lt0?
     
     % Declare vectors for simulation run
@@ -264,28 +266,28 @@ for i = 1:simiter
             % Calculate angle1, angle2 and lt from muscle lengths
             angle1{i}(j) = acos((L(j)^2 + l1{i}(j)^2 - l2{i}(j)^2)/(2.*(L(j)^2).*(l1{i}(j)^2)));
             angle2{i}(j) = acos((L(j)^2 + l2{i}(j)^2 - l1{i}(j)^2)/(2.*(L(j)^2).*(l2{i}(j)^2)));
-            lt{i}(j) = (L(j)*Lopt - l1{i}(j).*cos(angle1{i}(j)) - l2{i}(j).*cos(angle2{i}(j)))/cos(angle2{i}(j));
+            lt{i}(j) = (L(j) - l1{i}(j).*cos(angle1{i}(j)) - l2{i}(j).*cos(angle2{i}(j)))/cos(angle2{i}(j));
         end
         % Solve individual components of Hill model
         FLactVal2 = (1-Ftol).*FLactFunc([b1,b2],l2{i}(j)/lopt2) + Ftol;
         FLactVal1 = (1-Ftol).*FLactFunc([b1,b2],l1{i}(j)/lopt1) + Ftol;
         % Use l2(j) to solve for muscle section 2 v
-        eval = k*(lt{i}(j)-tslackl/lopt2).*heaviside(lt{i}(j)-tslackl/lopt2) - ...
-            (FLactVal2.*(FVactVal+FVhinge).*a{i}(j) + FLpasFunc([p1,p2],l2{i}(j)));
+        eval = k*(lt{i}(j)-tslackl).*heaviside(lt{i}(j)-tslackl) - ...
+            (FLactVal2.*(FVactVal+FVhinge).*a{i}(j) + FLpasFunc([p1,p2],l2{i}(j)/lopt2));
         % Find root of function where velocity is valid
         [errval,v2ind] = min(abs(eval));
         err2{i}(j) = eval(v2ind);
         v2{i}(j) = vsweep(v2ind);
-        F2{i}(j) = hill(l2{i}(j),v2{i}(j),a{i}(j),C);
+        F2{i}(j) = hill(l2{i}(j)/lopt2,v2{i}(j)/lopt2,a{i}(j),C);
         % Solve for muscle section 1 v using Ftpb equation
         evalagain = Ftpb(j) + F2{i}(j).*cos(angle2{i}(j)).*tan(angle1{i}(j)) - ...
             (FLactVal1.*(FVactVal+FVhinge).*a{i}(j) + ...
-            FLpasFunc([p1,p2],l1{i}(j))).*cos(angle1{i}(j)).*tan(angle2{i}(j));
+            FLpasFunc([p1,p2],l1{i}(j)/lopt1)).*cos(angle1{i}(j)).*tan(angle2{i}(j));
         % Find root of function where velocity is valid
         [errvalagain,v1ind] = min(abs(evalagain));
         err1{i}(j) = evalagain(v1ind);
         v1{i}(j) = vsweep(v1ind);
-        F1{i}(j) = hill(l1{i}(j),v1{i}(j),a{i}(j),C);
+        F1{i}(j) = hill(l1{i}(j)/lopt1,v1{i}(j)/lopt1,a{i}(j),C);
         
         % work, area under curve w/ neg vs pos velocity
         % will need to specify which sections of muscle we are solving for
@@ -296,7 +298,7 @@ for i = 1:simiter
     end
     
     % Convert values to real units
-    l2{i} = l2{i}*lopt2; % converts length to mm
+%     l2{i} = l2{i}*lopt2; % converts length to mm
     F2{i} = F2{i}*Fmax; % converts force to N
     
     % Plot output
@@ -316,81 +318,75 @@ set(cbh,'YTick',linspace(0,1,simiter))
 set(cbh,'YTickLabel', num2str(stimPhase.'))
 
         
-%% Plot error
-
-figure(3)
-%***Looking at both forms of error for funzies
-subplot(2,1,1)
-hold on
-box on
-grid on
-subplot(2,1,2)
-hold on
-box on
-grid on
-
-for i = 1:simiter
-    %Instantaneous error
-    subplot(2,1,1)
-    plot(simt, err2{i},'color',col(i,:))
-    title('Instantaneous Error')
-    %Cumulative error
-    subplot(2,1,2)
-    plot(simt, cumsum(err2{i})/length(simt), 'color',col(i,:))
-    title('Cumulative Error')
-
-end
-%Create colorbars
-%Insant error subplot
-subplot(2,1,1)
-colormap(copper)
-cbh = colorbar;
-set(cbh,'YTick',linspace(0,1,simiter))
-set(cbh,'YTickLabel', num2str(stimPhase.'))
-%Cum. error subplot
-subplot(2,1,2)
-colormap(copper)
-cbh = colorbar;
-set(cbh,'YTick',linspace(0,1,simiter))
-set(cbh,'YTickLabel', num2str(stimPhase.'))
-
-
-%% Plot net work per cycle
-figure(4)
-hold on
-box on
-grid on
-
-scatter(stimPhase,[wrk{1:simiter}],'filled')
-xlim([0 1])
-xlabel('Stimulation Phase'), ylabel('Net Work')
+% %% Plot error
+% 
+% figure(3)
+% %***Looking at both forms of error for funzies
+% subplot(2,1,1)
+% hold on
+% box on
+% grid on
+% subplot(2,1,2)
+% hold on
+% box on
+% grid on
+% 
+% for i = 1:simiter
+%     %Instantaneous error
+%     subplot(2,1,1)
+%     plot(simt, err2{i},'color',col(i,:))
+%     title('Instantaneous Error')
+%     %Cumulative error
+%     subplot(2,1,2)
+%     plot(simt, cumsum(err2{i})/length(simt), 'color',col(i,:))
+%     title('Cumulative Error')
+% 
+% end
+% %Create colorbars
+% %Insant error subplot
+% subplot(2,1,1)
+% colormap(copper)
+% cbh = colorbar;
+% set(cbh,'YTick',linspace(0,1,simiter))
+% set(cbh,'YTickLabel', num2str(stimPhase.'))
+% %Cum. error subplot
+% subplot(2,1,2)
+% colormap(copper)
+% cbh = colorbar;
+% set(cbh,'YTick',linspace(0,1,simiter))
+% set(cbh,'YTickLabel', num2str(stimPhase.'))
+% 
+% 
+% %% Plot net work per cycle
+% figure(4)
+% hold on
+% box on
+% grid on
+% 
+% scatter(stimPhase,[wrk{1:simiter}],'filled')
+% xlim([0 1])
+% xlabel('Stimulation Phase'), ylabel('Net Work')
 
 
 %% Look at some stuff
 
 
 figure()
-subplot(2,1,1)
+subplot(3,1,1)
 hold on
-box on
-grid on
-subplot(2,1,2)
+subplot(3,1,2)
 hold on
-box on
-grid on
-
-% Plot tendon spring force and muscle force
+subplot(3,1,3)
+hold on
 for i = 1:simiter
+    subplot(3,1,1)
+    plot(l1{i}, F1{i}, 'color', col(i,:))
     
-    tendonF = k*(lt{i}-tslackl/lopt2).*heaviside(lt{i}-tslackl/lopt2);
-    subplot(2,1,1)
-    plot(simt, tendonF, 'color', col(i,:))
-    subplot(2,1,2)
-    plot(simt, F2{i}, 'color', col(i,:))
+    subplot(3,1,2)
+    plot(l2{i}, F2{i}, 'color', col(i,:))
+    
+    Ftendon = k*(lt{i}-tslackl).*heaviside(lt{i}-tslackl);
+    subplot(3,1,1)
+    plot(lt{i}, Ftendon, 'color', col(i,:))
 end
 
-subplot(2,1,1)
-ylabel('Tendon Force')
-subplot(2,1,2)
-ylabel('Muscle Force')
-xlabel('Time')

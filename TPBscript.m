@@ -267,8 +267,8 @@ for i = 1:simiter
             l2{i}(j) = l2{i}(j-1) + v2{i}(j-1)*h;
             l1{i}(j) = l1{i}(j-1) + v1{i}(j-1)*h;
             % Calculate angle1, angle2 and lt from muscle lengths
-            angle1{i}(j) = acos((L(j)^2 + l1{i}(j)^2 - (l2{i}(j)+lt{i}(j))^2)/(2.*(L(j)^2).*(l1{i}(j)^2)));
-            angle2{i}(j) = acos((L(j)^2 + (l2{i}(j)+lt{i}(j))^2 - l1{i}(j)^2)/(2.*(L(j)^2).*((l2{i}(j)+lt{i}(j))^2)));
+            angle1{i}(j) = acos( (L(j)^2 + l1{i}(j)^2 - (l2{i}(j)+lt{i}(j))^2)/(2*L(j)*l1{i}(j)) );
+            angle2{i}(j) = acos( (L(j)^2 + (l2{i}(j)+lt{i}(j))^2 - l1{i}(j)^2)/(2*L(j)*(l2{i}(j)+lt{i}(j))) );
             lt{i}(j) = (L(j) - l1{i}(j).*cos(angle1{i}(j)) - l2{i}(j).*cos(angle2{i}(j)))/cos(angle2{i}(j));
         end
         % Solve individual components of Hill model
@@ -383,13 +383,18 @@ subplot(3,1,3)
 hold on
 for i = 1:simiter
     subplot(3,1,1)
-    plot(l1{i}, F1{i}, 'color', col(i,:))
+%     plot(l1{i}, F1{i}, 'color', col(i,:))
+    plot(simt, F1{i}, 'color', col(i,:))
     
     subplot(3,1,2)
-    plot(l2{i}, F2{i}, 'color', col(i,:))
+%     plot(l2{i}, F2{i}, 'color', col(i,:))
+    plot(simt, F2{i}, 'color', col(i,:))
     
     Ftendon = k*(lt{i}-tslackl).*heaviside(lt{i}-tslackl);
     subplot(3,1,3)
-    plot(lt{i}, Ftendon, 'color', col(i,:))
+%     plot(lt{i}, Ftendon, 'color', col(i,:))
+    plot(simt, lt{i}, 'color', col(i,:))
+    
 end
+
 

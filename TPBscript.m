@@ -148,8 +148,9 @@ for i = 1:simiter
     u{i} = repmat(ucycle(1:lcycle),1,ncycles);
     u{i}(1:(startdur(i)-1)) = 0;
     % Solve for a
-    a{i} = activationODE2(u{i},d,gam1,gam2,1/h);
-    a{i} = (1-atol).*a{i}+atol;
+%     a{i} = activationODE2(u{i},d,gam1,gam2,1/h);
+%     a{i} = (1-atol).*a{i}+atol;
+    a{i} = atol*ones(size(u{i}));
 
     % Plot output
     plot(simt,a{i},'color',col(i,:))
@@ -180,6 +181,8 @@ atpb = activationODE2(utpb,d,gam1,gam2,1/h);
 Ftpb = Fmaxtpb*atpb;
 
 FtpbL = 2;
+
+
 
 Ftpb = zeros(size(Ftpb));
 
@@ -386,7 +389,7 @@ for i = 1:simiter
     plot(l2{i}, F2{i}, 'color', col(i,:))
     
     Ftendon = k*(lt{i}-tslackl).*heaviside(lt{i}-tslackl);
-    subplot(3,1,1)
+    subplot(3,1,3)
     plot(lt{i}, Ftendon, 'color', col(i,:))
 end
 

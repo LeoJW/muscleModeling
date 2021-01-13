@@ -168,7 +168,8 @@ FVactHinge = @(m,v) m(3)/m(1)*log(1+exp(m(1)*v-m(2))); % FV smooth ramp function
 
 %% TPB external force
 
-TPBArea = 0.0473/(0.000325*Lopt); % (mm^2) dry density in g/mm^3, mass in g 
+Lopttpb = mean([21.95,22.04,21.7]);
+TPBArea = 0.0473/(0.000325*Lopttpb); % (mm^2) dry density in g/mm^3, mass in g 
 Fmaxtpb = 300e3*1e-6*TPBArea;
 tpbonset = 0.5;
 tpbdur = 0.3;

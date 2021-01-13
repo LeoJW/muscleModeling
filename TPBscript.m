@@ -180,11 +180,7 @@ ucyctpb(starttpb:endtpb) = 1;
 utpb = repmat(ucyctpb,1,ncycles);
 atpb = activationODE2(utpb,d,gam1,gam2,1/h);
 Ftpb = Fmaxtpb*atpb;
-
 FtpbL = 2;
-
-
-
 Ftpb = zeros(size(Ftpb));
 
 
@@ -243,7 +239,7 @@ for i = 1:simiter
     %Set initial muscle and tendon length
     l10 = lopt1; % initial length of muscle section 1 at rest
     l20 = lopt2; % initial length of muscle section 2 at rest
-    lt0 = L(1) - lopt1 - lopt2; %units of m
+    lt0 = L(1) - lopt1 - lopt2; %units of mm
     % lt0 = tslackl/lopt2; %?? what is best way to define lt0?
     % Check that Fm and Ft balance here? Could define lt this way but then
     % total initial MTU length may not equal to L(1) -> maybe need to

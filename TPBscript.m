@@ -231,32 +231,42 @@ FVhinge = FVactHinge(m,vsweep);
 for i = 1:simiter
     
     % Initial Conditions
+    
+    %Find initial muscle length that is valid (assuming v0==0)
+    %Sweep thru range of x0 values
+    x0sweep = linspace(0,2,velBruteSize)*Lopt;
+    %Find the one where spring and muscle forces are balanced
+    x0test = k*(L(1)-x0sweep-tslackl).*heaviside(L(1)-x0sweep-tslackl) - ...
+        (((1-Ftol).*FLactFunc([b1,b2],x0sweep/Lopt)+Ftol).*a{i}(1) + FLpasFunc([p1,p2],x0sweep/Lopt));
+    [~,ind] = min(abs(x0test));
+    x0 = x0sweep(ind)/Lopt; % nondimensional to apply to lopt1 and lopt2
+    
+    
     %Velocity initial condition
     v20 = 0;
     v10 = 0;
     angle10 = 0;
     angle20 = 0;
     %Set initial muscle and tendon length
-    l10 = lopt1; % initial length of muscle section 1 at rest
-    l20 = lopt2; % initial length of muscle section 2 at rest
-    lt0 = L(1) - lopt1 - lopt2; %units of mm
-    % lt0 = tslackl/lopt2; %?? what is best way to define lt0?
-    % Check that Fm and Ft balance here? Could define lt this way but then
-    % total initial MTU length may not equal to L(1) -> maybe need to
-    % define L(1) differently?
+    l10 = lopt1*x0; % initial length of muscle section 1 at rest
+    l20 = lopt2*x0; % initial length of muscle section 2 at rest
+    lt0 = L(1) - l10 - l20; %units of mm
+    %Get intial force (same for all elements as initial angles are 0)
+    F0 = k*(L(1)-x0*Lopt-tslackl).*heaviside(L(1)-x0*Lopt-tslackl);
+    
     
     % Declare vectors for simulation run
-    l1{i} = [l10,zeros(1,length(simt)-1)]; % muscle length section 1
-    l2{i} = [l20,zeros(1,length(simt)-1)]; % muscle length section 2
-    lt{i} = [lt0,zeros(1,length(simt)-1)]; % tendon length
-    angle1{i} = [angle10,zeros(1,length(simt)-1)]; % angle 1
-    angle2{i} = [angle20,zeros(1,length(simt)-1)]; % angle 2
-    v1{i} = [v10,zeros(1,length(simt)-1)]; % velocity section 1
-    v2{i} = [v20,zeros(1,length(simt)-1)]; % velocity section 2
+    l1{i} = [l10, zeros(1,length(simt)-1)]; % muscle length section 1
+    l2{i} = [l20, zeros(1,length(simt)-1)]; % muscle length section 2
+    lt{i} = [lt0, zeros(1,length(simt)-1)]; % tendon length
+    angle1{i} = [angle10, zeros(1,length(simt)-1)]; % angle 1
+    angle2{i} = [angle20, zeros(1,length(simt)-1)]; % angle 2
+    v1{i} = [v10, zeros(1,length(simt)-1)]; % velocity section 1
+    v2{i} = [v20, zeros(1,length(simt)-1)]; % velocity section 2
+    F2{i} = [F0, zeros(1,length(simt)-1)]; % force muscle section 2
+    F1{i} = [F0, zeros(1,length(simt)-1)]; % force muscle section 1
     err2{i} = zeros(1,length(simt)); % error
     err1{i} = zeros(1,length(simt)); % error
-    F2{i} = zeros(1,length(simt)); % force muscle section 2
-    F1{i} = zeros(1,length(simt)); % force muscle section 1
     wrk{i} = zeros(1,length(simt));
     pwr{i} = zeros(1,length(simt));
     
@@ -269,7 +279,7 @@ for i = 1:simiter
             % Calculate angle1, angle2 and lt from muscle lengths
             angle1{i}(j) = acos( (L(j)^2 + l1{i}(j)^2 - (l2{i}(j)+lt{i}(j))^2)/(2*L(j)*l1{i}(j)) );
             angle2{i}(j) = acos( (L(j)^2 + (l2{i}(j)+lt{i}(j))^2 - l1{i}(j)^2)/(2*L(j)*(l2{i}(j)+lt{i}(j))) );
-            lt{i}(j) = (L(j) - l1{i}(j).*cos(angle1{i}(j)) - l2{i}(j).*cos(angle2{i}(j)))/cos(angle2{i}(j));
+            lt{i}(j) = (L(j) - l1{i}(j)*cos(angle1{i}(j)) - l2{i}(j)*cos(angle2{i}(j)))/cos(angle2{i}(j));
         end
         % Solve individual components of Hill model
         FLactVal2 = (1-Ftol).*FLactFunc([b1,b2],l2{i}(j)/lopt2) + Ftol;

@@ -245,6 +245,8 @@ for i = 1:simiter
     l20 = lopt2; % initial length of muscle section 2 at rest
     lt0 = L(1) - lopt1 - lopt2; %units of m
     % lt0 = tslackl/lopt2; %?? what is best way to define lt0?
+    % Check that Fm and Ft balance here? Could define lt this way but then
+    % it may not equal to L(1) -> maybe need to define L(1) differently
     
     % Declare vectors for simulation run
     l1{i} = [l10,zeros(1,length(simt)-1)]; % muscle length section 1

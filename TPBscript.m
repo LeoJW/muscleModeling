@@ -283,20 +283,29 @@ for i = 1:simiter
         % Find root of function where velocity is valid
         [errval,v2ind] = min(abs(eval));
         err2{i}(j) = eval(v2ind);
-        v2{i}(j) = vsweep(v2ind);
-        F2{i}(j) = hill(l2{i}(j-1)/lopt2,v2{i}(j)/lopt2,a{i}(j),C);
+        v2{i}(j) = vsweep(v2ind)*lopt2; %mm/s
+        F2{i}(j) = hill(l2{i}(j-1)/lopt2, v2{i}(j)/lopt2, a{i}(j), C);
+        
         %Solve for muscle section 1 v using Ftpb equation
-        evalagain = Ftpb(j) + F2{i}(j).*cos(angle2{i}(j-1)).*tan(angle1{i}(j-1)) - ...
-            (FLactVal1.*(FVactVal+FVhinge).*a{i}(j) + ...
-            FLpasFunc([p1,p2],l1{i}(j-1)/lopt1)).*cos(angle1{i}(j-1)).*tan(angle2{i}(j-1));
-%         evalagain = Ftpb(j) - (FLactVal1.*(FVactVal+FVhinge).*a{i}(j) + FLpasFunc([p1,p2],l1{i}(j-1)/lopt1)).*...
-%             (sin(angle1{i}(j-1)) - cos(angle1{i}(j-1))) - ...
-%             F2{i}(j)*(sin(angle2{i}(j-1)) - cos(angle2{i}(j-1)));
-        % Find root of function where velocity is valid
-        [errvalagain,v1ind] = min(abs(evalagain));
-        err1{i}(j) = evalagain(v1ind);
-        v1{i}(j) = vsweep(v1ind);
-        F1{i}(j) = hill(l1{i}(j-1)/lopt1,v1{i}(j)/lopt1,a{i}(j),C);
+        if Ftpb(j)==0
+            % Set v1 just from v2 when no Y forces
+            v1{i}(j) = v2{i}(j)*lopt1/lopt2; %mm/s
+            F1{i}(j) = hill(l1{i}(j-1)/lopt1,v1{i}(j)/lopt1,a{i}(j),C);
+        else
+            evalagain = Ftpb(j) + F2{i}(j).*cos(angle2{i}(j-1)).*tan(angle1{i}(j-1)) - ...
+                (FLactVal1.*(FVactVal+FVhinge).*a{i}(j) + ...
+                FLpasFunc([p1,p2],l1{i}(j-1)/lopt1)).*cos(angle1{i}(j-1)).*tan(angle2{i}(j-1));
+    %         evalagain = Ftpb(j) - (FLactVal1.*(FVactVal+FVhinge).*a{i}(j) + FLpasFunc([p1,p2],l1{i}(j-1)/lopt1)).*...
+    %             (sin(angle1{i}(j-1)) - cos(angle1{i}(j-1))) - ...
+    %             F2{i}(j)*(sin(angle2{i}(j-1)) - cos(angle2{i}(j-1)));
+            % Find root of function where velocity is valid
+            [errvalagain,v1ind] = min(abs(evalagain));
+            err1{i}(j) = evalagain(v1ind);
+            % Use root to find v1
+            v1{i}(j) = vsweep(v1ind)*lopt1;
+            % Use v1 to find F1
+            F1{i}(j) = hill(l1{i}(j-1)/lopt1,v1{i}(j)/lopt1,a{i}(j),C);
+        end
         
         % Find new l1, l2 from velocities
 %         if j~=1

@@ -99,13 +99,14 @@ EMRarc = manusr.*(phi*pi/180); % length of EMR arc section
 EMRmtuLengthRaw = EMRa+EMRb+EMRarc; % total EMR length (mm)
 
 % Apply Butterworth LPF, split and smooth cycles
-[EMRsmooth,EMRcycDur,w] = buttersplit(kineTime,EMRmtuLengthRaw,butterOrder,butterFreq);
+%[EMRsmooth,EMRcycDur,w] = buttersplit(kineTime,EMRmtuLengthRaw,butterOrder,butterFreq);
 %[processed EMR MTU length, cycle duration, cycle freq]
 
 
 %% Simulation constants setup
 
 %---Create simulation time vector
+w = 18; % cycle freq in Hz
 totaltime = ncycles/w; % time in s
 simt = 0:h:totaltime;
 modsimt = mod(length(simt),ncycles);
@@ -193,14 +194,20 @@ Ftpb = zeros(size(Ftpb));
 C = [b1,b2,p1,p2,c1,c2,cmax,vmax]; % hill
 
 %---MTU overall length/velocity parameters
-tcyc = linspace(0,1,lcycle);
-EMRmtuLength = EMRsmooth(tcyc); % from kinematics data
-EMRy = repmat(EMRmtuLength.',1,ncycles);
+% tcyc = linspace(0,1,lcycle);
+% EMRmtuLength = EMRsmooth(tcyc); % from kinematics data
+% EMRy = repmat(EMRmtuLength.',1,ncycles);
 
 % Convert length and velocity to dimensionless units and prep for sim
 % velocity to L/s or mm/s
-EMRmoreSmooth = fit(simt.',EMRy.','smoothingspline','SmoothingParam',0.9999999);
-L = EMRmoreSmooth(simt).'; %<- note: No ./ needed, just / is fine
+% EMRmoreSmooth = fit(simt.',EMRy.','smoothingspline','SmoothingParam',0.9999999);
+%L = EMRmoreSmooth(simt).'; %<- note: No ./ needed, just / is fine
+
+% what happens if using sin pattern instead
+w = 18; % cycle frequency in Hz
+wr = 2*pi*w; % convert to radians
+Lamplitude = 2.5;
+L = Lamplitude.*sin(wr.*simt) + 35; % MTU length in mm
 
 %---Split cycles
 cycNum = repelem(1:ncycles,lcycle);

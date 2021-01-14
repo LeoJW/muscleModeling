@@ -12,8 +12,9 @@ clear all; close all;
 %---Primary controls
 
 simiter = 2; % number of activation phases to compare
-h = 1e-5; % step size
+h = 0.5e-5; % step size
 stimPhase = linspace(0.1,1,simiter); % version of tstart that varies
+velBruteSize = 1e5; % number of points to evaluate for root finding
 
 %---Secondary controls
 
@@ -31,7 +32,8 @@ p2 = 1; % FLpas
 p = [p1,p2];
 
 cmax = 1.8; % asymptote as v approaches -inf
-vmax = 5; % maximum velocity in Lopt/s, want to convert to mm/s
+% vmax = 5; % maximum velocity in Lopt/s
+vmax = 5*4; % maximum velocity in Lopt/s
 
 c1 = 0.29; % from Biewener et al. (2014)
 c2 = 1; % overall curvature of FV
@@ -67,6 +69,7 @@ k = kActual*(1/Fmax); % dimensionless (1/Fmax)
 
 Ftol = 0.1; % tolerance for F to avoid singularities
 atol = 0.01; % tolerance for a to avoid singularities
+precision = 10; %significant digits to round to for floating-point errors
 % see FVactHinge below - added FV func to avoid singularities
 
 
@@ -110,7 +113,6 @@ if modsimt>0
     simt = 0:h:totaltime+h*(ncycles-modsimt);
 end
 niter = length(simt); % number of iterations in loop
-velBruteSize = niter; % number of points to solve for v
 lcycle = round(niter/ncycles); % cycle length in 1/1e4 s
 startdur = ceil(stimPhase*lcycle); % start of activation in cycle
 enddur = ceil(startdur + duration*lcycle); % duration of cycle activated in 1/1e4 s
@@ -179,8 +181,9 @@ ucyctpb = zeros(1,lcycle);
 ucyctpb(starttpb:endtpb) = 1;
 utpb = repmat(ucyctpb,1,ncycles);
 atpb = activationODE2(utpb,d,gam1,gam2,1/h);
-Ftpb = Fmaxtpb*atpb;
-FtpbL = 2;
+Ftpb = Fmaxtpb*atpb/Fmax;
+
+
 Ftpb = zeros(size(Ftpb));
 
 
@@ -290,7 +293,7 @@ for i = 1:simiter
         if Ftpb(j)==0
             % Set v1 just from v2 when no Y forces
             v1{i}(j) = v2{i}(j)*lopt1/lopt2; %mm/s
-            F1{i}(j) = hill(l1{i}(j-1)/lopt1,v1{i}(j)/lopt1,a{i}(j),C);
+            F1{i}(j) = hill(l1{i}(j-1)/lopt1, v1{i}(j)/lopt1, a{i}(j), C);
         else
             evalagain = Ftpb(j) + F2{i}(j).*cos(angle2{i}(j-1)).*tan(angle1{i}(j-1)) - ...
                 (FLactVal1.*(FVactVal+FVhinge).*a{i}(j) + ...
@@ -313,8 +316,8 @@ for i = 1:simiter
         l1{i}(j) = l1{i}(j-1) + v1{i}(j)*h;
         % Calculate angle1, angle2 and lt from muscle lengths
         lt{i}(j) = (L(j) - l1{i}(j)*cos(angle1{i}(j-1)) - l2{i}(j)*cos(angle2{i}(j-1)))/cos(angle2{i}(j-1));
-        angle1{i}(j) = acos( (L(j)^2 + l1{i}(j)^2 - (l2{i}(j)+lt{i}(j))^2)/(2*L(j)*l1{i}(j)) );
-        angle2{i}(j) = acos( (L(j)^2 + (l2{i}(j)+lt{i}(j))^2 - l1{i}(j)^2)/(2*L(j)*(l2{i}(j)+lt{i}(j))) );
+        angle1{i}(j) = acos( round((L(j)^2 + l1{i}(j)^2 - (l2{i}(j)+lt{i}(j))^2)/(2*L(j)*l1{i}(j)), precision) );
+        angle2{i}(j) = acos( round((L(j)^2 + (l2{i}(j)+lt{i}(j))^2 - l1{i}(j)^2)/(2*L(j)*(l2{i}(j)+lt{i}(j))), precision) );
 %         end
         
         % work, area under curve w/ neg vs pos velocity
@@ -418,7 +421,7 @@ for i = 1:simiter
     Ftendon = k*(lt{i}-tslackl).*heaviside(lt{i}-tslackl);
     subplot(3,1,3)
 %     plot(lt{i}, Ftendon, 'color', col(i,:))
-    plot(simt, lt{i}, 'color', col(i,:))
+    plot(simt, Ftendon, 'color', col(i,:))
     
 end
 
@@ -427,5 +430,5 @@ figure()
 hold on
 box on
 
-plot(simt, v1{1})
-plot(simt, v2{1})
+plot(simt, v1{1}/lopt1)
+plot(simt, v2{1}/lopt2)

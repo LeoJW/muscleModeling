@@ -411,19 +411,23 @@ subplot(3,1,3)
 hold on
 for i = 1:simiter
     subplot(3,1,1)
-%     plot(l1{i}, F1{i}, 'color', col(i,:))
     plot(simt, F1{i}, 'color', col(i,:))
     
     subplot(3,1,2)
-%     plot(l2{i}, F2{i}, 'color', col(i,:))
     plot(simt, F2{i}, 'color', col(i,:))
     
     Ftendon = k*(lt{i}-tslackl).*heaviside(lt{i}-tslackl);
     subplot(3,1,3)
-%     plot(lt{i}, Ftendon, 'color', col(i,:))
     plot(simt, Ftendon, 'color', col(i,:))
     
 end
+subplot(3,1,1)
+ylabel('F_1')
+subplot(3,1,2)
+ylabel('F_2')
+subplot(3,1,3)
+ylabel('F_{tendon}')
+xlabel('Time (s)')
 
 % Plot velocities
 figure()
@@ -432,3 +436,5 @@ box on
 
 plot(simt, v1{1}/lopt1)
 plot(simt, v2{1}/lopt2)
+xlabel('Time (s)')
+ylabel('Velocity (Lopt/s)')

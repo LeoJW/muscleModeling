@@ -150,9 +150,9 @@ for i = 1:simiter
     u{i} = repmat(ucycle(1:lcycle),1,ncycles);
     u{i}(1:(startdur(i)-1)) = 0;
     % Solve for a
-%     a{i} = activationODE2(u{i},d,gam1,gam2,1/h);
-%     a{i} = (1-atol).*a{i}+atol;
-    a{i} = atol*ones(size(u{i}));
+    a{i} = activationODE2(u{i},d,gam1,gam2,1/h);
+    a{i} = (1-atol).*a{i}+atol;
+%     a{i} = atol*ones(size(u{i}));
 
     % Plot output
     plot(simt,a{i},'color',col(i,:))
@@ -232,7 +232,7 @@ FVactVal = FV4param(fvc,vsweep);
 FVhinge = FVactHinge(m,vsweep);
 
 %---Loop through different stimulation phases
-for i = 1:simiter
+parfor i = 1:simiter
     
     % Initial Conditions
     
@@ -332,13 +332,15 @@ for i = 1:simiter
 %     l2{i} = l2{i}*lopt2; % converts length to mm
     F2{i} = F2{i}*Fmax; % converts force to N
     
+end
+
+
+% Loop again to plot
+for i = 1:simiter
     % Plot output
     plot(l2{i}(cycNum>(ncycles-1)),F2{i}(cycNum>(ncycles-1)),'color',col(i,:))
     %plot(simt,F{i},'color',col(i,:))
-    drawnow
-    
 end
-
 %---Aesthetics
 xlabel('EMR muscle length (mm)')
 ylabel('Force (N)')

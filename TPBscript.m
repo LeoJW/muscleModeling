@@ -68,7 +68,7 @@ k = kActual*(1/Fmax); % dimensionless (1/Fmax)
 %---Singularity adjustments
 
 Ftol = 0.1; % tolerance for F to avoid singularities
-atol = 0.05; % tolerance for a to avoid singularities
+atol = 0.08; % tolerance for a to avoid singularities
 precision = 10; %significant digits to round to for floating-point errors
 % see FVactHinge below - added FV func to avoid singularities
 

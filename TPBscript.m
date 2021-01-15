@@ -11,8 +11,8 @@ clear all; close all;
 
 %---Primary controls
 
-simiter = 2; % number of activation phases to compare
-h = 0.5e-5; % step size
+simiter = 5; % number of activation phases to compare
+h = 1e-5; % step size
 stimPhase = linspace(0.1,1,simiter); % version of tstart that varies
 velBruteSize = 1e5; % number of points to evaluate for root finding
 
@@ -68,7 +68,7 @@ k = kActual*(1/Fmax); % dimensionless (1/Fmax)
 %---Singularity adjustments
 
 Ftol = 0.1; % tolerance for F to avoid singularities
-atol = 0.01; % tolerance for a to avoid singularities
+atol = 0.05; % tolerance for a to avoid singularities
 precision = 10; %significant digits to round to for floating-point errors
 % see FVactHinge below - added FV func to avoid singularities
 
@@ -184,7 +184,6 @@ utpb = repmat(ucyctpb,1,ncycles);
 atpb = activationODE2(utpb,d,gam1,gam2,1/h);
 Ftpb = Fmaxtpb*atpb/Fmax;
 
-
 Ftpb = zeros(size(Ftpb));
 
 
@@ -239,6 +238,7 @@ FVactVal = FV4param(fvc,vsweep);
 FVhinge = FVactHinge(m,vsweep);
 
 %---Loop through different stimulation phases
+tic
 parfor i = 1:simiter
     
     % Initial Conditions
@@ -305,9 +305,6 @@ parfor i = 1:simiter
             evalagain = Ftpb(j) + F2{i}(j).*cos(angle2{i}(j-1)).*tan(angle1{i}(j-1)) - ...
                 (FLactVal1.*(FVactVal+FVhinge).*a{i}(j) + ...
                 FLpasFunc([p1,p2],l1{i}(j-1)/lopt1)).*cos(angle1{i}(j-1)).*tan(angle2{i}(j-1));
-    %         evalagain = Ftpb(j) - (FLactVal1.*(FVactVal+FVhinge).*a{i}(j) + FLpasFunc([p1,p2],l1{i}(j-1)/lopt1)).*...
-    %             (sin(angle1{i}(j-1)) - cos(angle1{i}(j-1))) - ...
-    %             F2{i}(j)*(sin(angle2{i}(j-1)) - cos(angle2{i}(j-1)));
             % Find root of function where velocity is valid
             [errvalagain,v1ind] = min(abs(evalagain));
             err1{i}(j) = evalagain(v1ind);
@@ -340,7 +337,7 @@ parfor i = 1:simiter
     F2{i} = F2{i}*Fmax; % converts force to N
     
 end
-
+toc
 
 % Loop again to plot
 for i = 1:simiter

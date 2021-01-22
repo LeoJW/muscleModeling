@@ -184,7 +184,7 @@ utpb = repmat(ucyctpb,1,ncycles);
 atpb = activationODE2(utpb,d,gam1,gam2,1/h);
 Ftpb = Fmaxtpb*atpb/Fmax;
 
-Ftpb = zeros(size(Ftpb));
+%Ftpb = zeros(size(Ftpb));
 
 
 %% Run Simulation
@@ -239,7 +239,7 @@ FVhinge = FVactHinge(m,vsweep);
 
 %---Loop through different stimulation phases
 tic
-parfor i = 1:simiter
+for i = 1:simiter
     
     % Initial Conditions
     
@@ -335,6 +335,7 @@ parfor i = 1:simiter
     % Convert values to real units
 %     l2{i} = l2{i}*lopt2; % converts length to mm
     F2{i} = F2{i}*Fmax; % converts force to N
+    F1{i} = F1{i}*Fmax;
     
 end
 toc
@@ -422,7 +423,7 @@ for i = 1:simiter
     subplot(3,1,2)
     plot(simt, F2{i}, 'color', col(i,:))
     
-    Ftendon = k*(lt{i}-tslackl).*heaviside(lt{i}-tslackl);
+    Ftendon = Fmax*k*(lt{i}-tslackl).*heaviside(lt{i}-tslackl);
     subplot(3,1,3)
     plot(simt, Ftendon, 'color', col(i,:))
     

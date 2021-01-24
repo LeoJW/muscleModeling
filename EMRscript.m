@@ -163,23 +163,6 @@ FLpasFunc = @(p,x) heaviside(x-p(2)).*p(1).*(x-p(2)).^2; % FL passive component
 FVactHinge = @(m,v) m(3)/m(1)*log(1+exp(m(1)*v-m(2))); % FV smooth ramp function
 
 
-%% TPB external force
-
-TPBArea = 0.0473/(0.000325*Lopt); % (mm^2) dry density in g/mm^3, mass in g
-Fmaxtpb = 300e3*1e-6*TPBArea;
-tpbonset = 0.5;
-tpbdur = 0.3;
-starttpb = ceil(tpbonset*lcycle); % start of activation in cycle
-endtpb = ceil(startdur + tpbdur*lcycle); % duration of cycle activated in 1/1e4 s
-ucyctpb = zeros(1,lcycle);
-ucyctpb(starttpb:endtpb) = 1;
-utpb = repmat(ucyctpb,1,ncycles);
-atpb = activationODE2(utpb,d,gam1,gam2,1/h);
-Ftpb = Fmaxtpb*atpb;
-
-FtpbL = 2;
-
-
 %% Run Simulation
 
 %---Vector input for Hill constants

@@ -184,7 +184,7 @@ utpb = repmat(ucyctpb,1,ncycles);
 atpb = activationODE2(utpb,d,gam1,gam2,1/h);
 Ftpb = Fmaxtpb*atpb/Fmax;
 
-%Ftpb = zeros(size(Ftpb));
+Ftpb = zeros(size(Ftpb));
 
 
 %% Run Simulation
@@ -205,7 +205,7 @@ C = [b1,b2,p1,p2,c1,c2,cmax,vmax]; % hill
 % what happens if using sin pattern instead
 w = 18; % cycle frequency in Hz
 wr = 2*pi*w; % convert to radians
-Lamplitude = 2.5;
+Lamplitude = 2;
 L = Lamplitude.*sin(wr.*simt) + 35; % MTU length in mm
 
 %---Split cycles
@@ -320,8 +320,8 @@ for i = 1:simiter
         l1{i}(j) = l1{i}(j-1) + v1{i}(j)*h;
         % Calculate angle1, angle2 and lt from muscle lengths
         lt{i}(j) = (L(j) - l1{i}(j)*cos(angle1{i}(j-1)) - l2{i}(j)*cos(angle2{i}(j-1)))/cos(angle2{i}(j-1));
-        angle1{i}(j) = acos( round((L(j)^2 + l1{i}(j)^2 - (l2{i}(j)+lt{i}(j))^2)/(2*(L(j)^2)*(l1{i}(j)^2)), precision) );
-        angle2{i}(j) = acos( round((L(j)^2 + (l2{i}(j)+lt{i}(j))^2 - l1{i}(j)^2)/(2*(L(j)^2)*((l2{i}(j)+lt{i}(j))^2)), precision) );
+        angle1{i}(j) = acos( round((L(j)^2 + l1{i}(j)^2 - (l2{i}(j)+lt{i}(j))^2)/(2*L(j)*l1{i}(j)), precision) );
+        angle2{i}(j) = acos( round((L(j)^2 + (l2{i}(j)+lt{i}(j))^2 - l1{i}(j)^2)/(2*L(j)*(l2{i}(j)+lt{i}(j))), precision) );
 %         end
         
         % work, area under curve w/ neg vs pos velocity

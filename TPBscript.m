@@ -184,7 +184,7 @@ utpb = repmat(ucyctpb,1,ncycles);
 atpb = activationODE2(utpb,d,gam1,gam2,1/h);
 Ftpb = Fmaxtpb*atpb/Fmax;
 
-Ftpb = zeros(size(Ftpb));
+%Ftpb = zeros(size(Ftpb));
 
 
 %% Run Simulation
@@ -302,7 +302,7 @@ for i = 1:simiter
             v1{i}(j) = v2{i}(j)*lopt1/lopt2; %mm/s
             F1{i}(j) = hill(l1{i}(j-1)/lopt1, v1{i}(j)/lopt1, a{i}(j), C);
         else
-            evalagain = Ftpb(j) + F2{i}(j).*cos(angle2{i}(j-1)).*tan(angle1{i}(j-1)) - ...
+            evalagain = Ftpb(j) - F2{i}(j).*cos(angle2{i}(j-1)).*tan(angle1{i}(j-1)) - ...
                 (FLactVal1.*(FVactVal+FVhinge).*a{i}(j) + ...
                 FLpasFunc([p1,p2],l1{i}(j-1)/lopt1)).*cos(angle1{i}(j-1)).*tan(angle2{i}(j-1));
             % Find root of function where velocity is valid

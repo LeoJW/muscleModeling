@@ -333,7 +333,7 @@ grid on
 % Plot tendon spring force and muscle force
 for i = 1:simiter
     
-    tendonF = k*(l-x{i}/Lopt-tslackl/Lopt).*heaviside(l-x{i}/Lopt-tslackl/Lopt);
+    tendonF = Fmax*k*(l-x{i}/Lopt-tslackl/Lopt).*heaviside(l-x{i}/Lopt-tslackl/Lopt);
     subplot(2,1,1)
     plot(simt, tendonF, 'color', col(i,:))
     subplot(2,1,2)

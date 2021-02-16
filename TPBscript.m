@@ -315,7 +315,6 @@ parfor i = 1:simiter
         end
         
         % Find new l1, l2 from velocities
-%         if j~=1
         l2{i}(j) = l2{i}(j-1) + v2{i}(j)*h;
         l1{i}(j) = l1{i}(j-1) + v1{i}(j)*h;
         % Calculate angle1, angle2 and lt from muscle lengths
@@ -323,6 +322,8 @@ parfor i = 1:simiter
         angle1{i}(j) = acos( round(((l2{i}(j)+lt{i}(j))^2 - L(j)^2 - l1{i}(j)^2)/(-2*L(j)*l1{i}(j)), precision) );
         angle2{i}(j) = acos( round((l1{i}(j)^2 - L(j)^2 - (l2{i}(j)+lt{i}(j))^2)/(-2*L(j)*(l2{i}(j)+lt{i}(j))), precision) );
 %         end
+        angle1{i}(j) = acos( round((L(j)^2 + l1{i}(j)^2 - (l2{i}(j)+lt{i}(j))^2)/(2*L(j)*l1{i}(j)), precision) );
+        angle2{i}(j) = acos( round((L(j)^2 + (l2{i}(j)+lt{i}(j))^2 - l1{i}(j)^2)/(2*L(j)*(l2{i}(j)+lt{i}(j))), precision) );
         
         % work, area under curve w/ neg vs pos velocity
         % will need to specify which sections of muscle we are solving for
@@ -445,3 +446,17 @@ plot(simt, v1{1}/lopt1)
 plot(simt, v2{1}/lopt2)
 xlabel('Time (s)')
 ylabel('Velocity (Lopt/s)')
+
+
+% Plot angles
+figure()
+subplot(2,1,1)
+hold on
+subplot(2,1,2)
+hold on
+for i = 1:simiter
+    subplot(2,1,1)
+    plot(simt, angle1{i})
+    subplot(2,1,2)
+    plot(simt, angle2{i})
+end

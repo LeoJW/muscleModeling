@@ -239,7 +239,7 @@ FVhinge = FVactHinge(m,vsweep);
 
 %---Loop through different stimulation phases
 tic
-for i = 1:simiter
+parfor i = 1:simiter
     
     % Initial Conditions
     
@@ -320,8 +320,8 @@ for i = 1:simiter
         l1{i}(j) = l1{i}(j-1) + v1{i}(j)*h;
         % Calculate angle1, angle2 and lt from muscle lengths
         lt{i}(j) = (L(j) - l1{i}(j)*cos(angle1{i}(j-1)) - l2{i}(j)*cos(angle2{i}(j-1)))/cos(angle2{i}(j-1));
-        angle1{i}(j) = acos( round((L(j)^2 + l1{i}(j)^2 - (l2{i}(j)+lt{i}(j))^2)/(2*L(j)*l1{i}(j)), precision) );
-        angle2{i}(j) = acos( round((L(j)^2 + (l2{i}(j)+lt{i}(j))^2 - l1{i}(j)^2)/(2*L(j)*(l2{i}(j)+lt{i}(j))), precision) );
+        angle1{i}(j) = acos( round(((l2{i}(j)+lt{i}(j))^2 - L(j)^2 - l1{i}(j)^2)/(-2*L(j)*l1{i}(j)), precision) );
+        angle2{i}(j) = acos( round((l1{i}(j)^2 - L(j)^2 - (l2{i}(j)+lt{i}(j))^2)/(-2*L(j)*(l2{i}(j)+lt{i}(j))), precision) );
 %         end
         
         % work, area under curve w/ neg vs pos velocity

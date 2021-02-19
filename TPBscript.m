@@ -63,7 +63,7 @@ tendonE = 1000e6; % tendon elastic modulus (Pa, N/m^2), anywhere from 660-1200e6
 tslackl = mean([13.62,14.17,14.11]); % from EUST dissection on Fran's spreadsheet
 tendonArea = 0.36; %(mm^2), guess based on Fran's spreadsheet
 kActual = tendonE*1e-6*tendonArea/tslackl; % N/mm^2
-k = kActual*(1/Fmax); % dimensionless (1/Fmax)
+k = kActual*(1/Fmax); % (1/mm)
 
 %---Singularity adjustments
 
@@ -207,6 +207,7 @@ w = 18; % cycle frequency in Hz
 wr = 2*pi*w; % convert to radians
 Lamplitude = 2;
 L = Lamplitude.*sin(wr.*simt) + 35; % MTU length in mm
+Ldot = Lamplitude*wr.*sin(wr.*simt); % MTU velocity in mm/s
 
 %---Split cycles
 cycNum = repelem(1:ncycles,lcycle);
@@ -249,7 +250,7 @@ parfor i = 1:simiter
     %Find the one where spring and muscle forces are balanced
     x0test = k*(L(1)-x0sweep-tslackl).*heaviside(L(1)-x0sweep-tslackl) - ...
         (((1-Ftol).*FLactFunc([b1,b2],x0sweep/Lopt)+Ftol).*a{i}(1) + FLpasFunc([p1,p2],x0sweep/Lopt));
-    [~,ind] = min(abs(x0test));
+    [~,ind] = min(abs(x0test)); % here k is in 1/mm so everything becomes normalized
     x0 = x0sweep(ind)/Lopt; % nondimensional to apply to lopt1 and lopt2
     
     
@@ -259,17 +260,17 @@ parfor i = 1:simiter
     angle10 = 0;
     angle20 = 0;
     %Set initial muscle and tendon length
-    l10 = lopt1*x0; % initial length of muscle section 1 at rest
-    l20 = lopt2*x0; % initial length of muscle section 2 at rest
-    lt0 = L(1) - l10 - l20; %units of mm
+    l10 = lopt1*x0; % initial length of muscle section 1 at rest, mm
+    l20 = lopt2*x0; % initial length of muscle section 2 at rest, mm
+    lt0 = L(1) - l10 - l20; % initial tendon length, mm
     %Get intial force (same for all elements as initial angles are 0)
-    F0 = k*(L(1)-x0*Lopt-tslackl).*heaviside(L(1)-x0*Lopt-tslackl);
+    F0 = k*(L(1)-x0*Lopt-tslackl).*heaviside(L(1)-x0*Lopt-tslackl); % dimensionless, F/Fmax
     
     
     % Declare vectors for simulation run
-    l1{i} = [l10, zeros(1,length(simt)-1)]; % muscle length section 1
-    l2{i} = [l20, zeros(1,length(simt)-1)]; % muscle length section 2
-    lt{i} = [lt0, zeros(1,length(simt)-1)]; % tendon length
+    l1{i} = [l10, zeros(1,length(simt)-1)]; % muscle length section 1, mm
+    l2{i} = [l20, zeros(1,length(simt)-1)]; % muscle length section 2, mm
+    lt{i} = [lt0, zeros(1,length(simt)-1)]; % tendon length, mm
     angle1{i} = [angle10, zeros(1,length(simt)-1)]; % angle 1
     angle2{i} = [angle20, zeros(1,length(simt)-1)]; % angle 2
     v1{i} = [v10, zeros(1,length(simt)-1)]; % velocity section 1
@@ -289,54 +290,52 @@ parfor i = 1:simiter
         FLactVal1 = (1-Ftol).*FLactFunc([b1,b2],l1{i}(j-1)/lopt1) + Ftol;
         % Use l2(j) to solve for muscle section 2 v
         eval = k*(lt{i}(j-1)-tslackl).*heaviside(lt{i}(j-1)-tslackl) - ...
-            (FLactVal2.*(FVactVal+FVhinge).*a{i}(j) + FLpasFunc([p1,p2],l2{i}(j-1)/lopt2));
+            (FLactVal2.*(FVactVal+FVhinge).*a{i}(j) + FLpasFunc([p1,p2],l2{i}(j-1)/lopt2)); % normalized, F/Fmax
         % Find root of function where velocity is valid
         [errval,v2ind] = min(abs(eval));
         err2{i}(j) = eval(v2ind);
         v2{i}(j) = vsweep(v2ind)*lopt2; %mm/s
-        F2{i}(j) = hill(l2{i}(j-1)/lopt2, v2{i}(j)/lopt2, a{i}(j), C);
+        F2{i}(j) = hill(l2{i}(j-1)/lopt2, v2{i}(j)/lopt2, a{i}(j), C); %F/Fmax
         
         %Solve for muscle section 1 v using Ftpb equation
         if Ftpb(j)==0
             % Set v1 just from v2 when no Y forces
             v1{i}(j) = v2{i}(j)*lopt1/lopt2; %mm/s
-            F1{i}(j) = hill(l1{i}(j-1)/lopt1, v1{i}(j)/lopt1, a{i}(j), C);
+            F1{i}(j) = hill(l1{i}(j-1)/lopt1, v1{i}(j)/lopt1, a{i}(j), C); % F/Fmax
         else
             evalagain = Ftpb(j) - F2{i}(j).*cos(angle2{i}(j-1)).*tan(angle1{i}(j-1)) - ...
                 (FLactVal1.*(FVactVal+FVhinge).*a{i}(j) + ...
-                FLpasFunc([p1,p2],l1{i}(j-1)/lopt1)).*cos(angle1{i}(j-1)).*tan(angle2{i}(j-1));
+                FLpasFunc([p1,p2],l1{i}(j-1)/lopt1)).*cos(angle1{i}(j-1)).*tan(angle2{i}(j-1)); % F/Fmax
             % Find root of function where velocity is valid
             [errvalagain,v1ind] = min(abs(evalagain));
             err1{i}(j) = evalagain(v1ind);
             % Use root to find v1
-            v1{i}(j) = vsweep(v1ind)*lopt1;
+            v1{i}(j) = vsweep(v1ind)*lopt1; % mm/s
             % Use v1 to find F1
-            F1{i}(j) = hill(l1{i}(j-1)/lopt1,v1{i}(j)/lopt1,a{i}(j),C);
+            F1{i}(j) = hill(l1{i}(j-1)/lopt1,v1{i}(j)/lopt1,a{i}(j),C); % F/Fmax
         end
         
         % Find new l1, l2 from velocities
-        l2{i}(j) = l2{i}(j-1) + v2{i}(j)*h;
-        l1{i}(j) = l1{i}(j-1) + v1{i}(j)*h;
-        % Calculate angle1, angle2 and lt from muscle lengths
-        lt{i}(j) = (L(j) - l1{i}(j)*cos(angle1{i}(j-1)) - l2{i}(j)*cos(angle2{i}(j-1)))/cos(angle2{i}(j-1));
+        l2{i}(j) = l2{i}(j-1) + v2{i}(j)*h; % mm
+        l1{i}(j) = l1{i}(j-1) + v1{i}(j)*h; % mm
+        % Calculate lt and ltdot from l1, l2, v1, v2
+        lt{i}(j) = (L(j) - l1{i}(j)*cos(angle1{i}(j-1)) - l2{i}(j)*cos(angle2{i}(j-1)))/cos(angle2{i}(j-1)); % mm
+        ltdot{i}(j) = (Ldot(j) - v1{i}(j)*cos(angle1{i}(j-1)) - v2{i}(j)*cos(angle2{i}(j-1)))/cos(angle2{i}(j-1)); % mm/s
+        % Calculate angle1, angle2 and their velocities
         angle1{i}(j) = acos( round(((l2{i}(j)+lt{i}(j))^2 - L(j)^2 - l1{i}(j)^2)/(-2*L(j)*l1{i}(j)), precision) );
         angle2{i}(j) = acos( round((l1{i}(j)^2 - L(j)^2 - (l2{i}(j)+lt{i}(j))^2)/(-2*L(j)*(l2{i}(j)+lt{i}(j))), precision) );
-%         end
-        angle1{i}(j) = acos( round((L(j)^2 + l1{i}(j)^2 - (l2{i}(j)+lt{i}(j))^2)/(2*L(j)*l1{i}(j)), precision) );
-        angle2{i}(j) = acos( round((L(j)^2 + (l2{i}(j)+lt{i}(j))^2 - l1{i}(j)^2)/(2*L(j)*(l2{i}(j)+lt{i}(j))), precision) );
-        
+        %angle1v
+
         % work, area under curve w/ neg vs pos velocity
         % will need to specify which sections of muscle we are solving for
-        wrk{i} = -trapz(l2{i}(cycNum>(ncycles-1)),F2{i}(cycNum>(ncycles-1)));
+        wrk{i} = -trapz(l2{i}(cycNum>(ncycles-1)),F2{i}(cycNum>(ncycles-1))); % should these be calculated 
         % instantaneous power
         pwr{i}(j) = F2{i}(j).*v2{i}(j);
-        
     end
-    
+
     % Convert values to real units
-%     l2{i} = l2{i}*lopt2; % converts length to mm
     F2{i} = F2{i}*Fmax; % converts force to N
-    F1{i} = F1{i}*Fmax;
+    F1{i} = F1{i}*Fmax; % converts force to N
     
 end
 toc

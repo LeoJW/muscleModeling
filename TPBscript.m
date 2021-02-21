@@ -229,7 +229,10 @@ l2 = cell(1,simiter);
 l1 = cell(1,simiter);
 angle2 = cell(1,simiter);
 angle1 = cell(1,simiter);
+angle1v = cell(1,simiter);
+angle2v = cell(1,simiter);
 lt = cell(1,simiter);
+ltdot = cell(1,simiter);
 % vsweep = linspace(-4*vmax,4*vmax,velBruteSize);
 vsweep = linspace(-vmax,vmax,velBruteSize);
 wrk = cell(1,simiter);
@@ -257,6 +260,10 @@ parfor i = 1:simiter
     %Velocity initial condition
     v20 = 0;
     v10 = 0;
+    ltdot0 = 0;
+    angle1v0 = 0;
+    angle2v0 = 0;
+    %Angle initial conditions
     angle10 = 0;
     angle20 = 0;
     %Set initial muscle and tendon length
@@ -275,6 +282,9 @@ parfor i = 1:simiter
     angle2{i} = [angle20, zeros(1,length(simt)-1)]; % angle 2
     v1{i} = [v10, zeros(1,length(simt)-1)]; % velocity section 1
     v2{i} = [v20, zeros(1,length(simt)-1)]; % velocity section 2
+    ltdot{i} = [ltdot0, zeros(1,length(simt)-1)]; % velocity of tendon
+    angle1v{i} = [angle1v0, zeros(1,length(simt)-1)]; % velocity angle 1
+    angle2v{i} = [angle2v0, zeros(1,length(simt)-1)]; % velocity angle 1
     F2{i} = [F0, zeros(1,length(simt)-1)]; % force muscle section 2
     F1{i} = [F0, zeros(1,length(simt)-1)]; % force muscle section 1
     err2{i} = zeros(1,length(simt)); % error
@@ -319,15 +329,12 @@ parfor i = 1:simiter
         l2{i}(j) = l2{i}(j-1) + v2{i}(j)*h; % mm
         l1{i}(j) = l1{i}(j-1) + v1{i}(j)*h; % mm
         % Calculate lt and ltdot from l1, l2, v1, v2
-        % lt{i}(j) = (L(j) - l1{i}(j)*cos(angle1{i}(j-1)) - l2{i}(j)*cos(angle2{i}(j-1)))/cos(angle2{i}(j-1)); % mm
+        %lt{i}(j) = (L(j) - l1{i}(j)*cos(angle1{i}(j-1)) - l2{i}(j)*cos(angle2{i}(j-1)))/cos(angle2{i}(j-1)); % mm
         ltdot{i}(j) = (Ldot(j) - v1{i}(j)*cos(angle1{i}(j-1)) - v2{i}(j)*cos(angle2{i}(j-1)))/cos(angle2{i}(j-1)); % mm/s
         lt{i}(j) = lt{i}(j-1) + ltdot{i}(j)*h;
         % Calculate angle1, angle2 and their velocities
         %angle1{i}(j) = acos( round(((l2{i}(j)+lt{i}(j))^2 + L(j)^2 - l1{i}(j)^2)/(2*L(j)*l1{i}(j)), precision) );
         %angle2{i}(j) = acos( round((l1{i}(j)^2 + L(j)^2 - (l2{i}(j)+lt{i}(j))^2)/(2*L(j)*(l2{i}(j)+lt{i}(j))), precision) );
-        %(wrong) angle1v{i}(j) = -(( (1/L(j)) - (( (l2{i}(j)+lt{i}(j))^2 + L(j)^2 - l1{i}(j)^2 )/(2*L(j)*(l2{i}(j)+lt{i}(j))^2) ))/ ...
-            %(sqrt(1 - ( (((l2{i}(j)+lt{i}(j))^2 + L(j)^2 - l1{i}(j)^2)^2)/(4*L(j)^2*(l2{i}(j)+lt{i}(j))^2) ) )));
-        %(wrong) angle2v{i}(j) = (l2{i}(j)+lt{i}(j))/(L(j)*l1{i}(j)*sqrt(1 - ((-(l2{i}(j)+lt{i}(j))^2 + L(j)^2 +l1{i}(j)^2)^2)/(4*L(j)^2*l1{i}(j)^2)));
         
         angle1v{i}(j) = -( ...
             ( ((2*(l2{i}(j)+lt{i}(j))*(v2{i}(j) + ltdot{i}(j)) + 2*L(j)*Ldot(j) - 2*l1{i}(j)*v1{i}(j)))/(2*L(j)*(l2{i}(j)+lt{i}(j))) ...
@@ -340,7 +347,8 @@ parfor i = 1:simiter
             ((-2*(l2{i}(j)+lt{i}(j))*(v2{i}(j)+ltdot{i}(j)) + 2*L(j)*Ldot(j) + 2*l1{i}(j)*v1{i}(j)) / (2*L(j)*l1{i}(j)) ...
             - ( (Ldot(j)*(-(l2{i}(j)+lt{i}(j))^2 + L(j)^2 + l1{i}(j)^2))/(2*L(j)^2*l1{i}(j)) ) ...
             - ( (v1{i}(j)*(-(l2{i}(j)+lt{i}(j))^2 + L(j)^2 + l1{i}(j)^2))/(2*L(j)*l1{i}(j)^2) )) / ...
-            (sqrt(1 - (( -(l2{i}(j)+lt{i}(j))^2 + L(j)^2 + l1{i}(j)^2 )^2 / (4*L(j)^2*l1{i}(j)^2) ))) );
+            (sqrt(1 - (( -(l2{i}(j)+lt{i}(j))^2 + L(j)^2 + l1{i}(j)^2 )^2 / (4*L(j)^2*l1{i}(j)^2) ))) ...
+            );
 
         angle1{i}(j) = angle1{i}(j-1) + angle1v{i}(j)*h;
         angle2{i}(j) = angle2{i}(j-1) + angle2v{i}(j)*h;

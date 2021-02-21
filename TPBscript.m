@@ -325,17 +325,20 @@ parfor i = 1:simiter
         % Calculate angle1, angle2 and their velocities
         %angle1{i}(j) = acos( round(((l2{i}(j)+lt{i}(j))^2 + L(j)^2 - l1{i}(j)^2)/(2*L(j)*l1{i}(j)), precision) );
         %angle2{i}(j) = acos( round((l1{i}(j)^2 + L(j)^2 - (l2{i}(j)+lt{i}(j))^2)/(2*L(j)*(l2{i}(j)+lt{i}(j))), precision) );
-        %angle1v{i}(j) = -(( (1/L(j)) - (( (l2{i}(j)+lt{i}(j))^2 + L(j)^2 - l1{i}(j)^2 )/(2*L(j)*(l2{i}(j)+lt{i}(j))^2) ))/ ...
-            (sqrt(1 - ( (((l2{i}(j)+lt{i}(j))^2 + L(j)^2 - l1{i}(j)^2)^2)/(4*L(j)^2*(l2{i}(j)+lt{i}(j))^2) ) )));
-        %angle2v{i}(j) = (l2{i}(j)+lt{i}(j))/(L(j)*l1{i}(j)*sqrt(1 - ((-(l2{i}(j)+lt{i}(j))^2 + L(j)^2 +l1{i}(j)^2)^2)/(4*L(j)^2*l1{i}(j)^2)));
-        angle1{i}(j) = angle1{i}(j-1) + angle1v{i}(j)*h;
-        angle2{i}(j) = angle2{i}(j-1) + angle2v{i}(j)*h;
+        %(wrong) angle1v{i}(j) = -(( (1/L(j)) - (( (l2{i}(j)+lt{i}(j))^2 + L(j)^2 - l1{i}(j)^2 )/(2*L(j)*(l2{i}(j)+lt{i}(j))^2) ))/ ...
+            %(sqrt(1 - ( (((l2{i}(j)+lt{i}(j))^2 + L(j)^2 - l1{i}(j)^2)^2)/(4*L(j)^2*(l2{i}(j)+lt{i}(j))^2) ) )));
+        %(wrong) angle2v{i}(j) = (l2{i}(j)+lt{i}(j))/(L(j)*l1{i}(j)*sqrt(1 - ((-(l2{i}(j)+lt{i}(j))^2 + L(j)^2 +l1{i}(j)^2)^2)/(4*L(j)^2*l1{i}(j)^2)));
         
         angle1v{i}(j) = -(( ((2*(l2{i}(j)+lt{i}(j))*(v2{i}(j) + ltdot{i}(j)) + 2*L(j)*Ldot(j) - 2*l1{i}(j)*v1{i}(j)))/(2*L(j)*(l2{i}(j)+lt{i}(j))) ...
             - ((v2{i}(j) + ltdot{i}(j))*( (l2{i}(j)+lt{i}(j))^2 + L(j)^2 - l1{i}(j)^2 ))/(2*L(j)*(l2{i}(j)+lt{i}(j))^2) ...
             - (Ldot(j)*((l2{i}(j)+lt{i}(j))^2 + L(j)^2 - l1{i}(j)^2))/(2*L(j)^2*(l2{i}(j)+lt{i}(j))) ) / ...
             (sqrt(1 - ( ((l2{i}(j)+lt{i}(j))^2 + L(j)^2 -l1{i}(j)^2)^2/(4*L(j)^2*(l2{i}(j)+lt{i}(j))^2) )) ));
+        
+        angle2v{i}(j) = ;
 
+        angle1{i}(j) = angle1{i}(j-1) + angle1v{i}(j)*h;
+        angle2{i}(j) = angle2{i}(j-1) + angle2v{i}(j)*h;
+        
         % work, area under curve w/ neg vs pos velocity
         % will need to specify which sections of muscle we are solving for
         wrk{i} = -trapz(l2{i}(cycNum>(ncycles-1)),F2{i}(cycNum>(ncycles-1))); % should these be calculated 

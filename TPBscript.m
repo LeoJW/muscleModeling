@@ -11,8 +11,8 @@ clear all; close all;
 
 %---Primary controls
 
-simiter = 5; % number of activation phases to compare
-h = 1e-5; % step size
+simiter = 2; % number of activation phases to compare
+h = 0.5e-5; % step size
 stimPhase = linspace(0.1,1,simiter); % version of tstart that varies
 velBruteSize = 1e5; % number of points to evaluate for root finding
 
@@ -153,7 +153,6 @@ for i = 1:simiter
     % Solve for a
     a{i} = activationODE2(u{i},d,gam1,gam2,1/h);
     a{i} = (1-atol).*a{i}+atol;
-%     a{i} = atol*ones(size(u{i}));
 
     % Plot output
     plot(simt,a{i},'color',col(i,:))
@@ -294,47 +293,55 @@ parfor i = 1:simiter
     
     % Loop through each time point
     for j = 2:length(simt)
+        
+        % Define state variables at time step (j) from previous derivatives (j-1)
+        % angle1, angle2
+        angle1{i}(j) = angle1{i}(j-1) + angle1v{i}(j-1)*h;
+        angle2{i}(j) = angle2{i}(j-1) + angle2v{i}(j-1)*h;
+        % l1, l2 
+        l2{i}(j) = l2{i}(j-1) + v2{i}(j-1)*h; % mm
+        l1{i}(j) = l1{i}(j-1) + v1{i}(j-1)*h; % mm
+        % lt
+        lt{i}(j) = lt{i}(j-1) + ltdot{i}(j-1)*h;
+        
+        
+        % Now use current values to define derivatives at t=j
+        
 
         % Solve individual components of Hill model
-        FLactVal2 = (1-Ftol).*FLactFunc([b1,b2],l2{i}(j-1)/lopt2) + Ftol;
-        FLactVal1 = (1-Ftol).*FLactFunc([b1,b2],l1{i}(j-1)/lopt1) + Ftol;
+        FLactVal2 = (1-Ftol).*FLactFunc([b1,b2],l2{i}(j)/lopt2) + Ftol;
+        FLactVal1 = (1-Ftol).*FLactFunc([b1,b2],l1{i}(j)/lopt1) + Ftol;
         % Use l2(j) to solve for muscle section 2 v
-        eval = k*(lt{i}(j-1)-tslackl).*heaviside(lt{i}(j-1)-tslackl) - ...
-            (FLactVal2.*(FVactVal+FVhinge).*a{i}(j) + FLpasFunc([p1,p2],l2{i}(j-1)/lopt2)); % normalized, F/Fmax
+        eval = k*(lt{i}(j)-tslackl).*heaviside(lt{i}(j)-tslackl) - ...
+            (FLactVal2.*(FVactVal+FVhinge).*a{i}(j) + FLpasFunc([p1,p2],l2{i}(j)/lopt2)); % normalized, F/Fmax
         % Find root of function where velocity is valid
         [errval,v2ind] = min(abs(eval));
         err2{i}(j) = eval(v2ind);
         v2{i}(j) = vsweep(v2ind)*lopt2; %mm/s
-        F2{i}(j) = hill(l2{i}(j-1)/lopt2, v2{i}(j)/lopt2, a{i}(j), C); %F/Fmax
+        F2{i}(j) = hill(l2{i}(j)/lopt2, v2{i}(j)/lopt2, a{i}(j), C); %F/Fmax
         
         %Solve for muscle section 1 v using Ftpb equation
-        if Ftpb(j)==0
+        if Ftpb(j) < 0.01
             % Set v1 just from v2 when no Y forces
             v1{i}(j) = v2{i}(j)*lopt1/lopt2; %mm/s
-            F1{i}(j) = hill(l1{i}(j-1)/lopt1, v1{i}(j)/lopt1, a{i}(j), C); % F/Fmax
+            F1{i}(j) = hill(l1{i}(j)/lopt1, v1{i}(j)/lopt1, a{i}(j), C); % F/Fmax
         else
-            evalagain = Ftpb(j) - F2{i}(j).*cos(angle2{i}(j-1)).*tan(angle1{i}(j-1)) - ...
+            evalagain = Ftpb(j) - F2{i}(j).*cos(angle2{i}(j)).*tan(angle1{i}(j)) - ...
                 (FLactVal1.*(FVactVal+FVhinge).*a{i}(j) + ...
-                FLpasFunc([p1,p2],l1{i}(j-1)/lopt1)).*cos(angle1{i}(j-1)).*tan(angle2{i}(j-1)); % F/Fmax
+                FLpasFunc([p1,p2],l1{i}(j)/lopt1)).*cos(angle1{i}(j)).*tan(angle2{i}(j)); % F/Fmax
             % Find root of function where velocity is valid
             [errvalagain,v1ind] = min(abs(evalagain));
             err1{i}(j) = evalagain(v1ind);
             % Use root to find v1
             v1{i}(j) = vsweep(v1ind)*lopt1; % mm/s
             % Use v1 to find F1
-            F1{i}(j) = hill(l1{i}(j-1)/lopt1,v1{i}(j)/lopt1,a{i}(j),C); % F/Fmax
+            F1{i}(j) = hill(l1{i}(j)/lopt1, v1{i}(j)/lopt1, a{i}(j), C); % F/Fmax
         end
         
-        % Find new l1, l2 from velocities
-        l2{i}(j) = l2{i}(j-1) + v2{i}(j)*h; % mm
-        l1{i}(j) = l1{i}(j-1) + v1{i}(j)*h; % mm
+        
         % Calculate lt and ltdot from l1, l2, v1, v2
-        %lt{i}(j) = (L(j) - l1{i}(j)*cos(angle1{i}(j-1)) - l2{i}(j)*cos(angle2{i}(j-1)))/cos(angle2{i}(j-1)); % mm
-        ltdot{i}(j) = (Ldot(j) - v1{i}(j)*cos(angle1{i}(j-1)) - v2{i}(j)*cos(angle2{i}(j-1)))/cos(angle2{i}(j-1)); % mm/s
-        lt{i}(j) = lt{i}(j-1) + ltdot{i}(j)*h;
-        % Calculate angle1, angle2 and their velocities
-        %angle1{i}(j) = acos( round(((l2{i}(j)+lt{i}(j))^2 + L(j)^2 - l1{i}(j)^2)/(2*L(j)*l1{i}(j)), precision) );
-        %angle2{i}(j) = acos( round((l1{i}(j)^2 + L(j)^2 - (l2{i}(j)+lt{i}(j))^2)/(2*L(j)*(l2{i}(j)+lt{i}(j))), precision) );
+        ltdot{i}(j) = (Ldot(j) - v1{i}(j)*cos(angle1{i}(j)) - v2{i}(j)*cos(angle2{i}(j)))/cos(angle2{i}(j)); % mm/s
+        
         
         angle1v{i}(j) = -( ...
             ( ((2*(l2{i}(j)+lt{i}(j))*(v2{i}(j) + ltdot{i}(j)) + 2*L(j)*Ldot(j) - 2*l1{i}(j)*v1{i}(j)))/(2*L(j)*(l2{i}(j)+lt{i}(j))) ...
@@ -349,17 +356,20 @@ parfor i = 1:simiter
             - ( (v1{i}(j)*(-(l2{i}(j)+lt{i}(j))^2 + L(j)^2 + l1{i}(j)^2))/(2*L(j)*l1{i}(j)^2) )) / ...
             (sqrt(1 - (( -(l2{i}(j)+lt{i}(j))^2 + L(j)^2 + l1{i}(j)^2 )^2 / (4*L(j)^2*l1{i}(j)^2) ))) ...
             );
-
-        angle1{i}(j) = angle1{i}(j-1) + angle1v{i}(j)*h;
-        angle2{i}(j) = angle2{i}(j-1) + angle2v{i}(j)*h;
         
-        % work, area under curve w/ neg vs pos velocity
-        % will need to specify which sections of muscle we are solving for
-        wrk{i} = -trapz(l2{i}(cycNum>(ncycles-1)),F2{i}(cycNum>(ncycles-1))); % should these be calculated 
-        % instantaneous power
+        if Ftpb(j) < 0.01
+            angle1v{i}(j) = 0;
+            angle2v{i}(j) = 0;
+        end
+        
+        % Calculate instantaneous power
         pwr{i}(j) = F2{i}(j).*v2{i}(j);
     end
 
+    % work, area under curve w/ neg vs pos velocity
+    % will need to specify which sections of muscle we are solving for
+    wrk{i} = -trapz(l2{i}(cycNum>(ncycles-1)),F2{i}(cycNum>(ncycles-1))); % should these be calculated 
+    
     % Convert values to real units
     F2{i} = F2{i}*Fmax; % converts force to N
     F1{i} = F1{i}*Fmax; % converts force to N
@@ -468,8 +478,8 @@ figure()
 hold on
 box on
 
-plot(simt, v1{1}/lopt1)
-plot(simt, v2{1}/lopt2)
+plot(simt, v1{1}/lopt1, 'r')
+plot(simt, v2{1}/lopt2, 'b')
 xlabel('Time (s)')
 ylabel('Velocity (Lopt/s)')
 
@@ -482,7 +492,8 @@ subplot(2,1,2)
 hold on
 for i = 1:simiter
     subplot(2,1,1)
-    plot(simt, angle1{i})
+    plot(simt, angle1{i}, '.-')
     subplot(2,1,2)
-    plot(simt, angle2{i})
+    plot(simt, angle2{i}, '.-')
 end
+ylabel('angle')

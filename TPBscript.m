@@ -59,7 +59,7 @@ EMRArea = 0.0544/(0.000325*Lopt); % (mm^2) dry density in g/mm^3, mass in g
 Fmax = 300e3*1e-6*EMRArea; % max force in N (convert from 300kPa to N/mm^2, multiply by EMR area)
 vmaxActual = 5*Lopt; % mm/s
 
-tendonE = 1000e6; % tendon elastic modulus (Pa, N/m^2), anywhere from 660-1200e6
+tendonE = 1e9; % tendon elastic modulus (Pa, N/m^2), anywhere from 60.66-1.2e9
 tslackl = mean([13.62,14.17,14.11]); % from EUST dissection on Fran's spreadsheet
 tendonArea = 0.36; %(mm^2), guess based on Fran's spreadsheet
 kActual = tendonE*1e-6*tendonArea/tslackl; % N/mm^2
@@ -183,7 +183,7 @@ utpb = repmat(ucyctpb,1,ncycles);
 atpb = activationODE2(utpb,d,gam1,gam2,1/h);
 Ftpb = Fmaxtpb*atpb/Fmax;
 
-%Ftpb = zeros(size(Ftpb));
+Ftpb = zeros(size(Ftpb));
 
 
 %% Run Simulation

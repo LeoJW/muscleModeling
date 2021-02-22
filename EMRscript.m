@@ -50,7 +50,7 @@ gam2 = -0.982; % activation constant
 %--Conversion constants
 
 %Lopt = 12.167; % from Bird17, WO, Morpho.xlsx
-Lopt = 15;
+Lopt = 18; %from EUST 1, TPB-EMR-dissections.xlsx
 EMRArea = 0.0544/(0.000325*Lopt); % (mm^2) dry density in g/mm^3, mass in g
 Fmax = 300e3*1e-6*EMRArea; % max force in N (convert from 300kPa to N/mm^2, multiply by EMR area)
 vmaxActual = 5*Lopt; % mm/s
@@ -176,7 +176,16 @@ EMRy = repmat(EMRmtuLength.',1,ncycles);
 % Convert length and velocity to dimensionless units and prep for sim
 % velocity to L/s or mm/s
 EMRmoreSmooth = fit(simt.',EMRy.','smoothingspline','SmoothingParam',0.9999999);
-l = EMRmoreSmooth(simt).'./Lopt;
+%l = EMRmoreSmooth(simt).'./Lopt; % dimensionless
+
+% Alternative MTU length (sine function, use if comparing across species
+% for consistency
+% w = 18; cycle frequency in Hz
+wr = 2*pi*w; % convert to radians
+lamplitude = 1.2;
+mtuRL = 32; % mtu resting length
+l = (lamplitude.*sin(wr.*simt) + mtuRL)/Lopt; % MTU length in Lopt/s
+%ldot = Lamplitude*wr.*sin(wr.*simt); % MTU velocity
 
 %---Split cycles
 cycNum = repelem(1:ncycles,lcycle);
@@ -200,7 +209,7 @@ FVactVal = FV4param(fvc,vsweep);
 FVhinge = FVactHinge(m,vsweep);
 
 %---Loop through different stimulation phases
-for i = 1:simiter
+parfor i = 1:simiter
     
     % Initial Conditions
     %Velocity initial condition
@@ -212,7 +221,7 @@ for i = 1:simiter
     x0test = k*(l(1)-x0sweep-tslackl/Lopt).*heaviside(l(1)-x0sweep-tslackl/Lopt) - ...
         (((1-Ftol).*FLactFunc([b1,b2],x0sweep)+Ftol).*a{i}(1) + FLpasFunc([p1,p2],x0sweep));
     [~,ind] = min(abs(x0test));
-    x0 = x0sweep(ind);
+    x0 = x0sweep(ind); % dimensionless, L/Lopt
     
     % Declare vectors for simulation run
     x{i} = [x0,zeros(1,length(simt)-1)]; % muscle length initial condition
@@ -239,8 +248,6 @@ for i = 1:simiter
         v{i}(j) = vsweep(vind);
         F{i}(j) = hill(x{i}(j),v{i}(j),a{i}(j),C);
         
-        % work, area under curve w/ neg vs pos velocity
-        wrk{i} = -trapz(x{i}(cycNum>(ncycles-1)),F{i}(cycNum>(ncycles-1)));
         % instantaneous power
         pwr{i}(j) = F{i}(j).*v{i}(j);
         
@@ -249,6 +256,9 @@ for i = 1:simiter
     % Convert values to real units
     x{i} = x{i}*Lopt; % converts length to mm
     F{i} = F{i}*Fmax; % converts force to N
+    
+    % work, area under curve w/ neg vs pos velocity
+    wrk{i} = -trapz(x{i}(cycNum>(ncycles-1)),F{i}(cycNum>(ncycles-1))); % units?
     
     % Plot output
     plot(x{i}(cycNum>(ncycles-1)),F{i}(cycNum>(ncycles-1)),'color',col(i,:))

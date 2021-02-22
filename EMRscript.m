@@ -50,12 +50,14 @@ gam2 = -0.982; % activation constant
 %--Conversion constants
 
 %Lopt = 12.167; % from Bird17, WO, Morpho.xlsx
-Lopt = 18; %from EUST 1, TPB-EMR-dissections.xlsx
+mRL = 18; %from EUST 1, TPB-EMR-dissections.xlsx, muscle resting length, mm
+mtuRL = 32; % mtu resting length, mm
+Lopt = mRL + 1; % mm
 EMRArea = 0.0544/(0.000325*Lopt); % (mm^2) dry density in g/mm^3, mass in g
 Fmax = 300e3*1e-6*EMRArea; % max force in N (convert from 300kPa to N/mm^2, multiply by EMR area)
 vmaxActual = 5*Lopt; % mm/s
 
-tendonE = 1000e6; % tendon elastic modulus (Pa, N/m^2), anywhere from 660-1200e6
+tendonE = 1e9; % tendon elastic modulus (Pa, N/m^2), anywhere from 0.66-1.2e9
 tslackl = mean([13.62,14.17,14.11]); % from EUST dissection on Fran's spreadsheet
 tendonArea = 0.36; %(mm^2), guess based on Fran's spreadsheet
 kActual = tendonE*1e-6*tendonArea/tslackl; % N/mm^2
@@ -64,7 +66,7 @@ k = kActual*(Lopt/Fmax); % dimensionless
 %---Singularity adjustments
 
 Ftol = 0.1; % tolerance for F to avoid singularities
-atol = 0.01; % tolerance for a to avoid singularities
+atol = 0.08; % tolerance for a to avoid singularities
 % see FVactHinge below - added FV func to avoid singularities
 
 
@@ -183,7 +185,6 @@ EMRmoreSmooth = fit(simt.',EMRy.','smoothingspline','SmoothingParam',0.9999999);
 % w = 18; cycle frequency in Hz
 wr = 2*pi*w; % convert to radians
 lamplitude = 1.2;
-mtuRL = 32; % mtu resting length
 l = (lamplitude.*sin(wr.*simt) + mtuRL)/Lopt; % MTU length in Lopt/s
 %ldot = Lamplitude*wr.*sin(wr.*simt); % MTU velocity
 
@@ -258,7 +259,7 @@ parfor i = 1:simiter
     F{i} = F{i}*Fmax; % converts force to N
     
     % work, area under curve w/ neg vs pos velocity
-    wrk{i} = -trapz(x{i}(cycNum>(ncycles-1)),F{i}(cycNum>(ncycles-1))); % units?
+    wrk{i} = -trapz(x{i}(cycNum>(ncycles-1)),F{i}(cycNum>(ncycles-1))); % units of N*mm, or mJ
     
     % Plot output
     plot(x{i}(cycNum>(ncycles-1)),F{i}(cycNum>(ncycles-1)),'color',col(i,:))

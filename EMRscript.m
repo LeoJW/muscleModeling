@@ -187,7 +187,7 @@ wr = 2*pi*w; % convert to radians
 lamplitude = 1.2;
 % l = (lamplitude.*sin(wr.*simt) + mtuRL)/Lopt; % MTU length in Lopt/s
 % l = l - 0.5;
-l = repmat(mtuRL, length(simt), 1);
+l = repmat(mtuRL/Lopt, length(simt), 1);
 %ldot = Lamplitude*wr.*sin(wr.*simt); % MTU velocity
 
 %---Split cycles

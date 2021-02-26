@@ -57,7 +57,7 @@ EMRArea = 0.0544/(0.000325*Lopt); % (mm^2) dry density in g/mm^3, mass in g
 Fmax = 300e3*1e-6*EMRArea; % max force in N (convert from 300kPa to N/mm^2, multiply by EMR area)
 vmaxActual = 5*Lopt; % mm/s
 
-tendonE = 1e9; % tendon elastic modulus (Pa, N/m^2), anywhere from 0.66-1.2e9
+tendonE = 0.66e9; % tendon elastic modulus (Pa, N/m^2), anywhere from 0.66-1.2e9
 tslackl = mean([13.62,14.17,14.11]); % from EUST dissection on Fran's spreadsheet
 tendonArea = 0.36; %(mm^2), guess based on Fran's spreadsheet
 kActual = tendonE*1e-6*tendonArea/tslackl; % N/mm^2
@@ -185,7 +185,9 @@ EMRmoreSmooth = fit(simt.',EMRy.','smoothingspline','SmoothingParam',0.9999999);
 % w = 18; cycle frequency in Hz
 wr = 2*pi*w; % convert to radians
 lamplitude = 1.2;
-l = (lamplitude.*sin(wr.*simt) + mtuRL)/Lopt; % MTU length in Lopt/s
+% l = (lamplitude.*sin(wr.*simt) + mtuRL)/Lopt; % MTU length in Lopt/s
+% l = l - 0.5;
+l = repmat(mtuRL, length(simt), 1);
 %ldot = Lamplitude*wr.*sin(wr.*simt); % MTU velocity
 
 %---Split cycles

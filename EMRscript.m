@@ -31,7 +31,7 @@ p2 = 1; % FLpas
 p = [p1,p2];
 
 cmax = 1.8; % asymptote as v approaches -inf
-vmax = 5; % maximum velocity in Lopt/s, want to convert to mm/s
+vmax = 2; % maximum velocity in Lopt/s, want to convert to mm/s
 
 c1 = 0.29; % from Biewener et al. (2014)
 c2 = 1; % overall curvature of FV

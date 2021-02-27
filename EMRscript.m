@@ -60,7 +60,7 @@ vmaxActual = 5*Lopt; % mm/s
 tendonE = 0.66e9; % tendon elastic modulus (Pa, N/m^2), anywhere from 0.66-1.2e9
 tslackl = mean([13.62,14.17,14.11]); % from EUST dissection on Fran's spreadsheet
 tendonArea = 0.36; %(mm^2), guess based on Fran's spreadsheet
-kActual = tendonE*1e-6*tendonArea/tslackl; % N/mm^2
+kActual = tendonE*1e-6*tendonArea/tslackl; % N/mm
 k = kActual*(Lopt/Fmax); % dimensionless
 
 %---Singularity adjustments

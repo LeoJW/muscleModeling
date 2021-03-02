@@ -31,7 +31,7 @@ p2 = 1; % FLpas
 p = [p1,p2];
 
 cmax = 1.8; % asymptote as v approaches -inf
-vmax = 2; % maximum velocity in Lopt/s, want to convert to mm/s
+vmax = 8; % maximum velocity in Lopt/s, want to convert to mm/s
 
 c1 = 0.29; % from Biewener et al. (2014)
 c2 = 1; % overall curvature of FV
@@ -185,9 +185,9 @@ EMRmoreSmooth = fit(simt.',EMRy.','smoothingspline','SmoothingParam',0.9999999);
 % w = 18; cycle frequency in Hz
 wr = 2*pi*w; % convert to radians
 lamplitude = 1.2;
-% l = (lamplitude.*sin(wr.*simt) + mtuRL)/Lopt; % MTU length in Lopt/s
+l = (lamplitude.*sin(wr.*simt) + mtuRL)/Lopt; % MTU length in Lopt/s
 % l = l - 0.5;
-l = repmat(mtuRL/Lopt, length(simt), 1);
+%l = repmat(mtuRL/Lopt, length(simt), 1);
 %ldot = Lamplitude*wr.*sin(wr.*simt); % MTU velocity
 
 %---Split cycles

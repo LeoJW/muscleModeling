@@ -12,14 +12,15 @@ clear all; close all;
 %---Primary controls
 
 simiter = 5; % number of activation phases to compare
-h = 1e-5; % step size
+h = 1e-6; % step size
+velBruteSize = 1e4; % number of points to solve for v
 stimPhase = linspace(0.1,1,simiter); % version of tstart that varies
 
 %---Secondary controls
 
 ncycles = 6; % number of cycles
 tstart = 0.1;% point in cycle where activation begins (scaled 0 to 1)
-duration = 0.4; % duration of cycle that is activated (scaled 0 to 1)
+duration = 0.3; % duration of cycle that is activated (scaled 0 to 1)
 
 %---Hill constants
 
@@ -31,7 +32,7 @@ p2 = 1; % FLpas
 p = [p1,p2];
 
 cmax = 1.8; % asymptote as v approaches -inf
-vmax = 8; % maximum velocity in Lopt/s, want to convert to mm/s
+vmax = 10; % maximum velocity in Lopt/s
 
 c1 = 0.29; % from Biewener et al. (2014)
 c2 = 1; % overall curvature of FV
@@ -41,11 +42,9 @@ m1 = 20; % scaling factor
 m2 = 6; % horizontal translation
 m3 = 0.01; % slope
 m = [m1,m2,m3]; % FV curve, smooth ramp portion
-
 delay = 50; % activation delay, in ms -> rescaled in a
 gam1 = -0.982; % activation constant
 gam2 = -0.982; % activation constant
-% 0.993
 
 %--Conversion constants
 
@@ -61,6 +60,7 @@ tendonE = 0.66e9; % tendon elastic modulus (Pa, N/m^2), anywhere from 0.66-1.2e9
 tslackl = mean([13.62,14.17,14.11]); % from EUST dissection on Fran's spreadsheet
 tendonArea = 0.36; %(mm^2), guess based on Fran's spreadsheet
 kActual = tendonE*1e-6*tendonArea/tslackl; % N/mm
+kActual = 1.6;
 k = kActual*(Lopt/Fmax); % dimensionless
 
 %---Singularity adjustments
@@ -110,7 +110,6 @@ if modsimt>0
     simt = 0:h:totaltime+h*(ncycles-modsimt);
 end
 niter = length(simt); % number of iterations in loop
-velBruteSize = niter; % number of points to solve for v
 lcycle = round(niter/ncycles); % cycle length in 1/1e4 s
 startdur = ceil(stimPhase*lcycle); % start of activation in cycle
 enddur = ceil(startdur + duration*lcycle); % duration of cycle activated in 1/1e4 s
@@ -177,40 +176,32 @@ EMRy = repmat(EMRmtuLength.',1,ncycles);
 
 % Convert length and velocity to dimensionless units and prep for sim
 % velocity to L/s or mm/s
-EMRmoreSmooth = fit(simt.',EMRy.','smoothingspline','SmoothingParam',0.9999999);
+% EMRmoreSmooth = fit(simt.',EMRy.','smoothingspline','SmoothingParam',0.9999999);
 %l = EMRmoreSmooth(simt).'./Lopt; % dimensionless
 
 % Alternative MTU length (sine function, use if comparing across species
 % for consistency
-% w = 18; cycle frequency in Hz
 wr = 2*pi*w; % convert to radians
 lamplitude = 1.2;
 l = (lamplitude.*sin(wr.*simt) + mtuRL)/Lopt; % MTU length in Lopt/s
-% l = l - 0.5;
-%l = repmat(mtuRL/Lopt, length(simt), 1);
-%ldot = Lamplitude*wr.*sin(wr.*simt); % MTU velocity
+
 
 %---Split cycles
 cycNum = repelem(1:ncycles,lcycle);
-
-% Prep figure for loop
-figure(2)
-hold on
-box on
-grid on
 
 % Prepare variables for loop
 err = cell(1,simiter);
 F = cell(1,simiter);
 v = cell(1,simiter);
 x = cell(1,simiter);
-vsweep = linspace(-4*vmax,4*vmax,velBruteSize);
+vsweep = linspace(-vmax,vmax,velBruteSize);
 wrk = cell(1,simiter);
 pwr = cell(1,simiter);
 % Calculate FV function at all velocities
-FVactVal = FV4param(fvc,vsweep);
-FVhinge = FVactHinge(m,vsweep);
+FVactVal = FV4param(fvc,vsweep) + FVactHinge(m,vsweep);
 
+
+tic
 %---Loop through different stimulation phases
 parfor i = 1:simiter
     
@@ -235,21 +226,23 @@ parfor i = 1:simiter
     pwr{i} = zeros(1,length(simt));
     
     % Loop through each time point
-    for j = 1:length(simt)
+    for j = 2:length(simt)
         % Find new x from previous v
-        if j~=1
-            x{i}(j) = x{i}(j-1) + v{i}(j-1)*h;
-        end
+        x{i}(j) = x{i}(j-1) + v{i}(j-1)*h;
+        
         % Solve individual components of Hill model
         FLactVal = (1-Ftol).*FLactFunc([b1,b2],x{i}(j)) + Ftol;
         % Use x(j) to solve for muscle v
         eval = k*(l(j)-x{i}(j)-tslackl/Lopt).*heaviside(l(j)-x{i}(j)-tslackl/Lopt) - ...
-            (FLactVal.*(FVactVal+FVhinge).*a{i}(j) + FLpasFunc([p1,p2],x{i}(j)));
+            (FLactVal.*FVactVal.*a{i}(j) + FLpasFunc([p1,p2],x{i}(j)));
         % Find root of function where velocity is valid
         [errval,vind] = min(abs(eval));
         err{i}(j) = eval(vind);
         v{i}(j) = vsweep(vind);
-        F{i}(j) = hill(x{i}(j),v{i}(j),a{i}(j),C);
+        F{i}(j) = hill(x{i}(j), v{i}(j), a{i}(j), C);
+        
+        % Re-find x from currently calculated v (backwards euler)
+        x{i}(j) = x{i}(j-1) + h*v{i}(j);
         
         % instantaneous power
         pwr{i}(j) = F{i}(j).*v{i}(j);
@@ -261,13 +254,21 @@ parfor i = 1:simiter
     F{i} = F{i}*Fmax; % converts force to N
     
     % work, area under curve w/ neg vs pos velocity
-    wrk{i} = -trapz(x{i}(cycNum>(ncycles-1)),F{i}(cycNum>(ncycles-1))); % units of N*mm, or mJ
+    wrk{i} = -trapz(x{i}(cycNum>(ncycles-1)), F{i}(cycNum>(ncycles-1))); % units of N*mm, or mJ
     
-    % Plot output
-    plot(x{i}(cycNum>(ncycles-1)),F{i}(cycNum>(ncycles-1)),'color',col(i,:))
+end
+
+toc
+
+% Plot output
+figure(2)
+hold on
+box on
+grid on
+for i = 1:simiter
+    plot(x{i}(cycNum>(ncycles-1)), F{i}(cycNum>(ncycles-1)),'color',col(i,:))
     %plot(simt,F{i},'color',col(i,:))
     drawnow
-    
 end
 
 %---Aesthetics
@@ -300,7 +301,7 @@ for i = 1:simiter
     title('Instantaneous Error')
     %Cumulative error
     subplot(2,1,2)
-    plot(simt, cumsum(err{i})/length(simt), 'color',col(i,:))
+    plot(simt, cumsum(abs(err{i}))/length(simt), 'color',col(i,:))
     title('Cumulative Error')
 
 end
@@ -358,3 +359,38 @@ ylabel('Tendon Force')
 subplot(2,1,2)
 ylabel('Muscle Force')
 xlabel('Time')
+
+
+
+figure()
+hold on
+for i = 1:simiter
+    plot(simt, v{i}, 'color', col(i,:))
+end
+ylabel('Velocity')
+xlabel('Time')
+
+figure()
+hold on
+for i = 1:simiter
+    plot(simt, x{i}/Lopt, 'color', col(i,:))
+end
+ylabel('x')
+xlabel('Time')
+    
+%% Quick figure to illustrate cycle phase issues
+
+figure()
+subplot(3,1,1)
+hold on
+subplot(3,1,2)
+hold on
+for i = 1:simiter
+    subplot(3,1,1)
+    plot(simt, x{i}/Lopt, 'color', col(i,:))
+    subplot(3,1,2)
+    plot(simt, a{i}, 'color', col(i,:))
+end
+subplot(3,1,3)
+plot(simt, l)
+

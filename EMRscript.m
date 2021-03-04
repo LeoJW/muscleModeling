@@ -20,7 +20,7 @@ stimPhase = linspace(0.1,1,simiter); % version of tstart that varies
 
 ncycles = 6; % number of cycles
 tstart = 0.1;% point in cycle where activation begins (scaled 0 to 1)
-duration = 0.3; % duration of cycle that is activated (scaled 0 to 1)
+duration = 0.1; % duration of cycle that is activated (scaled 0 to 1)
 
 %---Hill constants
 
@@ -43,8 +43,8 @@ m2 = 6; % horizontal translation
 m3 = 0.01; % slope
 m = [m1,m2,m3]; % FV curve, smooth ramp portion
 delay = 50; % activation delay, in ms -> rescaled in a
-gam1 = -0.982; % activation constant
-gam2 = -0.982; % activation constant
+gam1 = -0.98; % activation constant
+gam2 = -0.94; % activation constant
 
 %--Conversion constants
 

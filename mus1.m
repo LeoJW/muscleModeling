@@ -38,7 +38,7 @@ gam2 = C(14); % activation constant
 %--Conversion constants
 mRL = conv(1); % muscle resting length, mm
 mtuRL = conv(2); % mtu resting length, mm
-Lopt = mrL + 0.05*mrL; % mm
+Lopt = mRL + 0.05*mRL; % mm
 lamplitude = conv(3);
 EMRArea = conv(4); % (mm^2) dry density in g/mm^3, mass in g
 Fmax = 300e3*1e-6*EMRArea; % max force in N (convert from 300kPa to N/mm^2, multiply by EMR area)

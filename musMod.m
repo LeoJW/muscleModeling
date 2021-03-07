@@ -12,12 +12,12 @@ clear all; close all;
 
 %---Primary controls
 
-simiter = 5; % number of activation phases to compare
+simiter = 2; % number of activation phases to compare
 h = 1e-6; % step size
 velBruteSize = 1e4; % number of points to solve for v
 stimPhase = linspace(0.1,1,simiter); % version of tstart that varies
 stimDur = linspace(0.1,0.4,simiter); % version of duration that varies
-wFreq = [14,18]; % cycle freq, will vary depending on species
+w = linspace(13,19,simiter); % cycle freq, will vary depending on species
 
 %---Secondary controls
 
@@ -70,8 +70,8 @@ Ftol = 0.1; % tolerance for F to avoid singularities
 atol = 0.08; % tolerance for a to avoid singularities
 % see FVactHinge below - added FV func to avoid singularities
 
-for
-    
-    
+for i = 1:simiter
+    duration = 
+    [x,v,F,wrk,pwr] = mus1(control,duration(i),w(i),C,conv,sing);
     
 end

@@ -1,4 +1,4 @@
-function [outputArg1,outputArg2] = mus1(control.C,conv,sing)
+function [x,v,F,wrk,pwr] = mus1(control,duration,w,C,conv,sing)
 % Function version of EMRscript.m
 
 
@@ -9,11 +9,8 @@ simiter = control(1); % number of activation phases to compare
 h = control(2); % step size
 velBruteSize = control(3); % number of points to solve for v
 stimPhase = control(4); % version of tstart that varies
-stimDur = control(5); % version of duration that varies
-w = control(6); % cycle freq, will vary depending on species
-ncycles = control(7); % number of cycles
-tstart = control(8);% point in cycle where activation begins (scaled 0 to 1)
-duration = control(9); % duration of cycle that is activated (scaled 0 to 1)
+ncycles = control(5); % number of cycles
+tstart = control(6);% point in cycle where activation begins (scaled 0 to 1)
 
 %--Hill constants
 b1 = C(1); % FLact

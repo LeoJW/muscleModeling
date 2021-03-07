@@ -16,7 +16,7 @@ simiter = 2; % number of activation phases to compare
 h = 1e-6; % step size
 velBruteSize = 1e4; % number of points to solve for v
 stimPhase = linspace(0.1,1,simiter); % version of tstart that varies
-stimDur = linspace(0.1,0.4,simiter); % version of duration that varies
+duration = 0.3; % version of duration that varies
 w = linspace(13,19,simiter); % cycle freq, will vary depending on species
 
 %---Secondary controls
@@ -53,7 +53,6 @@ gam2 = -0.94; % activation constant
 
 mRL = 18; %from EUST 1, TPB-EMR-dissections.xlsx, muscle resting length, mm
 mtuRL = 32; % mtu resting length, mm
-Lopt = mRL + 1; % mm
 lamplitude = 1.2;
 EMRArea = 0.0544/(0.000325*Lopt); % (mm^2) dry density in g/mm^3, mass in g
 Fmax = 300e3*1e-6*EMRArea; % max force in N (convert from 300kPa to N/mm^2, multiply by EMR area)
@@ -85,6 +84,6 @@ for i = 1:simiter
     wrk{i} = zeros(1,length(simt));
     pwr{i} = zeros(1,length(simt));
     
-    [x(i),v(i),F(i),wrk(i),pwr(i)] = mus1(control,duration(i),w(i),C,conv,sing);
+    [x(i),v(i),F(i),wrk(i),pwr(i)] = mus1(control,w(i),C,conv,sing);
     
 end

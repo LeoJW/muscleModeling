@@ -54,6 +54,7 @@ gam2 = -0.94; % activation constant
 mRL = 18; %from EUST 1, TPB-EMR-dissections.xlsx, muscle resting length, mm
 mtuRL = 32; % mtu resting length, mm
 lamplitude = 1.2;
+Lopt = mRL + 0.05*mRL;
 EMRArea = 0.0544/(0.000325*Lopt); % (mm^2) dry density in g/mm^3, mass in g
 Fmax = 300e3*1e-6*EMRArea; % max force in N (convert from 300kPa to N/mm^2, multiply by EMR area)
 vmaxActual = 5*Lopt; % mm/s
@@ -77,13 +78,6 @@ pwr = cell(1,simiter);
 
 for i = 1:simiter
     
-    % Declare vectors
-    x{i} = zeros(1,length(simt)); % muscle length initial condition
-    v{i} = zeros(1,length(simt)); % velocity initial condition
-    F{i} = zeros(1,length(simt)); % force
-    wrk{i} = zeros(1,length(simt));
-    pwr{i} = zeros(1,length(simt));
-    
-    [x(i),v(i),F(i),wrk(i),pwr(i)] = mus1(control,w(i),C,conv,sing);
+    [wrk(i)] = mus1(control,w(i),C,conv,sing);
     
 end

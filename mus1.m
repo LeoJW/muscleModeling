@@ -1,4 +1,4 @@
-function [outputArg1,outputArg2] = mus1(control.C,conv,sing,)
+function [outputArg1,outputArg2] = mus1(control.C,conv,sing)
 % Function version of EMRscript.m
 
 
@@ -42,11 +42,11 @@ gam2 = C(14); % activation constant
 mRL = conv(1); % muscle resting length, mm
 mtuRL = conv(2); % mtu resting length, mm
 Lopt = conv(3); % mm
-EMRArea = conv(4); % (mm^2) dry density in g/mm^3, mass in g
+lamplitude = conv(4);
+EMRArea = conv(5); % (mm^2) dry density in g/mm^3, mass in g
 Fmax = 300e3*1e-6*EMRArea; % max force in N (convert from 300kPa to N/mm^2, multiply by EMR area)
 
-tendonE = conv(5); % tendon elastic modulus (Pa, N/m^2), anywhere from 0.66-1.2e9
-tslackl = conv(6); % from EUST dissection on Fran's spreadsheet
+tslackl = conv(6); % tendon slack length, mm
 kActual = conv(7); % spring constant, N/mm
 k = kActual*(Lopt/Fmax); % dimensionless
 
@@ -123,7 +123,6 @@ FVactHinge = @(m,v) m(3)/m(1)*log(1+exp(m(1)*v-m(2))); % FV smooth ramp function
 
 %--MTU length parameters
 wr = 2*pi*w; % convert to radians
-lamplitude = 1.2;
 l = (lamplitude.*sin(wr.*simt) + mtuRL)/Lopt; % MTU length in Lopt/s
 
 %--Split cycles

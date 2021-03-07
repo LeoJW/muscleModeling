@@ -16,14 +16,14 @@ simiter = 2; % number of activation phases to compare
 h = 1e-6; % step size
 velBruteSize = 1e4; % number of points to solve for v
 stimPhase = linspace(0.1,1,simiter); % version of tstart that varies
-duration = 0.3; % version of duration that varies
 w = linspace(13,19,simiter); % cycle freq, will vary depending on species
 
 %---Secondary controls
 
 ncycles = 6; % number of cycles
-tstart = 0.1;% point in cycle where activation begins (scaled 0 to 1)
-duration = 0.1; % duration of cycle that is activated (scaled 0 to 1)
+duration = 0.2; % duration of cycle that is activated (scaled 0 to 1)
+
+contr = [simiter,h,velBruteSize,stimPhase,ncycles,duration];
 
 %---Hill constants
 
@@ -49,6 +49,8 @@ delay = 50; % activation delay, in ms -> rescaled in a
 gam1 = -0.98; % activation constant
 gam2 = -0.94; % activation constant
 
+C = [b1,b2,p1,p2,cmax,vmax,c1,c2,m1,m2,m3,delay,gam1,gam2];
+
 %--Conversion constants
 
 mRL = 18; %from EUST 1, TPB-EMR-dissections.xlsx, muscle resting length, mm
@@ -57,27 +59,26 @@ lamplitude = 1.2;
 Lopt = mRL + 0.05*mRL;
 EMRArea = 0.0544/(0.000325*Lopt); % (mm^2) dry density in g/mm^3, mass in g
 Fmax = 300e3*1e-6*EMRArea; % max force in N (convert from 300kPa to N/mm^2, multiply by EMR area)
-vmaxActual = 5*Lopt; % mm/s
 
 tslackl = mean([13.62,14.17,14.11]); % from EUST dissection on Fran's spreadsheet
 tendonArea = 0.36; %(mm^2), guess based on Fran's spreadsheet
 kActual = 1.6; % spring constant, N/mm, based on rat soleus loops
 k = kActual*(Lopt/Fmax); % dimensionless
 
+conv = [mRL,mtuRL,lamplitude,EMRArea,tslackl,kActual];
+
 %---Singularity adjustments
 
 Ftol = 0.1; % tolerance for F to avoid singularities
 atol = 0.08; % tolerance for a to avoid singularities
-% see FVactHinge below - added FV func to avoid singularities
 
-F = cell(1,simiter);
-v = cell(1,simiter);
-x = cell(1,simiter);
+sing = [Ftol,atol];
+% see FVactHinge below - added FV func to avoid more singularities
+
 wrk = cell(1,simiter);
-pwr = cell(1,simiter);
 
 for i = 1:simiter
     
-    [wrk(i)] = mus1(control,w(i),C,conv,sing);
+    [wrk(i)] = mus1(contr,w(i),C,conv,sing);
     
 end

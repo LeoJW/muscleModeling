@@ -70,8 +70,21 @@ Ftol = 0.1; % tolerance for F to avoid singularities
 atol = 0.08; % tolerance for a to avoid singularities
 % see FVactHinge below - added FV func to avoid singularities
 
+F = cell(1,simiter);
+v = cell(1,simiter);
+x = cell(1,simiter);
+wrk = cell(1,simiter);
+pwr = cell(1,simiter);
+
 for i = 1:simiter
-    duration = 
-    [x,v,F,wrk,pwr] = mus1(control,duration(i),w(i),C,conv,sing);
+    
+    % Declare vectors
+    x{i} = zeros(1,length(simt)); % muscle length initial condition
+    v{i} = zeros(1,length(simt)); % velocity initial condition
+    F{i} = zeros(1,length(simt)); % force
+    wrk{i} = zeros(1,length(simt));
+    pwr{i} = zeros(1,length(simt));
+    
+    [x(i),v(i),F(i),wrk(i),pwr(i)] = mus1(control,duration(i),w(i),C,conv,sing);
     
 end

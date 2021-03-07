@@ -1,4 +1,4 @@
-function [x,v,F,wrk,pwr] = mus1(control,duration,w,C,conv,sing)
+function [ wrk,pwr] = mus1(control,w,C,conv,sing)
 % Function version of EMRscript.m
 
 
@@ -10,7 +10,7 @@ h = control(2); % step size
 velBruteSize = control(3); % number of points to solve for v
 stimPhase = control(4); % version of tstart that varies
 ncycles = control(5); % number of cycles
-tstart = control(6);% point in cycle where activation begins (scaled 0 to 1)
+duration = control(6); % activ dur
 
 %--Hill constants
 b1 = C(1); % FLact
@@ -38,13 +38,13 @@ gam2 = C(14); % activation constant
 %--Conversion constants
 mRL = conv(1); % muscle resting length, mm
 mtuRL = conv(2); % mtu resting length, mm
-Lopt = conv(3); % mm
-lamplitude = conv(4);
-EMRArea = conv(5); % (mm^2) dry density in g/mm^3, mass in g
+Lopt = mrL + 0.05*mrL; % mm
+lamplitude = conv(3);
+EMRArea = conv(4); % (mm^2) dry density in g/mm^3, mass in g
 Fmax = 300e3*1e-6*EMRArea; % max force in N (convert from 300kPa to N/mm^2, multiply by EMR area)
 
-tslackl = conv(6); % tendon slack length, mm
-kActual = conv(7); % spring constant, N/mm
+tslackl = conv(5); % tendon slack length, mm
+kActual = conv(6); % spring constant, N/mm
 k = kActual*(Lopt/Fmax); % dimensionless
 
 %--Singularity adjustments

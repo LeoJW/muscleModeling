@@ -23,7 +23,7 @@ w = linspace(13,19,simiter); % cycle freq, will vary depending on species
 ncycles = 6; % number of cycles
 duration = 0.2; % duration of cycle that is activated (scaled 0 to 1)
 
-contr = [simiter,h,velBruteSize,stimPhase,ncycles,duration];
+contr = [simiter,h,velBruteSize,ncycles,duration];
 
 %---Hill constants
 

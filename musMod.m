@@ -77,8 +77,8 @@ sing = [Ftol,atol];
 
 wrk = cell(1,simiter);
 
-for i = 1:simiter
-    
-    [wrk(i)] = mus1(contr,w(i),C,conv,sing);
+for f = 1:simiter
+
+    wrk(f) = mus1(contr,w(f),C,conv,sing);
     
 end

@@ -183,6 +183,7 @@ EMRy = repmat(EMRmtuLength.',1,ncycles);
 
 % Alternative MTU length (sine function, use if comparing across species
 % for consistency
+w = 14;
 wr = 2*pi*w; % convert to radians
 lamplitude = 1.2;
 l = (lamplitude.*sin(wr.*simt) + mtuRL)/Lopt; % MTU length in Lopt/s

@@ -15,8 +15,8 @@ clear all; close all;
 simiter = 2; % number of activation phases to compare
 h = 1e-6; % step size
 velBruteSize = 1e4; % number of points to solve for v
-stimPhase = linspace(0.1,1,simiter); % version of tstart that varies
-w = linspace(13,19,simiter); % cycle freq, will vary depending on species
+stimPhase = linspace(0.1,0.5,simiter); % version of tstart that varies
+w = linspace(14,18,simiter); % cycle freq, will vary depending on species
 
 %---Secondary controls
 
@@ -75,20 +75,48 @@ atol = 0.08; % tolerance for a to avoid singularities
 sing = [Ftol,atol];
 % see FVactHinge below - added FV func to avoid more singularities
 
+x = cell(simiter,simiter);
+F = cell(simiter,simiter);
 wrk = cell(simiter,simiter);
+
+
+%% Run simulation
 
 % Loop through different cycle frequencies, w
 for f = 1:simiter
     
     % Declare simiter X simiter cell for stimPhase X w
+    x{f} = zeros(simiter,simiter);
+    F{f} = zeros(simiter,simiter);
     wrk{f} = zeros(simiter,simiter);
 
-    % Solve wrk for each stimPhase at each w
-    wrk{f} = mus1(contr,stimPhase,w(f),C,conv,sing);
+    % Solve x, F and wrk for each stimPhase at each w
+    [simt,cycNum,x{f},F{f},wrk{f}] = mus1(contr,stimPhase,w(f),C,conv,sing);
     
 end
+toc
 
 % Plot output
+figure(1)
+hold on
+box on
+grid on
+for i = 1:simiter
+    plot(x{i}(cycNum>(ncycles-1)), F{i}(cycNum>(ncycles-1)),'color',col(i,:))
+    %plot(simt,F{i},'color',col(i,:))
+    drawnow
+end
+
+%---Aesthetics
+xlabel('EMR muscle length (mm)')
+ylabel('Force (N)')
+%---Aesthetics for colorbar
+colormap(copper)
+cbh = colorbar;
+set(cbh,'YTick',linspace(0,1,simiter))
+set(cbh,'YTickLabel', num2str(stimPhase.'))
+
+figure(2)
 scatter(stimPhase,[wrk{f:simiter}],'filled')
 xlim([0 1])
 xlabel('Stimulation Phase'), ylabel('Net Work')

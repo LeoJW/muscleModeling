@@ -1,6 +1,6 @@
 % Muscle Model for testing different species and different parameters
 
-clear all; close all;
+clear all; %close all;
 
 % Force is N -> F/Fmax -> N
 % Velocity is mm/s -> Lopt/s -> mm/s
@@ -13,10 +13,10 @@ clear all; close all;
 %---Primary controls
 
 simiter = 2; % number of activation phases to compare
-h = 1e-6; % step size
+h = 1e-5; % step size
 velBruteSize = 1e4; % number of points to solve for v
-stimPhase = linspace(0.1,0.5,simiter); % version of tstart that varies
-w = linspace(14,18,simiter); % cycle freq, will vary depending on species
+stimPhase = linspace(0.1,1,simiter); % version of tstart that varies
+w = linspace(4,14,simiter); % cycle freq, will vary depending on species
 
 %---Secondary controls
 
@@ -75,28 +75,37 @@ atol = 0.08; % tolerance for a to avoid singularities
 sing = [Ftol,atol];
 % see FVactHinge below - added FV func to avoid more singularities
 
-x = cell(simiter,simiter);
-F = cell(simiter,simiter);
-wrk = cell(simiter,simiter);
+x = cell(1,simiter);
+F = cell(1,simiter);
+wrk = cell(1,simiter);
+cycNum = cell(1,simiter);
+simt = cell(1,simiter);
 
 
 %% Run simulation
 
 % Loop through different cycle frequencies, w
+tic
 for f = 1:simiter
     
     % Declare simiter X simiter cell for stimPhase X w
-    x{f} = zeros(simiter,simiter);
-    F{f} = zeros(simiter,simiter);
-    wrk{f} = zeros(simiter,simiter);
+%     x{f} = zeros(simiter,simiter);
+%     F{f} = zeros(simiter,simiter);
+%     wrk{f} = zeros(simiter,simiter);
 
     % Solve x, F and wrk for each stimPhase at each w
-    [simt,cycNum,x{f},F{f},wrk{f}] = mus1(contr,stimPhase,w(f),C,conv,sing);
+    [simt{f},cycNum{f},x{f},F{f},wrk{f}] = mus1(contr,stimPhase,w(f),C,conv,sing);
     
 end
 toc
 
+%% 
+
+% Define colors
+col = copper(simiter);
+
 % Plot output
+figure()
 subplot(1,2,1)
 hold on
 box on
@@ -105,12 +114,16 @@ subplot(1,2,2)
 hold on
 box on
 grid on
+% Loop over frequency
 for i = 1:simiter
-    % Plot loops for first w
+    % phases in each subplot
     subplot(1,2,1)
-    plot(x{1,i}(cycNum>(ncycles-1)), F{1,i}(cycNum>(ncycles-1)),'color',col(i,:))
+    plot(x{i}{1}, 'color', col(i,:))
+%         plot(x{i}{j}(cycNum{i}>(ncycles-1)), F{i}{j}(cycNum{i}>(ncycles-1)), 'color',col(i,:))
+
     subplot(1,2,2)
-    plot(x{2,i}(cycNum>(ncycles-1)), F{2,i}(cycNum>(ncycles-1)),'color',col(i,:))
+%         plot(x{i}{j}(cycNum{i}>(ncycles-1)), F{i}{j}(cycNum{i}>(ncycles-1)), 'color',col(i,:))
+    plot(x{i}{2}, 'color', col(i,:))
     drawnow
 end
 
@@ -123,9 +136,12 @@ cbh = colorbar;
 set(cbh,'YTick',linspace(0,1,simiter))
 set(cbh,'YTickLabel', num2str(stimPhase.'))
 
-figure(2)
-scatter(stimPhase,[wrk{f:simiter}],'filled')
-xlim([0 1])
-xlabel('Stimulation Phase'), ylabel('Net Work')
+
+
+
+% figure(2)
+% scatter(stimPhase,[wrk{f:simiter}],'filled')
+% xlim([0 1])
+% xlabel('Stimulation Phase'), ylabel('Net Work')
     
 

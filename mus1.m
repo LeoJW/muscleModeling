@@ -24,7 +24,8 @@ c2 = C(8); % overall curvature of FV
 
 b = C(1:2);
 p = C(3:4);
-fvc = C(5:8);
+fvc = [C(7), C(8), C(5), C(6)];
+%[c1,c2,cmax,vmax];
 
 m1 = C(9); % scaling factor
 m2 = C(10); % horizontal translation
@@ -67,13 +68,6 @@ enddur = ceil(startdur + duration*lcycle); % duration of cycle activated in 1/1e
 
 
 %% Neural excitation and muscle activation
-
-%---Prep figure
-figure(1)
-hold on
-box on
-grid on
-col = copper(simiter);
 
 %---Activation function
 d = round((delay*1e-3)*(niter/totaltime)); % delay, scaled
@@ -120,20 +114,18 @@ l = (lamplitude.*sin(wr.*simt) + mtuRL)/Lopt; % MTU length in Lopt/s
 cycNum = repelem(1:ncycles,lcycle);
 
 % Prepare variables for loop
-err = cell(1,simiter);
 F = cell(1,simiter);
 v = cell(1,simiter);
 x = cell(1,simiter);
 vsweep = linspace(-vmax,vmax,velBruteSize);
 wrk = cell(1,simiter);
-pwr = cell(1,simiter);
 % Calculate FV function at all velocities
 FVactVal = FV4param(fvc,vsweep) + FVactHinge(m,vsweep);
 
 
 tic
 %---Loop through different stimulation phases
-parfor i = 1:simiter
+for i = 1:simiter
     
     % Initial Conditions
     %Velocity initial condition
@@ -150,10 +142,8 @@ parfor i = 1:simiter
     % Declare vectors for simulation run
     x{i} = [x0,zeros(1,length(simt)-1)]; % muscle length initial condition
     v{i} = [v0,zeros(1,length(simt)-1)]; % velocity initial condition
-    err{i} = zeros(1,length(simt)); % error
     F{i} = zeros(1,length(simt)); % force
     wrk{i} = zeros(1,length(simt));
-    pwr{i} = zeros(1,length(simt));
     
     % Loop through each time point
     for j = 2:length(simt)
@@ -166,17 +156,12 @@ parfor i = 1:simiter
         eval = k*(l(j)-x{i}(j)-tslackl/Lopt).*heaviside(l(j)-x{i}(j)-tslackl/Lopt) - ...
             (FLactVal.*FVactVal.*a{i}(j) + FLpasFunc([p1,p2],x{i}(j)));
         % Find root of function where velocity is valid
-        [errval,vind] = min(abs(eval));
-        err{i}(j) = eval(vind);
+        [~,vind] = min(abs(eval));
         v{i}(j) = vsweep(vind);
         F{i}(j) = hill(x{i}(j), v{i}(j), a{i}(j), C);
         
         % Re-find x from currently calculated v (backwards euler)
-        x{i}(j) = x{i}(j-1) + h*v{i}(j);
-        
-        % instantaneous power
-        pwr{i}(j) = F{i}(j).*v{i}(j);
-        
+        x{i}(j) = x{i}(j-1) + h*v{i}(j);   
     end
     
     % Convert values to real units
@@ -188,5 +173,6 @@ parfor i = 1:simiter
     
 end
 toc
+
 
 end

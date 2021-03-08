@@ -118,12 +118,12 @@ grid on
 for i = 1:simiter
     % phases in each subplot
     subplot(1,2,1)
-    plot(x{i}{1}, 'color', col(i,:))
-%         plot(x{i}{j}(cycNum{i}>(ncycles-1)), F{i}{j}(cycNum{i}>(ncycles-1)), 'color',col(i,:))
+    %plot(F{i}{1}, 'color', col(i,:))
+    plot(x{i}{1}(cycNum{i}>(ncycles-1)), F{i}{1}(cycNum{i}>(ncycles-1)), 'color',col(i,:))
 
     subplot(1,2,2)
-%         plot(x{i}{j}(cycNum{i}>(ncycles-1)), F{i}{j}(cycNum{i}>(ncycles-1)), 'color',col(i,:))
-    plot(x{i}{2}, 'color', col(i,:))
+    plot(x{i}{2}(cycNum{i}>(ncycles-1)), F{i}{2}(cycNum{i}>(ncycles-1)), 'color',col(i,:))
+    %plot(F{i}{2}, 'color', col(i,:))
     drawnow
 end
 

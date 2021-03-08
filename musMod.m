@@ -79,6 +79,6 @@ wrk = cell(1,simiter);
 
 for f = 1:simiter
 
-    wrk(f) = mus1(contr,w(f),C,conv,sing);
+    wrk{f} = mus1(contr,w(f),C,conv,sing);
     
 end

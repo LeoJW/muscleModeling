@@ -100,11 +100,6 @@ for i = 1:simiter
     % Solve for a
     a{i} = activationODE2(u{i},d,gam1,gam2,1/h);
     a{i} = (1-atol).*a{i}+atol;
-
-    % Plot output
-    plot(simt,a{i},'color',col(i,:))
-    xlabel("Time (s)"), ylabel("Activation")
-    drawnow
     
 end
 

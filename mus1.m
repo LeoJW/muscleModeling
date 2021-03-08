@@ -27,6 +27,8 @@ p = C(3:4);
 fvc = [C(7), C(8), C(5), C(6)];
 %[c1,c2,cmax,vmax];
 
+hillC = [b1,b2,p1,p2,c1,c2,cmax,vmax]; % constants for input to hill function
+
 m1 = C(9); % scaling factor
 m2 = C(10); % horizontal translation
 m3 = C(11); % slope
@@ -158,7 +160,7 @@ for i = 1:simiter
         % Find root of function where velocity is valid
         [~,vind] = min(abs(eval));
         v{i}(j) = vsweep(vind);
-        F{i}(j) = hill(x{i}(j), v{i}(j), a{i}(j), C);
+        F{i}(j) = hill(x{i}(j), v{i}(j), a{i}(j), hillC);
         
         % Re-find x from currently calculated v (backwards euler)
         x{i}(j) = x{i}(j-1) + h*v{i}(j);   

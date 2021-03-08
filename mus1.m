@@ -1,4 +1,4 @@
-function [wrk] = mus1(contr,w,C,conv,sing)
+function [wrk] = mus1(contr,stimPhase,w,C,conv,sing)
 % Function version of EMRscript.m
 
 
@@ -8,9 +8,8 @@ function [wrk] = mus1(contr,w,C,conv,sing)
 simiter = contr(1); % number of activation phases to compare
 h = contr(2); % step size
 velBruteSize = contr(3); % number of points to solve for v
-stimPhase = contr(4); % version of tstart that varies
-ncycles = contr(5); % number of cycles
-duration = contr(6); % activ dur
+ncycles = contr(4); % number of cycles
+duration = contr(5); % activ dur
 
 %--Hill constants
 b1 = C(1); % FLact

@@ -75,15 +75,22 @@ atol = 0.08; % tolerance for a to avoid singularities
 sing = [Ftol,atol];
 % see FVactHinge below - added FV func to avoid more singularities
 
-wrk = cell(1,simiter);
+wrk = cell(simiter,simiter);
 
+% Loop through different cycle frequencies, w
 for f = 1:simiter
+    
+    % Declare simiter X simiter cell for stimPhase X w
+    wrk{f} = zeros(simiter,simiter);
 
+    % Solve wrk for each stimPhase at each w
     wrk{f} = mus1(contr,stimPhase,w(f),C,conv,sing);
     
-    % Plot output
-    scatter(stimPhase,[wrk{f:simiter}],'filled')
-    xlim([0 1])
-    xlabel('Stimulation Phase'), ylabel('Net Work')
-    
 end
+
+% Plot output
+scatter(stimPhase,[wrk{f:simiter}],'filled')
+xlim([0 1])
+xlabel('Stimulation Phase'), ylabel('Net Work')
+    
+

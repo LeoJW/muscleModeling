@@ -187,8 +187,9 @@ parfor i = 1:simiter
     wrk{i} = -trapz(x{i}(cycNum>(ncycles-1)), F{i}(cycNum>(ncycles-1))); % units of N*mm, or mJ
     
 end
-
 toc
+
+wrk = wrk{i:simiter};
 
 end
 

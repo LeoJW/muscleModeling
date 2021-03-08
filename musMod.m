@@ -79,6 +79,11 @@ wrk = cell(1,simiter);
 
 for f = 1:simiter
 
-    wrk{f} = mus1(contr,w(f),C,conv,sing);
+    wrk{f} = mus1(contr,stimPhase,w(f),C,conv,sing);
+    
+    % Plot output
+    scatter(stimPhase,[wrk{f:simiter}],'filled')
+    xlim([0 1])
+    xlabel('Stimulation Phase'), ylabel('Net Work')
     
 end

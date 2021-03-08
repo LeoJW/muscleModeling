@@ -11,12 +11,12 @@ clear all; close all;
 
 %---Primary controls
 
-simiter = 5; % number of activation phases to compare
-h = 1e-6; % step size
+simiter = 2; % number of activation phases to compare
+h = 1e-5; % step size
 velBruteSize = 1e4; % number of points to solve for v
 stimPhase = linspace(0.1,1,simiter); % version of tstart that varies
 stimDur = linspace(0.1,0.4,simiter); % version of duration that varies
-wFreq = [14,18]; % cycle freq, will vary depending on species
+w = 4;
 
 %---Secondary controls
 
@@ -98,7 +98,7 @@ EMRarc = manusr.*(phi*pi/180); % length of EMR arc section
 EMRmtuLengthRaw = EMRa+EMRb+EMRarc; % total EMR length (mm)
 
 % Apply Butterworth LPF, split and smooth cycles
-[EMRsmooth,EMRcycDur,w] = buttersplit(kineTime,EMRmtuLengthRaw,butterOrder,butterFreq);
+% [EMRsmooth,EMRcycDur,w] = buttersplit(kineTime,EMRmtuLengthRaw,butterOrder,butterFreq);
 %[processed EMR MTU length, cycle duration, cycle freq]
 
 
@@ -172,9 +172,9 @@ FVactHinge = @(m,v) m(3)/m(1)*log(1+exp(m(1)*v-m(2))); % FV smooth ramp function
 C = [b1,b2,p1,p2,c1,c2,cmax,vmax]; % hill
 
 %---MTU overall length/velocity parameters
-tcyc = linspace(0,1,lcycle);
-EMRmtuLength = EMRsmooth(tcyc); % from kinematics data
-EMRy = repmat(EMRmtuLength.',1,ncycles);
+% tcyc = linspace(0,1,lcycle);
+% EMRmtuLength = EMRsmooth(tcyc); % from kinematics data
+% EMRy = repmat(EMRmtuLength.',1,ncycles);
 
 % Convert length and velocity to dimensionless units and prep for sim
 % velocity to L/s or mm/s
@@ -205,7 +205,7 @@ FVactVal = FV4param(fvc,vsweep) + FVactHinge(m,vsweep);
 
 tic
 %---Loop through different stimulation phases
-parfor i = 1:simiter
+for i = 1:simiter
     
     % Initial Conditions
     %Velocity initial condition
@@ -262,137 +262,142 @@ end
 
 toc
 
-% Plot output
-figure(2)
-hold on
-box on
-grid on
-for i = 1:simiter
-    plot(x{i}(cycNum>(ncycles-1)), F{i}(cycNum>(ncycles-1)),'color',col(i,:))
-    %plot(simt,F{i},'color',col(i,:))
-    drawnow
-end
 
-%---Aesthetics
-xlabel('EMR muscle length (mm)')
-ylabel('Force (N)')
-%---Aesthetics for colorbar
-colormap(copper)
-cbh = colorbar;
-set(cbh,'YTick',linspace(0,1,simiter))
-set(cbh,'YTickLabel', num2str(stimPhase.'))
-
-        
-%% Plot error
-
-figure(3)
-%***Looking at both forms of error for funzies
-subplot(2,1,1)
-hold on
-box on
-grid on
-subplot(2,1,2)
-hold on
-box on
-grid on
-
-for i = 1:simiter
-    %Instantaneous error
-    subplot(2,1,1)
-    plot(simt, err{i},'color',col(i,:))
-    title('Instantaneous Error')
-    %Cumulative error
-    subplot(2,1,2)
-    plot(simt, cumsum(abs(err{i}))/length(simt), 'color',col(i,:))
-    title('Cumulative Error')
-
-end
-%Create colorbars
-%Insant error subplot
-subplot(2,1,1)
-colormap(copper)
-cbh = colorbar;
-set(cbh,'YTick',linspace(0,1,simiter))
-set(cbh,'YTickLabel', num2str(stimPhase.'))
-%Cum. error subplot
-subplot(2,1,2)
-colormap(copper)
-cbh = colorbar;
-set(cbh,'YTick',linspace(0,1,simiter))
-set(cbh,'YTickLabel', num2str(stimPhase.'))
-
-
-%% Plot net work per cycle
-figure(4)
-hold on
-box on
-grid on
-
-scatter(stimPhase,[wrk{1:simiter}],'filled')
-xlim([0 1])
-xlabel('Stimulation Phase'), ylabel('Net Work')
-
-
-%% Look at some stuff
-
-
-figure()
-subplot(2,1,1)
-hold on
-box on
-grid on
-subplot(2,1,2)
-hold on
-box on
-grid on
-
-% Plot tendon spring force and muscle force
-for i = 1:simiter
-    
-    tendonF = Fmax*k*(l-x{i}/Lopt-tslackl/Lopt).*heaviside(l-x{i}/Lopt-tslackl/Lopt);
-    subplot(2,1,1)
-    plot(simt, tendonF, 'color', col(i,:))
-    subplot(2,1,2)
-    plot(simt, F{i}, 'color', col(i,:))
-end
-
-subplot(2,1,1)
-ylabel('Tendon Force')
-subplot(2,1,2)
-ylabel('Muscle Force')
-xlabel('Time')
-
-
-
-figure()
-hold on
-for i = 1:simiter
-    plot(simt, v{i}, 'color', col(i,:))
-end
-ylabel('Velocity')
-xlabel('Time')
-
-figure()
-hold on
-for i = 1:simiter
-    plot(simt, x{i}/Lopt, 'color', col(i,:))
-end
-ylabel('x')
-xlabel('Time')
-    
-%% Quick figure to illustrate cycle phase issues
-
-figure()
-subplot(3,1,1)
-hold on
-subplot(3,1,2)
-hold on
-for i = 1:simiter
-    subplot(3,1,1)
-    plot(simt, x{i}/Lopt, 'color', col(i,:))
-    subplot(3,1,2)
-    plot(simt, a{i}, 'color', col(i,:))
-end
-subplot(3,1,3)
-plot(simt, l)
-
+figure
+plot(eval)
+a{i}(j)
+% 
+% % Plot output
+% figure(2)
+% hold on
+% box on
+% grid on
+% for i = 1:simiter
+%     plot(x{i}(cycNum>(ncycles-1)), F{i}(cycNum>(ncycles-1)),'color',col(i,:))
+%     %plot(simt,F{i},'color',col(i,:))
+%     drawnow
+% end
+% 
+% %---Aesthetics
+% xlabel('EMR muscle length (mm)')
+% ylabel('Force (N)')
+% %---Aesthetics for colorbar
+% colormap(copper)
+% cbh = colorbar;
+% set(cbh,'YTick',linspace(0,1,simiter))
+% set(cbh,'YTickLabel', num2str(stimPhase.'))
+% 
+%         
+% %% Plot error
+% 
+% figure(3)
+% %***Looking at both forms of error for funzies
+% subplot(2,1,1)
+% hold on
+% box on
+% grid on
+% subplot(2,1,2)
+% hold on
+% box on
+% grid on
+% 
+% for i = 1:simiter
+%     %Instantaneous error
+%     subplot(2,1,1)
+%     plot(simt, err{i},'color',col(i,:))
+%     title('Instantaneous Error')
+%     %Cumulative error
+%     subplot(2,1,2)
+%     plot(simt, cumsum(abs(err{i}))/length(simt), 'color',col(i,:))
+%     title('Cumulative Error')
+% 
+% end
+% %Create colorbars
+% %Insant error subplot
+% subplot(2,1,1)
+% colormap(copper)
+% cbh = colorbar;
+% set(cbh,'YTick',linspace(0,1,simiter))
+% set(cbh,'YTickLabel', num2str(stimPhase.'))
+% %Cum. error subplot
+% subplot(2,1,2)
+% colormap(copper)
+% cbh = colorbar;
+% set(cbh,'YTick',linspace(0,1,simiter))
+% set(cbh,'YTickLabel', num2str(stimPhase.'))
+% 
+% 
+% %% Plot net work per cycle
+% figure(4)
+% hold on
+% box on
+% grid on
+% 
+% scatter(stimPhase,[wrk{1:simiter}],'filled')
+% xlim([0 1])
+% xlabel('Stimulation Phase'), ylabel('Net Work')
+% 
+% 
+% %% Look at some stuff
+% 
+% 
+% figure()
+% subplot(2,1,1)
+% hold on
+% box on
+% grid on
+% subplot(2,1,2)
+% hold on
+% box on
+% grid on
+% 
+% % Plot tendon spring force and muscle force
+% for i = 1:simiter
+%     
+%     tendonF = Fmax*k*(l-x{i}/Lopt-tslackl/Lopt).*heaviside(l-x{i}/Lopt-tslackl/Lopt);
+%     subplot(2,1,1)
+%     plot(simt, tendonF, 'color', col(i,:))
+%     subplot(2,1,2)
+%     plot(simt, F{i}, 'color', col(i,:))
+% end
+% 
+% subplot(2,1,1)
+% ylabel('Tendon Force')
+% subplot(2,1,2)
+% ylabel('Muscle Force')
+% xlabel('Time')
+% 
+% 
+% 
+% figure()
+% hold on
+% for i = 1:simiter
+%     plot(simt, v{i}, 'color', col(i,:))
+% end
+% ylabel('Velocity')
+% xlabel('Time')
+% 
+% figure()
+% hold on
+% for i = 1:simiter
+%     plot(simt, x{i}/Lopt, 'color', col(i,:))
+% end
+% ylabel('x')
+% xlabel('Time')
+%     
+% %% Quick figure to illustrate cycle phase issues
+% 
+% figure()
+% subplot(3,1,1)
+% hold on
+% subplot(3,1,2)
+% hold on
+% for i = 1:simiter
+%     subplot(3,1,1)
+%     plot(simt, x{i}/Lopt, 'color', col(i,:))
+%     subplot(3,1,2)
+%     plot(simt, a{i}, 'color', col(i,:))
+% end
+% subplot(3,1,3)
+% plot(simt, l)
+% 

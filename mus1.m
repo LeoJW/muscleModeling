@@ -1,4 +1,4 @@
-function [x,F,wrk] = mus1(contr,stimPhase,w,C,conv,sing)
+function [simt,cycNum,x,F,wrk] = mus1(contr,stimPhase,w,C,conv,sing)
 % Function version of EMRscript.m
 
 

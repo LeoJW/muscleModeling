@@ -97,13 +97,20 @@ end
 toc
 
 % Plot output
-figure(1)
+subplot(1,2,1)
+hold on
+box on
+grid on
+subplot(1,2,2)
 hold on
 box on
 grid on
 for i = 1:simiter
-    plot(x{i}(cycNum>(ncycles-1)), F{i}(cycNum>(ncycles-1)),'color',col(i,:))
-    %plot(simt,F{i},'color',col(i,:))
+    % Plot loops for first w
+    subplot(1,2,1)
+    plot(x{1,i}(cycNum>(ncycles-1)), F{1,i}(cycNum>(ncycles-1)),'color',col(i,:))
+    subplot(1,2,2)
+    plot(x{2,i}(cycNum>(ncycles-1)), F{2,i}(cycNum>(ncycles-1)),'color',col(i,:))
     drawnow
 end
 

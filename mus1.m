@@ -1,4 +1,4 @@
-function [wrk] = mus1(contr,stimPhase,w,C,conv,sing)
+function [x,F,wrk] = mus1(contr,stimPhase,w,C,conv,sing)
 % Function version of EMRscript.m
 
 
@@ -189,7 +189,4 @@ parfor i = 1:simiter
 end
 toc
 
-wrk = wrk{i:simiter};
-
 end
-

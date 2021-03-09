@@ -12,12 +12,12 @@ clear all; %close all;
 
 %---Primary controls
 
-simiter = 2; % number of activation phases to compare
+simiter = 3; % number of activation phases to compare
+witer = 2; % number of cycle freqs to compare
 h = 1e-5; % step size
 velBruteSize = 1e4; % number of points to solve for v
-stimPhase = linspace(0.1,1,simiter); % version of tstart that varies
-w = linspace(4,14,simiter); % cycle freq, will vary depending on species
-
+stimPhase = linspace(0.1,0.4,simiter); % version of tstart that varies
+w = [14.4,10]; % cycle freq [avg WBF, 10 Hz for comparison]
 %---Secondary controls
 
 ncycles = 6; % number of cycles
@@ -86,12 +86,7 @@ simt = cell(1,simiter);
 
 % Loop through different cycle frequencies, w
 tic
-for f = 1:simiter
-    
-    % Declare simiter X simiter cell for stimPhase X w
-%     x{f} = zeros(simiter,simiter);
-%     F{f} = zeros(simiter,simiter);
-%     wrk{f} = zeros(simiter,simiter);
+for f = 1:witer
 
     % Solve x, F and wrk for each stimPhase at each w
     [simt{f},cycNum{f},x{f},F{f},wrk{f}] = mus1(contr,stimPhase,w(f),C,conv,sing);
@@ -124,6 +119,7 @@ for i = 1:simiter
     subplot(1,2,2)
     plot(x{i}{2}(cycNum{i}>(ncycles-1)), F{i}{2}(cycNum{i}>(ncycles-1)), 'color',col(i,:))
     %plot(F{i}{2}, 'color', col(i,:))
+
     drawnow
 end
 

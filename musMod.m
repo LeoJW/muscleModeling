@@ -75,21 +75,21 @@ atol = 0.08; % tolerance for a to avoid singularities
 sing = [Ftol,atol];
 % see FVactHinge below - added FV func to avoid more singularities
 
-x = cell(1,simiter);
-F = cell(1,simiter);
-wrk = cell(1,simiter);
-cycNum = cell(1,simiter);
-simt = cell(1,simiter);
+x = cell(1,witer);
+F = cell(1,witer);
+wrk = cell(1,witer);
+cycNum = cell(1,witer);
+simt = cell(1,witer);
 
 
 %% Run simulation
 
 % Loop through different cycle frequencies, w
 tic
-for f = 1:witer
+for i = 1:witer
 
     % Solve x, F and wrk for each stimPhase at each w
-    [simt{f},cycNum{f},x{f},F{f},wrk{f}] = mus1(contr,stimPhase,w(f),C,conv,sing);
+    [simt{i},cycNum{i},x{i},F{i},wrk{i}] = mus1(contr,stimPhase,w(i),C,conv,sing);
     
 end
 toc
@@ -109,18 +109,28 @@ subplot(1,2,2)
 hold on
 box on
 grid on
-% Loop over frequency
-for i = 1:simiter
-    % phases in each subplot
-    subplot(1,2,1)
-    %plot(F{i}{1}, 'color', col(i,:))
-    plot(x{i}{1}(cycNum{i}>(ncycles-1)), F{i}{1}(cycNum{i}>(ncycles-1)), 'color',col(i,:))
+% % Loop over frequency
+% for f = 1:witer
+%     for i = simiter
+%         % phases in each subplot
+%         subplot(1,2,1)
+%         plot(x{f}{i}(cycNum{i}>(ncycles-1)), F{f}{i}(cycNum{i}>(ncycles-1)), 'color',col(i,:))
+%         %plot(F{i}{1}, 'color', col(i,:))
+%         
+%         subplot(1,2,2)
+%         plot(x{f}{i}(cycNum{i}>(ncycles-1)), F{f}{i}(cycNum{i}>(ncycles-1)), 'color',col(i,:))
+%         %plot(F{i}{2}, 'color', col(i,:))
+%         drawnow
+%     end
+% end
 
-    subplot(1,2,2)
-    plot(x{i}{2}(cycNum{i}>(ncycles-1)), F{i}{2}(cycNum{i}>(ncycles-1)), 'color',col(i,:))
-    %plot(F{i}{2}, 'color', col(i,:))
-
-    drawnow
+% Loop over phases
+for i = 1:witer
+    % Loop over frequency
+    for j = 1:simiter
+        subplot(1,witer,i)
+        plot(x{i}{j}(cycNum{j}>(ncycles-1)), F{i}{j}(cycNum{j}>(ncycles-1)), 'color',col(j,:))
+    end
 end
 
 %---Aesthetics

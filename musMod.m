@@ -1,6 +1,6 @@
 % Muscle Model for testing different species and different parameters
 
-clear all; %close all;
+clear all; close all;
 
 % Force is N -> F/Fmax -> N
 % Velocity is mm/s -> Lopt/s -> mm/s
@@ -16,7 +16,7 @@ simiter = 3; % number of activation phases to compare
 witer = 2; % number of cycle freqs to compare
 h = 1e-5; % step size
 velBruteSize = 1e4; % number of points to solve for v
-stimPhase = linspace(0.1,0.4,simiter); % version of tstart that varies
+stimPhase = linspace(0.1,0.6,simiter); % version of tstart that varies
 w = [14.4,10]; % cycle freq [avg WBF, 10 Hz for comparison]
 %---Secondary controls
 
@@ -104,11 +104,9 @@ figure()
 subplot(1,2,1)
 hold on
 box on
-grid on
 subplot(1,2,2)
 hold on
 box on
-grid on
 % % Loop over frequency
 % for f = 1:witer
 %     for i = simiter
@@ -129,13 +127,13 @@ for i = 1:witer
     % Loop over frequency
     for j = 1:simiter
         subplot(1,witer,i)
-        plot(x{i}{j}(cycNum{j}>(ncycles-1)), F{i}{j}(cycNum{j}>(ncycles-1)), 'color',col(j,:))
+        plot(x{i}{j}(cycNum{i}>(ncycles-1)), F{i}{j}(cycNum{i}>(ncycles-1)), 'color',col(j,:), 'Linewidth',1.5)
+        % Aesthetics
+        xlabel('EMR muscle length (mm)')
+        ylabel('Force (N)')
     end
 end
 
-%---Aesthetics
-xlabel('EMR muscle length (mm)')
-ylabel('Force (N)')
 %---Aesthetics for colorbar
 colormap(copper)
 cbh = colorbar;

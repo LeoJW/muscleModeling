@@ -110,7 +110,7 @@ FVactHinge = @(m,v) m(3)/m(1)*log(1+exp(m(1)*v-m(2))); % FV smooth ramp function
 
 %--MTU length parameters
 wr = 2*pi*w; % convert to radians
-l = (lamplitude.*sin(wr.*simt) + mtuRL)/Lopt; % MTU length in Lopt/s
+l = (lamplitude.*sin(wr.*simt - (pi/2)) + mtuRL)/Lopt; % MTU length in Lopt/s
 
 %--Split cycles
 cycNum = repelem(1:ncycles,lcycle);

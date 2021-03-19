@@ -16,7 +16,7 @@ simiter = 10; % number of activation phases to compare
 witer = 10; % number of cycle freqs to compare
 h = 1e-5; % step size
 velBruteSize = 1e4; % number of points to solve for v
-stimPhase = linspace(0,0.8,simiter); % version of tstart that varies
+stimPhase = linspace(0,0.78,simiter); % version of tstart that varies
 w = linspace(2,20,witer); % cycle freq [avg WBF, 10 Hz for comparison]
 %---Secondary controls
 

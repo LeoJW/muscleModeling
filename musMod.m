@@ -16,12 +16,12 @@ simiter = 3; % number of activation phases to compare
 witer = 2; % number of cycle freqs to compare
 h = 1e-5; % step size
 velBruteSize = 1e4; % number of points to solve for v
-stimPhase = linspace(0.1,0.6,simiter); % version of tstart that varies
-w = [14.4,10]; % cycle freq [avg WBF, 10 Hz for comparison]
+stimPhase = linspace(0.1,0.5,simiter); % version of tstart that varies
+w = [6.5,10]; % cycle freq [avg WBF, 10 Hz for comparison]
 %---Secondary controls
 
 ncycles = 6; % number of cycles
-duration = 0.2; % duration of cycle that is activated (scaled 0 to 1)
+duration = 0.4; % duration of cycle that is activated (scaled 0 to 1)
 
 contr = [simiter,h,velBruteSize,ncycles,duration];
 
@@ -45,7 +45,7 @@ m1 = 20; % scaling factor
 m2 = 6; % horizontal translation
 m3 = 0.01; % slope
 m = [m1,m2,m3]; % FV curve, smooth ramp portion
-delay = 50; % activation delay, in ms -> rescaled in a
+delay = 5; % activation delay, in ms -> rescaled in a
 gam1 = -0.98; % activation constant
 gam2 = -0.94; % activation constant
 
@@ -53,14 +53,14 @@ C = [b1,b2,p1,p2,cmax,vmax,c1,c2,m1,m2,m3,delay,gam1,gam2];
 
 %--Conversion constants
 
-mRL = mean([21.95,22.04,21.7]); %from EUST 1, TPB-EMR-dissections.xlsx, muscle resting length, mm
-mtuRL = mean([21.95,22.04,21.7]) + mean([5.75,5.61,5.96]); % mtu resting length, mm
+mRL = mean([56.9,56.46,56.11]); %from EUST 1, TPB-EMR-dissections.xlsx, muscle resting length, mm
+mtuRL = mean([94.48,93.48,93.51]); % mtu resting length, mm
 lamplitude = 1.2;
 Lopt = mRL + 0.05*mRL;
-EMRArea = 0.0473/(0.000325*Lopt); % (mm^2) dry density in g/mm^3, mass in g
+EMRArea = 0.5251/(0.000325*Lopt); % (mm^2) dry density in g/mm^3, mass in g
 Fmax = 300e3*1e-6*EMRArea; % max force in N (convert from 300kPa to N/mm^2, multiply by EMR area)
 
-tslackl = mean([5.75,5.61,5.96]); % from EUST dissection on Fran's spreadsheet
+tslackl = mean([35.2,38.93,38.69]); % from EUST dissection on Fran's spreadsheet
 kActual = 1.6; % spring constant, N/mm, based on rat soleus loops
 k = kActual*(Lopt/Fmax); % dimensionless
 
